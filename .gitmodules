@@ -1,3 +1,3 @@
-[submodule "mediscreen-config-repo"]
-	path = mediscreen-config-repo
-	url = git@gitlab.com:oc2990806/mediscreen_p9_oc/mediscreen-config-repo.git
+[submodule "MediLabo-Solutions-Config-Server"]
+	path = MediLabo-Solutions-Config-Server
+	url = git@github.com:delaval-htps/MediLabo-Solutions-Config-Server.git
