@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.medilabosolutions</groupId>
+		<artifactId>medilabo-solutions</artifactId>
+		<version>0.0.1-SNAPSHOT</version>		<!-- lookup parent from repository -->
+	</parent>
+
+	<groupId>com.medilabosolutions</groupId>
+	<artifactId>patient-service</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>patient-service</name>
+	<packaging>jar</packaging>
+	<description>microservice-back patient</description>
+
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<!-- springboot data -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-r2dbc</artifactId>
+		</dependency>
+
+		<!-- enable connecting pool -->
+		<dependency>
+			<groupId>io.r2dbc</groupId>
+			<artifactId>r2dbc-pool</artifactId>
+			<version>1.0.1.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>6.0.11</version>
+		</dependency>
+
+		<!-- enable reactive driver for r2dbc-mysql -->
+		<dependency>
+			<groupId>io.asyncer</groupId>
+			<artifactId>r2dbc-mysql</artifactId>
+			<version>1.0.2</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<version>8.1.0</version>
+			<scope>runtime</scope>
+		</dependency>
+
+	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.r2dbc</groupId>
+				<artifactId>r2dbc-pool</artifactId>
+				<version>1.0.1.RELEASE</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>

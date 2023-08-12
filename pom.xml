@@ -13,7 +13,6 @@
     <spring.cloud.dependencies.version>2022.0.4</spring.cloud.dependencies.version>
     <spring.boot.maven.plugin.version>3.1.2</spring.boot.maven.plugin.version>
   </properties>
-  
   <dependencies>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -28,7 +27,6 @@
       <artifactId>spring-boot-starter-test</artifactId>
     </dependency>
   </dependencies>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -62,5 +60,6 @@
   </build>
   <modules>
     <module>config-server</module>
+    <module>patient-service</module>
   </modules>
 </project>
