@@ -34,7 +34,7 @@ public class Patient {
     @Column("genre")
     private char genre;
 
-    @Column("address")
+    @Column("patient_address")
     private String address;
 
     @Column("phone_number")
