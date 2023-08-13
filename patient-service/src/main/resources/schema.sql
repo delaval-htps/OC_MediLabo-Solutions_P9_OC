@@ -1,6 +1,6 @@
-CREATE DATABASE patient_service IF NOT EXISTS;
+CREATE DATABASE IF NOT EXISTS patient_service;
 USE patient_service;
-CREATE TABLE patient IF NOT EXISTS(
+CREATE TABLE IF NOT EXISTS patient(
     id INT NOT NULL AUTO_INCREMENT,
     last_name VARCHAR(25),
     first_name VARCHAR(25),
@@ -8,6 +8,5 @@ CREATE TABLE patient IF NOT EXISTS(
     genre CHAR,
     patient_address VARCHAR(25),
     phone_number VARCHAR(25),
-    primary key (id),
-) ENGINE = InnoDB,
-DEFAULT CHARSET = utf8mb4;
+    primary key (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
