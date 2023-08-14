@@ -32,7 +32,7 @@ public class Patient {
     private LocalDate dateOfBirth;
 
     @Column("genre")
-    private char genre;
+    private String genre;
 
     @Column("patient_address")
     private String address;
