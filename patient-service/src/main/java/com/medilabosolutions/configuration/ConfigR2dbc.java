@@ -9,7 +9,7 @@ import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import io.r2dbc.spi.ConnectionFactory;
 
 /**
- * class configuration for initialize database with script sql at start up of application
+ * class configuration to initialize database with script sql at start up of application
  */
 @Configuration
 public class ConfigR2dbc {
