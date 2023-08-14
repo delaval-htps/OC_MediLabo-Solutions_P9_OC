@@ -1,6 +1,6 @@
 package com.medilabosolutions.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -29,7 +29,7 @@ public class Patient {
     private String firstName;
 
     @Column("date_of_birth")
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Column("genre")
     private char genre;
