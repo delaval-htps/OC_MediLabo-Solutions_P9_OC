@@ -1,5 +1,6 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.compile.nullAnalysis.mode": "automatic",
-    "sqltools.connections": []
+    "sqltools.connections": [],
+    "java.format.settings.url": ".vscode/eclipse-java-google-style.xml"
 }
