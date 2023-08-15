@@ -51,18 +51,19 @@ public class PatientService {
      */
     public Mono<Patient> updatePatient(Long patientId, Patient patient) {
 
-        return patientRepository.findById(patientId).flatMap(p -> { // use of flatmap instead map
-                                                                    // 'cause of its return of type
-                                                                    // Mono<Patient> contrary to map
-                                                                    // that is Mono<Object>
-            p.setLastName(patient.getLastName());
-            p.setFirstName(patient.getFirstName());
-            p.setDateOfBirth(patient.getDateOfBirth());
-            p.setGenre(patient.getGenre());
-            p.setAddress(patient.getAddress());
-            p.setPhoneNumber(patient.getPhoneNumber());
-            return patientRepository.save(p);
-        });
+        return patientRepository.findById(patientId)
+                .flatMap(p -> { // use of flatmap instead map
+                                // 'cause of its return of type
+                                // Mono<Patient> contrary to map
+                                // that is Mono<Object>
+                    p.setLastName(patient.getLastName());
+                    p.setFirstName(patient.getFirstName());
+                    p.setDateOfBirth(patient.getDateOfBirth());
+                    p.setGenre(patient.getGenre());
+                    p.setAddress(patient.getAddress());
+                    p.setPhoneNumber(patient.getPhoneNumber());
+                    return patientRepository.save(p);
+                });
     }
 
     /**
@@ -72,7 +73,9 @@ public class PatientService {
      * @return reactive stream of deleted patient
      */
     public Mono<Patient> deleteById(Long patientId) {
-        return patientRepository.findById(patientId).flatMap(patientToDelete -> patientRepository
-                .delete(patientToDelete).thenReturn(patientToDelete));
+        return patientRepository.findById(patientId)
+                .flatMap(patientToDelete -> patientRepository
+                        .delete(patientToDelete)
+                        .thenReturn(patientToDelete));
     }
 }
