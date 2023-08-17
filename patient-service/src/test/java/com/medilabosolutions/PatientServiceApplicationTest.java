@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import com.medilabosolutions.configuration.ConfigTestR2dbc;
 
 @DataR2dbcTest
 @ActiveProfiles("test")

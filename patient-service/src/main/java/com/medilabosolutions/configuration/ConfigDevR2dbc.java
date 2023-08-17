@@ -13,7 +13,7 @@ import io.r2dbc.spi.ConnectionFactory;
  * class configuration to initialize database with script sql at start up of application
  */
 @Configuration
-@Profile({"dev","prod"})
+@Profile("dev")
 public class ConfigDevR2dbc {
 
 
