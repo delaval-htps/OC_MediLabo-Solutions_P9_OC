@@ -7,8 +7,10 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import com.medilabosolutions.model.Patient;
@@ -21,6 +23,9 @@ public class PatientControllerTest {
 
         @Autowired
         private WebTestClient webTestClient;
+
+        @SpyBean
+        private ModelMapper modelMapper;
 
         @Test
         @Order(1)

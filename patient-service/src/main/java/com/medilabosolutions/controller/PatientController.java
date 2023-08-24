@@ -1,5 +1,6 @@
 package com.medilabosolutions.controller;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,8 +11,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.medilabosolutions.dto.PatientDto;
 import com.medilabosolutions.model.Patient;
 import com.medilabosolutions.service.PatientService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,16 +25,21 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/patients")
 public class PatientController {
+
     private final PatientService patientService;
+
+    private final ModelMapper modelMapper;
 
     /**
      * endpoint to return all patients in db
      * 
-     * @return ResponseEntity with reactive stream of all patients if existing
+     * @return ResponseEntity with reactive stream of all patientDto if existing
      */
     @GetMapping
-    public ResponseEntity<Flux<Patient>> getAllPatients() {
-        return ResponseEntity.ok(patientService.findAll());
+    public ResponseEntity<Flux<PatientDto>> getAllPatients() {
+
+        return ResponseEntity.ok(patientService.findAll()
+                .map(p -> modelMapper.map(p, PatientDto.class)));
     }
 
     /**
@@ -45,8 +53,10 @@ public class PatientController {
      *         </ul>
      */
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<Patient>> getPatientById(@PathVariable("id") Long patientId) {
-        return patientService.findById(patientId).map(ResponseEntity::ok)
+    public Mono<ResponseEntity<PatientDto>> getPatientById(@PathVariable("id") Long patientId) {
+
+        return patientService.findById(patientId)
+                .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
@@ -57,9 +67,12 @@ public class PatientController {
      * @return a reactive stream of ResponseEntity with HttpStatus.created and body created patient
      */
     @PostMapping
-    public Mono<ResponseEntity<Patient>> createPatient(@RequestBody Patient patient) {
-        return patientService.createPatient(patient)
-                .map(p -> new ResponseEntity<Patient>(patient, HttpStatus.CREATED));
+    public Mono<ResponseEntity<PatientDto>> createPatient(
+            @Valid @RequestBody PatientDto patientDto) {
+
+        return patientService.createPatient(modelMapper.map(patientDto, Patient.class))
+                .map(p -> new ResponseEntity<PatientDto>(modelMapper.map(p, PatientDto.class),
+                        HttpStatus.CREATED));
     }
 
     /**
@@ -74,9 +87,11 @@ public class PatientController {
      *         </ul>
      */
     @PutMapping(value = "/{id}")
-    public Mono<ResponseEntity<Patient>> updatePatient(@PathVariable("id") Long patientId,
+    public Mono<ResponseEntity<PatientDto>> updatePatient(@PathVariable("id") Long patientId,
             @RequestBody Patient patient) {
-        return patientService.updatePatient(patientId, patient).map(ResponseEntity::ok)
+
+        return patientService.updatePatient(patientId, patient)
+                .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
                 .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
 
@@ -92,8 +107,10 @@ public class PatientController {
      *         </ul>
      */
     @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<Patient>> deletePatient(@PathVariable("id") Long patientId) {
-        return patientService.deleteById(patientId).map(ResponseEntity::ok)
+    public Mono<ResponseEntity<PatientDto>> deletePatient(@PathVariable("id") Long patientId) {
+
+        return patientService.deleteById(patientId)
+                .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 }

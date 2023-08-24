@@ -76,7 +76,21 @@
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- enable validation for DTO -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<!-- model mapper for DTO -->
+		<dependency>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>3.1.1</version>
+		</dependency>
 	</dependencies>
+
+	<!-- override version of r2dbc-pool to not have conflict -->
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -87,6 +101,7 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<!-- jacoco report for test -->
 	<build>
 		<plugins>
 			<plugin>
