@@ -3,6 +3,8 @@ package com.medilabosolutions.controller;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import org.hamcrest.Matchers;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -11,8 +13,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
 import com.medilabosolutions.model.Patient;
 
 
@@ -68,11 +72,29 @@ public class PatientControllerTest {
 
         @Test
         @Order(3)
+        void testGetPatientById_whenIdNotExisted_thenReturnNotFoundException() {
+
+                webTestClient.get().uri("/patients/{id}", 10).exchange()
+                                .expectStatus().isNotFound().expectBody()
+                                .jsonPath("$.length()").isEqualTo(7)
+                                .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
+                                .jsonPath("$.title").isEqualTo("Patient Not Found")
+                                .jsonPath("$.status").isEqualTo("404")
+                                .jsonPath("$.detail")
+                                .isEqualTo("The patient with id: 10 was not found")
+                                .jsonPath("$.instance").isEqualTo("/patients/10")
+                                .jsonPath("$.timeStamp").isNotEmpty()
+                                .jsonPath("$.requestId").isNotEmpty();
+        }
+
+
+        @Test
+        @Order(4)
         void testCreatePatient() {
                 Patient patientToSave = Patient.builder()
                                 .lastName("Patient")
                                 .firstName("TestPatientToSave")
-                                .dateOfBirth(LocalDate.now())
+                                .dateOfBirth(LocalDate.of(1976, 12, 27))
                                 .genre("F")
                                 .build();
 
@@ -89,10 +111,32 @@ public class PatientControllerTest {
                                                 Matchers.equalTo(patientToSave.getGenre()));
         }
 
+        @Test
+        @Order(5)
+        void testCreatePatientById_whenInvalidInputData_thenReturnInvalidFields()
+                        throws JSONException {
+
+                String jsonInputString =
+                                "{\"lastName\":\"test\",\"firstName\":\"test\",\"genre\":\"\",\"dateOfBirth\":\"2022-03-28\"}";
+
+                JSONObject jsonInput = new JSONObject(jsonInputString);
+                webTestClient.post().uri("/patients").contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(BodyInserters.fromValue(jsonInput)).exchange()
+                                .expectStatus().isBadRequest().expectBody()
+                                .jsonPath("$.length()").isEqualTo(7)
+                                .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
+                                .jsonPath("$.title").isEqualTo("Invalid fields in Patient")
+                                .jsonPath("$.status").isEqualTo("400")
+                                .jsonPath("$.detail").value(Matchers.containsString("genre"))
+                                .jsonPath("$.instance").isEqualTo("/patients")
+                                .jsonPath("$.timeStamp").isNotEmpty()
+                                .jsonPath("$.requestId").isNotEmpty();
+        }
+
 
 
         @Test
-        @Order(4)
+        @Order(6)
         void testUpdatePatient_whenExistingId_thenUpdateAndReturnUpdatedPatient() {
                 Patient updatedPatient = Patient.builder()
                                 .lastName("Patient")
@@ -113,9 +157,10 @@ public class PatientControllerTest {
                                                 Matchers.equalTo(updatedPatient.getGenre()));
         }
 
+
         @Test
-        @Order(5)
-        void testUpdatePatient_whenNonExistingId_thenReturnBadRequest() {
+        @Order(7)
+        void testUpdatePatient_whenNonExistingId_thenReturnNotFoundException() {
                 Patient updatedPatient = Patient.builder()
                                 .lastName("Patient")
                                 .firstName("TestUpdatedPatient")
@@ -123,8 +168,17 @@ public class PatientControllerTest {
                                 .genre("F")
                                 .build();
                 webTestClient.put().uri("/patients/{id}", 10).bodyValue(updatedPatient).exchange()
-                                .expectStatus().isBadRequest()
-                                .expectBody().isEmpty();
+                                .expectStatus().isNotFound()
+                                .expectBody()
+                                .jsonPath("$.length()").isEqualTo(7)
+                                .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
+                                .jsonPath("$.title").isEqualTo("Patient Not Found")
+                                .jsonPath("$.status").isEqualTo("404")
+                                .jsonPath("$.detail")
+                                .isEqualTo("The patient with id: 10 was not found")
+                                .jsonPath("$.instance").isEqualTo("/patients/10")
+                                .jsonPath("$.timeStamp").isNotEmpty()
+                                .jsonPath("$.requestId").isNotEmpty();
         }
 
 
@@ -155,6 +209,15 @@ public class PatientControllerTest {
         void testDeletePatient_whenNonExistingId_thenReturnNotFound() {
                 webTestClient.delete().uri("/patients/{id}", 10).exchange()
                                 .expectStatus().isNotFound()
-                                .expectBody().isEmpty();
+                                .expectBody()
+                                .jsonPath("$.length()").isEqualTo(7)
+                                .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
+                                .jsonPath("$.title").isEqualTo("Patient Not Found")
+                                .jsonPath("$.status").isEqualTo("404")
+                                .jsonPath("$.detail")
+                                .isEqualTo("The patient with id: 10 was not found")
+                                .jsonPath("$.instance").isEqualTo("/patients/10")
+                                .jsonPath("$.timeStamp").isNotEmpty()
+                                .jsonPath("$.requestId").isNotEmpty();
         }
 }
