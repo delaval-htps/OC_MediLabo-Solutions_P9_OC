@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.mediscreen</groupId>
-		<artifactId>mediscreen</artifactId>
+		<groupId>com.medilabosolutions</groupId>
+		<artifactId>medilabo-solutions</artifactId>
 		<version>0.0.1-SNAPSHOT</version>		<!-- lookup parent from repository -->
 	</parent>
 
-	<groupId>com.mediscreen</groupId>
+	<groupId>com.medilabosolutions</groupId>
 	<artifactId>config-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>config-server</name>
