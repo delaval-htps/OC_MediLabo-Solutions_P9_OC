@@ -74,5 +74,6 @@ parent pom) -->
 <module>patient-service</module>
 <module>gateway-service</module>
 <module>eureka-server</module>
+<module>front-service</module>
 </modules>
 </project>
