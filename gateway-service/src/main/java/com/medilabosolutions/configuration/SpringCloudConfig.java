@@ -11,7 +11,25 @@ public class SpringCloudConfig {
     @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("patientService", r -> r.path("/patients/**").uri("lb://PATIENT-SERVICE"))
+                // route for patient-service
+
+                .route("patient-service",
+                        r -> r.path("/patients/**")
+                                .uri("lb://PATIENT-SERVICE"))
+                /*
+                 * no need to change path because patient-service has a requestMapping("/patients")
+                 */
+
+                // route for front-service
+
+                .route("front-service",
+                        r -> r.path("/front/**")
+                                /*
+                                 * need to delete "front" from path because front-service has a
+                                 * requestMapping("/")
+                                 */
+                                .filters(f -> f.stripPrefix(1))
+                                .uri("lb://FRONT-SERVICE"))
                 .build();
     }
 }
