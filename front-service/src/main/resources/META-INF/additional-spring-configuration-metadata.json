@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "gateway.base.url",
+  "type": "java.lang.String",
+  "description": "base url for gateway: http://localhost:8080"
+}]}
