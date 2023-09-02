@@ -30,7 +30,7 @@
         </div>
 
         <div class="col-8 table-responsive">
-            <table class="table table-sm  table-hover ">
+            <table id="patient-table" class="table table-sm  table-hover ">
                 <!-- TODO pagination for table-->
                 <thead>
                     <tr>
@@ -45,7 +45,7 @@
                     </tr>
                 </thead>
                 <tbody class="table-group-divider">
-                    <tr th:each="patient : ${patients}">
+                    <tr th:each="patient : ${patients}" style="cursor:pointer;" th:patientId="${patient.id}" onclick="rowClicked(this.getAttribute('patientId'))">
                         <td th:text="${patient.id}"></td>
                         <td th:text="${patient.lastName}"></td>
                         <td th:text="${patient.firstName}"></td>
