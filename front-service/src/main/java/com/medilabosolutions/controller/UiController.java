@@ -22,8 +22,8 @@ import reactor.core.publisher.Mono;
 @Controller
 public class UiController {
 
-    @Value("${gateway.base.url}")
-    private String gatewayBaseUrl;
+    @Value("${patient.service.url.from.gateway}")
+    private String patientServiceUrl;
 
     @Autowired
     private WebClient webclient;
@@ -37,7 +37,7 @@ public class UiController {
     @GetMapping("/")
     public String index(Model model) {
 
-        Flux<Patient> patients = webclient.get().uri(gatewayBaseUrl + "/patients")
+        Flux<Patient> patients = webclient.get().uri(patientServiceUrl)
                 .retrieve().bodyToFlux(Patient.class);
         // TODO gestion des erreurs en récupérant le flux de PatientDtos (flux.onErrorResume)
 
@@ -57,7 +57,7 @@ public class UiController {
     public String getPatientRecord(@PathVariable(value = "id") Long patientId, Model model) {
 
         Mono<Patient> patient =
-                webclient.get().uri(gatewayBaseUrl + "/patients/{id}", patientId)
+                webclient.get().uri(patientServiceUrl+"/{id}", patientId)
                         .retrieve().bodyToMono(Patient.class);
 
         // TODO gestion du retour mono vide
@@ -75,13 +75,13 @@ public class UiController {
         mapper.registerModule(new JavaTimeModule());
         // TODO change mapping with objectmapper directly with object in body
         Mono<PatientDto> createdPatient =
-                webclient.post().uri(gatewayBaseUrl + "/patients")
+                webclient.post().uri(patientServiceUrl)
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(BodyInserters.fromValue(mapper.writeValueAsString(patientToCreate)))
                         .retrieve().bodyToMono(PatientDto.class);
 
         model.addAttribute("createdPatient", createdPatient);
 
-        return "redirect:/front";
+        return "redirect:/";
     }
 }

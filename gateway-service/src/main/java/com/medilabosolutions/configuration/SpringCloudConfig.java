@@ -16,23 +16,22 @@ public class SpringCloudConfig {
                                 // route for patient-service
 
                                 .route("patient-service",
-                                                r -> r.path("/patients/**")
+                                                r -> r.path("/api/v1/patients/**")
+                                                                /*
+                                                                 * no need to change path because
+                                                                 * patient-service has as path
+                                                                 * "/patients": need to delete first
+                                                                 * and second prefix "/api/v1"
+                                                                 */
+
+                                                                .filters(f -> f.stripPrefix(2))
                                                                 .uri("lb://PATIENT-SERVICE"))
-                                /*
-                                 * no need to change path because patient-service has a
-                                 * requestMapping("/patients")
-                                 */
+
 
                                 // route for front-service
 
                                 .route("front-service",
-                                                r -> r.path("/front/**")
-                                                                /*
-                                                                 * need to delete "front" from path
-                                                                 * because front-service has a
-                                                                 * requestMapping("/")
-                                                                 */
-                                                                .filters(f -> f.stripPrefix(1))
+                                                r -> r.path("/**")
                                                                 .uri("lb://FRONT-SERVICE"))
                                 .build();
         }

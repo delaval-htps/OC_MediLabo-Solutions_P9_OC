@@ -8,5 +8,5 @@ if (createdPatient != null) {
 }
 
 function rowClicked(patientId){
-    location.href="/front/patient-record/"+patientId
+    location.href="/patient-record/"+patientId
 }
