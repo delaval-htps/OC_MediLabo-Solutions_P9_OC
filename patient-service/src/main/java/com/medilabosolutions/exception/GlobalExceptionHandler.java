@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebInputException;
+import reactor.core.publisher.Mono;
 
 @ControllerAdvice
 @PropertySource("classpath:application.properties")
@@ -35,15 +36,16 @@ public class GlobalExceptionHandler {
          * @throws URISyntaxException
          */
         @ExceptionHandler(WebExchangeBindException.class)
-        public ResponseEntity<ProblemDetail> handleValidationException(
+        public Mono<ResponseEntity<ProblemDetail>> handleValidationException(
                         WebExchangeBindException webe, ServerHttpRequest request) {
 
                 String bindingResult = webe.getBindingResult().getAllErrors().stream()
                                 .map(errors -> errors.getDefaultMessage())
                                 .collect(Collectors.toList()).toString();
 
-                return ResponseEntity.badRequest().body(createProblemDetail(HttpStatus.BAD_REQUEST,
-                                bindingResult, INVALIDFIELDS, request));
+                return Mono.just(ResponseEntity.badRequest()
+                                .body(createProblemDetail(HttpStatus.BAD_REQUEST,
+                                                bindingResult, INVALIDFIELDS, request)));
         }
 
         /**

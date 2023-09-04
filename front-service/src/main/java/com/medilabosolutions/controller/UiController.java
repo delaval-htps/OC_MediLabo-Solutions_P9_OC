@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.medilabosolutions.dto.PatientDto;
+import com.medilabosolutions.exception.PatientCreationException;
 import com.medilabosolutions.record.Patient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -57,7 +59,7 @@ public class UiController {
     public String getPatientRecord(@PathVariable(value = "id") Long patientId, Model model) {
 
         Mono<Patient> patient =
-                webclient.get().uri(patientServiceUrl+"/{id}", patientId)
+                webclient.get().uri(patientServiceUrl + "/{id}", patientId)
                         .retrieve().bodyToMono(Patient.class);
 
         // TODO gestion du retour mono vide
@@ -74,14 +76,17 @@ public class UiController {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         // TODO change mapping with objectmapper directly with object in body
-        Mono<PatientDto> createdPatient =
-                webclient.post().uri(patientServiceUrl)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromValue(mapper.writeValueAsString(patientToCreate)))
-                        .retrieve().bodyToMono(PatientDto.class);
+
+
+        Mono<Object> createdPatient = webclient.post().uri(patientServiceUrl)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(mapper.writeValueAsString(patientToCreate)))
+                .retrieve().bodyToMono(Object.class)
+                .onErrorMap(WebClientResponseException.class,
+                        e -> new PatientCreationException(e.getResponseBodyAsString()));
+
 
         model.addAttribute("createdPatient", createdPatient);
-
         return "redirect:/";
     }
 }

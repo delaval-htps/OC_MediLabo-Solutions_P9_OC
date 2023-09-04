@@ -70,11 +70,11 @@ public class PatientController {
          *         patient
          */
         @PostMapping
-        public Mono<ResponseEntity<PatientDto>> createPatient(
+        public Mono<ResponseEntity<Object>> createPatient(
                         @Valid @RequestBody PatientDto patientDto) {
 
                 return patientService.createPatient(modelMapper.map(patientDto, Patient.class))
-                                .map(p -> new ResponseEntity<PatientDto>(
+                                .map(p -> new ResponseEntity<Object>(
                                                 modelMapper.map(p, PatientDto.class),
                                                 HttpStatus.CREATED))
                                 .onErrorMap(throwable -> new PatientCreationException());
