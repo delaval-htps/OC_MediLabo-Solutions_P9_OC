@@ -10,11 +10,9 @@ public class SpringCloudConfig {
 
         @Bean
         public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
-                // TODO BIG ONE : redefine routes with api/V1/patients for patient-service & / for
-                // /front
+
                 return builder.routes()
                                 // route for patient-service
-
                                 .route("patient-service",
                                                 r -> r.path("/api/v1/patients/**")
                                                                 /*
@@ -23,13 +21,9 @@ public class SpringCloudConfig {
                                                                  * "/patients": need to delete first
                                                                  * and second prefix "/api/v1"
                                                                  */
-
                                                                 .filters(f -> f.stripPrefix(2))
                                                                 .uri("lb://PATIENT-SERVICE"))
-
-
                                 // route for front-service
-
                                 .route("front-service",
                                                 r -> r.path("/**")
                                                                 .uri("lb://FRONT-SERVICE"))

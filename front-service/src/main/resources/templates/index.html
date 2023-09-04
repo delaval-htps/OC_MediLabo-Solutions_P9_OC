@@ -47,11 +47,11 @@
             </div>
 
             <div class="ms-auto p-2 ">
-                <button type="button" class=" btn btn-primary " onclick="createPatient()">Create</button>
+                <button id="btn-creation-patient" type="button" class=" btn btn-primary " onclick="toggleCreatePatient()">Create</button>
             </div>
         </div>
 
-        <div class="col-8">
+        <div id="form-creation-patient" class="col-8" style="display: none;">
             <form th:action="@{/patient}" method="post" th:object="${patientToCreate}">
                 <fieldset class="p-3 shadow mb-5 mt-3 bg-white rounded">
                     <div class="row">
@@ -89,7 +89,7 @@
                         </div>
                     </div>
                     <div class="row p-3 justify-content-center">
-                        <button class="col-1 col-md-2 col-sm-3 btn btn-primary">Update</button>
+                        <button class="col-1 col-md-2 col-sm-3 btn btn-primary" onclick="toggleCreatePatient()">Update</button>
                     </div>
 
                 </fieldset>
