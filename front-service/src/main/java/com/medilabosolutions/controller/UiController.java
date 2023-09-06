@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.server.WebSession;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -37,12 +38,17 @@ public class UiController {
      * @return the view "index.html"
      */
     @GetMapping("/")
-    public String index(Model model) {
+    public String index(Model model, WebSession session) {
 
         Flux<Patient> patients = webclient.get().uri(patientServiceUrl)
                 .retrieve().bodyToFlux(Patient.class);
         // TODO gestion des erreurs en récupérant le flux de PatientDtos (flux.onErrorResume)
 
+        if (session.getAttribute("errorMessage") != null) {
+            model.addAttribute("errorMessage", session.getAttribute("errorMessage"));
+            session.getAttributes().remove("errorMessage");
+        }
+        
         model.addAttribute("patientToCreate", new PatientDto());
         model.addAttribute("patients", patients);
         return "index";
@@ -70,7 +76,8 @@ public class UiController {
 
     @PostMapping("/patient")
     public String createPatient(
-            @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate, Model model)
+            @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate, Model model,
+            WebSession session)
             throws JsonProcessingException {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -83,7 +90,7 @@ public class UiController {
                 .body(BodyInserters.fromValue(mapper.writeValueAsString(patientToCreate)))
                 .retrieve().bodyToMono(Object.class)
                 .onErrorMap(WebClientResponseException.class,
-                        e -> new PatientCreationException(e.getResponseBodyAsString()));
+                        e -> new PatientCreationException(e.getResponseBodyAsString(), session));
 
 
         model.addAttribute("createdPatient", createdPatient);
