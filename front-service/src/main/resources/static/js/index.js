@@ -16,7 +16,7 @@ if (successMessage != null && successMessage != '') {
 }
 
 if (errorMessage != null && errorMessage != '') {
-    debugger
+    
     indexToast.classList.remove('text-bg-success')
     indexToast.classList.add('text-bg-danger')
     document.getElementById('toast-content').textContent = errorMessage

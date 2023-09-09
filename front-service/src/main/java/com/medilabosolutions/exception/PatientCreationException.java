@@ -7,11 +7,11 @@ import lombok.Getter;
 public class PatientCreationException extends RuntimeException{
 
     // WebSession to use it to redirect attribute to model in redirection
-    private WebSession session;
+    private final WebSession session;
 
     public PatientCreationException(String message,WebSession session){
         super(message);
         this.session = session;
     }
-   
-}
+
+  }

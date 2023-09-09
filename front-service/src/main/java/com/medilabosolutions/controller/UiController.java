@@ -1,7 +1,9 @@
 package com.medilabosolutions.controller;
 
+import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.reactive.function.BodyExtractor;
+import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -48,7 +52,11 @@ public class UiController {
             model.addAttribute("errorMessage", session.getAttribute("errorMessage"));
             session.getAttributes().remove("errorMessage");
         }
-        
+        if (session.getAttribute("successMessage") != null) {
+            model.addAttribute("successMessage", session.getAttribute("successMessage"));
+            session.getAttributes().remove("successMessage");
+        }
+
         model.addAttribute("patientToCreate", new PatientDto());
         model.addAttribute("patients", patients);
         return "index";
@@ -85,15 +93,20 @@ public class UiController {
         // TODO change mapping with objectmapper directly with object in body
 
 
-        Mono<Object> createdPatient = webclient.post().uri(patientServiceUrl)
+        Mono<PatientDto> createdPatient = webclient.post().uri(patientServiceUrl)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(mapper.writeValueAsString(patientToCreate)))
-                .retrieve().bodyToMono(Object.class)
+                .retrieve().bodyToMono(PatientDto.class)
+                
                 .onErrorMap(WebClientResponseException.class,
                         e -> new PatientCreationException(e.getResponseBodyAsString(), session));
 
 
-        model.addAttribute("createdPatient", createdPatient);
+         model.addAttribute("createdPatient", createdPatient);
+        
+         session.getAttributes().put("successMessage", "Patient was correctly created!");
         return "redirect:/";
     }
+
+
 }
