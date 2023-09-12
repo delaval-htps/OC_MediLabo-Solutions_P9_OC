@@ -29,7 +29,7 @@
 
             <div class="ms-auto p-2 ">
                 <button id="btn-creation-patient" type="button" class=" btn btn-primary "
-                    onclick="toggleCreatePatient()">Create</button>
+                    onclick="toggleCreatePatient()">Add new patient</button>
             </div>
         </div>
 
@@ -37,7 +37,7 @@
             <form th:action="@{/patient}" method="post" th:object="${patientToCreate}">
                 <fieldset class="p-3 shadow mb-5 mt-3 bg-white rounded">
                     <div class="row">
-                        <legend>Personal Informations </legend>
+                        <legend>Fill in personal informations </legend>
                     </div>
                     <div class="row g-3">
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
@@ -72,7 +72,7 @@
                     </div>
                     <div class="row p-3 justify-content-center">
                         <button type="submit" class="col-1 col-md-2 col-sm-3 btn btn-primary"
-                            onclick="toggleCreatePatient()">Update</button>
+                            onclick="toggleCreatePatient()">Create</button>
                     </div>
 
                 </fieldset>
