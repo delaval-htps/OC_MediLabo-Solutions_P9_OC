@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.WebSession;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.medilabosolutions.dto.PatientDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -75,8 +72,7 @@ public class UiController {
     @PostMapping("/patient")
     public Mono<Object> createPatient(
             @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate, Model model,
-            WebSession session)
-            throws JsonProcessingException {
+            WebSession session) {
 
         return webclient.post().uri(patientServiceUrl)
                 .contentType(MediaType.APPLICATION_JSON)
