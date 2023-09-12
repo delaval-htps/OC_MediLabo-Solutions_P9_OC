@@ -76,7 +76,7 @@ public class UiController {
 
     @PostMapping("/patient")
     public Mono<Object> createPatient(
-            @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate, Model model,
+            @ModelAttribute(value = "patientToCreate") Patient patientToCreate, Model model,
             WebSession session)
             throws JsonProcessingException {
 
@@ -92,7 +92,7 @@ public class UiController {
                     if (response.statusCode().isError()) {
                         return response.bodyToMono(ProblemDetail.class);
                     } else {
-                        return response.bodyToMono(PatientDto.class);
+                        return response.bodyToMono(Patient.class);
                     }
                 })
                 .flatMap(body -> {
@@ -109,7 +109,7 @@ public class UiController {
                     "A problem occured : " + ((ProblemDetail) body).getTitle());
         } else {
             session.getAttributes().put(SUCCESS_MESSAGE,
-                    "Patient " + ((PatientDto) body).getLastName() + " was correctly created");
+                    "Patient " + ((Patient) body).lastName() + " was correctly created");
         }
     }
 
