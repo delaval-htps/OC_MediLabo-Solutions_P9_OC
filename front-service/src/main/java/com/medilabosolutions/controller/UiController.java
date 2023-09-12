@@ -3,6 +3,7 @@ package com.medilabosolutions.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,13 +12,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.WebSession;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.medilabosolutions.dto.PatientDto;
-import com.medilabosolutions.exception.PatientCreationException;
 import com.medilabosolutions.record.Patient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -30,6 +29,10 @@ public class UiController {
 
     @Autowired
     private WebClient webclient;
+
+
+    private static final String ERROR_MESSAGE = "errorMessage";
+    private static final String SUCCESS_MESSAGE = "successMessage";
 
     /**
      * display the index page of medilabo-solution with the list of all registred PatientDtos
@@ -44,14 +47,7 @@ public class UiController {
                 .retrieve().bodyToFlux(Patient.class);
         // TODO gestion des erreurs en récupérant le flux de PatientDtos (flux.onErrorResume)
 
-        if (session.getAttribute("errorMessage") != null) {
-            model.addAttribute("errorMessage", session.getAttribute("errorMessage"));
-            session.getAttributes().remove("errorMessage");
-        }
-        if (session.getAttribute("successMessage") != null) {
-            model.addAttribute("successMessage", session.getAttribute("successMessage"));
-            session.getAttributes().remove("successMessage");
-        }
+        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE);
 
         model.addAttribute("patientToCreate", new PatientDto());
         model.addAttribute("patients", patients);
@@ -79,7 +75,7 @@ public class UiController {
     }
 
     @PostMapping("/patient")
-    public String createPatient(
+    public Mono<Object> createPatient(
             @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate, Model model,
             WebSession session)
             throws JsonProcessingException {
@@ -89,20 +85,41 @@ public class UiController {
         // TODO change mapping with objectmapper directly with object in body
 
 
-        Mono<PatientDto> createdPatient = webclient.post().uri(patientServiceUrl)
+        return webclient.post().uri(patientServiceUrl)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(mapper.writeValueAsString(patientToCreate)))
-                .retrieve().bodyToMono(PatientDto.class)
-                
-                .onErrorMap(WebClientResponseException.class,
-                        e -> new PatientCreationException(e.getResponseBodyAsString(), session));
+                .exchangeToMono(response -> {
+                    if (response.statusCode().isError()) {
+                        return response.bodyToMono(ProblemDetail.class);
+                    } else {
+                        return response.bodyToMono(PatientDto.class);
+                    }
+                })
+                .flatMap(body -> {
+                    setSessionAttribute(body, session);
+                    return Mono.just("redirect:/");
+                });
 
-
-         model.addAttribute("createdPatient", createdPatient);
-        
-         session.getAttributes().put("successMessage", "Patient was correctly created!");
-        return "redirect:/";
     }
 
+    private void setSessionAttribute(Object body, WebSession session) {
+
+        if (body instanceof ProblemDetail) {
+            session.getAttributes().put(ERROR_MESSAGE,
+                    "A problem occured : " + ((ProblemDetail) body).getTitle());
+        } else {
+            session.getAttributes().put(SUCCESS_MESSAGE,
+                    "Patient " + ((PatientDto) body).getLastName() + " was correctly created");
+        }
+    }
+
+    private void addAttributeSessionToModel(Model model, WebSession session, String... messages) {
+        for (String message : messages) {
+            if (session.getAttribute(message) != null) {
+                model.addAttribute(message, session.getAttribute(message));
+                session.getAttributes().remove(message);
+            }
+        }
+    }
 
 }
