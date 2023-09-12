@@ -10,14 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.WebSession;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.medilabosolutions.dto.PatientDto;
-import com.medilabosolutions.record.Patient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -43,8 +41,8 @@ public class UiController {
     @GetMapping("/")
     public String index(Model model, WebSession session) {
 
-        Flux<Patient> patients = webclient.get().uri(patientServiceUrl)
-                .retrieve().bodyToFlux(Patient.class);
+        Flux<PatientDto> patients = webclient.get().uri(patientServiceUrl)
+                .retrieve().bodyToFlux(PatientDto.class);
         // TODO gestion des erreurs en récupérant le flux de PatientDtos (flux.onErrorResume)
 
         addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE);
@@ -64,9 +62,9 @@ public class UiController {
     @GetMapping("/patient-record/{id}")
     public String getPatientRecord(@PathVariable(value = "id") Long patientId, Model model) {
 
-        Mono<Patient> patient =
+        Mono<PatientDto> patient =
                 webclient.get().uri(patientServiceUrl + "/{id}", patientId)
-                        .retrieve().bodyToMono(Patient.class);
+                        .retrieve().bodyToMono(PatientDto.class);
 
         // TODO gestion du retour mono vide
 
@@ -80,14 +78,9 @@ public class UiController {
             WebSession session)
             throws JsonProcessingException {
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        // TODO change mapping with objectmapper directly with object in body
-
-
         return webclient.post().uri(patientServiceUrl)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(mapper.writeValueAsString(patientToCreate)))
+                .body(Mono.just(patientToCreate), PatientDto.class)
                 .exchangeToMono(response -> {
                     if (response.statusCode().isError()) {
                         return response.bodyToMono(ProblemDetail.class);
