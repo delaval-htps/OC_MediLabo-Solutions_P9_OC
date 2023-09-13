@@ -2,6 +2,7 @@ package com.medilabosolutions.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.server.WebSession;
 import com.medilabosolutions.dto.PatientDto;
 import reactor.core.publisher.Flux;
@@ -69,39 +71,85 @@ public class UiController {
         return "patient-record";
     }
 
+    /**
+     * Create a new patient
+     * 
+     * @param patientToCreate the patient to create from form of index.html
+     * @param model model to add attributes
+     * @param session session to add attribute to model when redirect to index.html
+     * @return rendering with redirection to index.html
+     */
     @PostMapping("/patient")
-    public Mono<Object> createPatient(
+    public Mono<Rendering> createPatient(
             @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate, Model model,
             WebSession session) {
 
         return webclient.post().uri(patientServiceUrl)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(patientToCreate), PatientDto.class)
-                .exchangeToMono(response -> {
-                    if (response.statusCode().isError()) {
-                        return response.bodyToMono(ProblemDetail.class);
-                    } else {
-                        return response.bodyToMono(PatientDto.class);
-                    }
-                })
+
+                .exchangeToMono(response -> response.statusCode().isError()
+                        ? response.bodyToMono(ProblemDetail.class)
+                        : response.bodyToMono(PatientDto.class)
+                )
+
                 .flatMap(body -> {
-                    setSessionAttribute(body, session);
-                    return Mono.just("redirect:/");
+                    setSessionAttribute(body, session, "created !");
+                    return Mono.just(Rendering.redirectTo("/").build());
                 });
 
     }
 
-    private void setSessionAttribute(Object body, WebSession session) {
+    @PostMapping("/patient/{id}")
+    public Mono<Rendering> updatePatient(@PathVariable(value = "id") Long patientId,
+            @ModelAttribute(value = "updatedPatient") PatientDto updatedPatient, WebSession session,
+            Model model) {
+
+        // TODO bindigResult
+
+        return webclient.put().uri(patientServiceUrl, patientId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(updatedPatient), PatientDto.class)
+
+                .exchangeToMono(response -> response.statusCode().isSameCodeAs(HttpStatus.NOT_FOUND)
+                        ? response.bodyToMono(ProblemDetail.class)
+                        : response.bodyToMono(PatientDto.class)
+
+                ).flatMap(body -> setSessionAttribute(body, session, "updated")
+                        .equals(SUCCESS_MESSAGE)
+                                ? Mono.just(Rendering.redirectTo("/").build())
+                                : Mono.just(Rendering.view("patient-record").build()));
+    }
+
+    /**
+     * method to add an error or success message to websession
+     * 
+     * @param body body content of a response from webclient request to add to message
+     * @param session the websession of the request of application
+     * @return String if body is ProblemDetail then return is ERRORMESSAGE else SUCCESSMESSAGE
+     */
+    private String setSessionAttribute(Object body, WebSession session, String typeOfOperation) {
 
         if (body instanceof ProblemDetail) {
             session.getAttributes().put(ERROR_MESSAGE,
-                    "A problem occured : " + ((ProblemDetail) body).getTitle());
+                    ((ProblemDetail) body).getTitle() + ((ProblemDetail) body).getDetail());
+            return ERROR_MESSAGE;
         } else {
             session.getAttributes().put(SUCCESS_MESSAGE,
-                    "Patient " + ((PatientDto) body).getLastName() + " was correctly created");
+                    "Patient " + ((PatientDto) body).getLastName() + " was correctly "
+                            + typeOfOperation);
+            return SUCCESS_MESSAGE;
         }
     }
 
+
+    /**
+     * method to remove attribute of a websession and add it to model of view
+     * 
+     * @param model the model to add attribute
+     * @param session the attribute to remove and add to model of view
+     * @param messages list of (String)messages to remove from websession and add to model
+     */
     private void addAttributeSessionToModel(Model model, WebSession session, String... messages) {
         for (String message : messages) {
             if (session.getAttribute(message) != null) {

@@ -29,7 +29,7 @@
 
             <div class="ms-auto p-2 ">
                 <button id="btn-creation-patient" type="button" class=" btn btn-primary "
-                    onclick="toggleCreatePatient()">Add new patient</button>
+                    onclick="toggleFormPatient()">Add new patient</button>
             </div>
         </div>
 
@@ -72,7 +72,7 @@
                     </div>
                     <div class="row p-3 justify-content-center">
                         <button type="submit" class="col-1 col-md-2 col-sm-3 btn btn-primary"
-                            onclick="toggleCreatePatient()">Create</button>
+                            onclick="toggleFormPatient()">Create</button>
                     </div>
 
                 </fieldset>
@@ -81,6 +81,7 @@
 
         <div class="col-8 table-responsive">
             <table id="patient-table" class="table table-sm table-hover ">
+                <caption>List of all patients</caption>
                 <!-- TODO pagination for table-->
                 <thead>
                     <tr>
@@ -106,7 +107,7 @@
                         <td th:text="${patient.phoneNumber}?:'-'"></td>
                         <td class="text-end">
                             <div class="d-flex flewx-nowrap justify-content-end m-1">
-                                <button type="button" class="btn btn-sm btn-outline-success me-3">Update</button>
+                                <a th:href="@{/patient-record/}+${patient.id}" type="button" class="btn btn-sm btn-outline-success me-3">Update</a>
                                 <button type="button" class="btn btn-sm btn-outline-danger">Delete</button>
                             </div>
                         </td>
@@ -122,7 +123,9 @@
          
         </script>
     </th:block>
-
+    <th:block layout:fragment="page-script">
+    <script type="text/javascript" th:src="@{/js/index.js}"></script>
+    </th:block>
 </body>
 
 </html>
