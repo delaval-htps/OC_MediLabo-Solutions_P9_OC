@@ -1,8 +1,9 @@
 package com.medilabosolutions.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,7 @@ public class UiController {
     @Autowired
     private WebClient webclient;
 
+    private Logger logger = LogManager.getLogger(UiController.class);
 
     private static final String ERROR_MESSAGE = "errorMessage";
     private static final String SUCCESS_MESSAGE = "successMessage";
@@ -67,6 +69,8 @@ public class UiController {
 
         // TODO gestion du retour mono vide
 
+        logger.info("patient with id {} is : {}", patientId, patient.map(Object::toString));
+
         model.addAttribute("patient", patient);
         return "patient-record";
     }
@@ -90,11 +94,11 @@ public class UiController {
 
                 .exchangeToMono(response -> response.statusCode().isError()
                         ? response.bodyToMono(ProblemDetail.class)
-                        : response.bodyToMono(PatientDto.class)
-                )
+                        : response.bodyToMono(PatientDto.class))
 
                 .flatMap(body -> {
                     setSessionAttribute(body, session, "created !");
+                    logger.info("request createPatient return {}", body);
                     return Mono.just(Rendering.redirectTo("/").build());
                 });
 
@@ -102,23 +106,26 @@ public class UiController {
 
     @PostMapping("/patient/{id}")
     public Mono<Rendering> updatePatient(@PathVariable(value = "id") Long patientId,
-            @ModelAttribute(value = "updatedPatient") PatientDto updatedPatient, WebSession session,
+            @ModelAttribute(value = "patient") PatientDto updatedPatient, WebSession session,
             Model model) {
 
         // TODO bindigResult
 
-        return webclient.put().uri(patientServiceUrl, patientId)
+        return webclient.put().uri(patientServiceUrl+"/{id}", patientId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(updatedPatient), PatientDto.class)
 
-                .exchangeToMono(response -> response.statusCode().isSameCodeAs(HttpStatus.NOT_FOUND)
+                .exchangeToMono(response -> response.statusCode().isError()
                         ? response.bodyToMono(ProblemDetail.class)
                         : response.bodyToMono(PatientDto.class)
 
-                ).flatMap(body -> setSessionAttribute(body, session, "updated")
-                        .equals(SUCCESS_MESSAGE)
-                                ? Mono.just(Rendering.redirectTo("/").build())
-                                : Mono.just(Rendering.view("patient-record").build()));
+                ).flatMap(body -> {
+                    logger.info("request updatePatient return {}", body);
+                    return setSessionAttribute(body, session, "updated").equals(SUCCESS_MESSAGE)
+                            ? Mono.just(Rendering.redirectTo("/").build())
+                            : Mono.just(Rendering.view("patient-record").build());
+                });
+
     }
 
     /**
