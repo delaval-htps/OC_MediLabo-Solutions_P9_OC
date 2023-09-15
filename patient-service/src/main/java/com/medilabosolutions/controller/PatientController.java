@@ -97,6 +97,7 @@ public class PatientController {
         public Mono<ResponseEntity<PatientDto>> updatePatient(@PathVariable("id") Long patientId,
                         @RequestBody Patient patient) {
 
+                //TODO verify validation for patient (not yet implemented)
                 return patientService.updatePatient(patientId, patient)
                                 .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
                                 .switchIfEmpty(Mono.error(new PatientNotFoundException(patientId)));

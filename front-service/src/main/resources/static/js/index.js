@@ -3,8 +3,7 @@ console.log("successMessage = " + successMessage)
 
 let btnToCreatePatient = document.getElementById('btn-creation-patient')
 let formToCreatePatient = document.getElementById('form-creation-patient')
-let btnToDeletePatient = document.getElementById('btn-delete-patient')
-let btnToUpdatePatient = document.getElementById('btn-update-patient')
+
 
 //management of toast in page
 

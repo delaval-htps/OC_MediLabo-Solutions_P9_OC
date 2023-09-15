@@ -108,7 +108,7 @@
                         <td class="text-end">
                             <div class="d-flex flewx-nowrap justify-content-end m-1">
                                 <a th:href="@{/patient-record/}+${patient.id}" type="button" class="btn btn-sm btn-outline-success me-3">Update</a>
-                                <button type="button" class="btn btn-sm btn-outline-danger">Delete</button>
+                                <a th:href="@{/delete-patient/}+${patient.id}" data-method="delete"  type="button" class="btn btn-sm btn-outline-danger">Delete</a>
                             </div>
                         </td>
                     </tr>

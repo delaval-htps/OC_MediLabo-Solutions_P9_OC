@@ -1,5 +1,6 @@
 package com.medilabosolutions.controller;
 
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +36,8 @@ public class UiController {
     private static final String SUCCESS_MESSAGE = "successMessage";
 
     /**
-     * display the index page of medilabo-solution with the list of all registred PatientDtos
+     * Endpoint to display the index page of medilabo-solution with the list of all registred
+     * PatientDtos
      * 
      * @param model model to add PatientDtos to the view
      * @return the view "index.html"
@@ -54,14 +57,15 @@ public class UiController {
     }
 
     /**
-     * display record of Patient
+     * Endpoint to display record of Patient
      * 
      * @param patientId the id of Patient
      * @param model model to return to the view
      * @return the view of the record of Patient (personnal informations for the moment)
      */
     @GetMapping("/patient-record/{id}")
-    public String getPatientRecord(@PathVariable(value = "id") Long patientId, Model model) {
+    public String getPatientRecord(@PathVariable(value = "id") Long patientId, WebSession session,
+            Model model) {
 
         Mono<PatientDto> patient =
                 webclient.get().uri(patientServiceUrl + "/{id}", patientId)
@@ -71,12 +75,14 @@ public class UiController {
 
         logger.info("patient with id {} is : {}", patientId, patient.map(Object::toString));
 
+        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE);
+
         model.addAttribute("patient", patient);
         return "patient-record";
     }
 
     /**
-     * Create a new patient
+     * Endpoint to create a new patient
      * 
      * @param patientToCreate the patient to create from form of index.html
      * @param model model to add attributes
@@ -104,6 +110,16 @@ public class UiController {
 
     }
 
+    /**
+     * endpoint to update a existed patient
+     * 
+     * @param patientId id of patient to be updated
+     * @param updatedPatient the patient with updated fields
+     * @param session websession to add attribute if problem and redirect to the form
+     * @param model model to add sucess attribute when patient correctly updated
+     * @return Mono<Rendering> with view to index if success or redirection to the same page (form)
+     *         if error
+     */
     @PostMapping("/patient/{id}")
     public Mono<Rendering> updatePatient(@PathVariable(value = "id") Long patientId,
             @ModelAttribute(value = "patient") PatientDto updatedPatient, WebSession session,
@@ -111,7 +127,7 @@ public class UiController {
 
         // TODO bindigResult
 
-        return webclient.put().uri(patientServiceUrl+"/{id}", patientId)
+        return webclient.put().uri(patientServiceUrl + "/{id}", patientId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(updatedPatient), PatientDto.class)
 
@@ -128,12 +144,28 @@ public class UiController {
 
     }
 
+    @GetMapping("/delete-patient/{id}")
+    public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId,
+            WebSession session) {
+
+        return webclient.delete().uri(patientServiceUrl + "/{id}", patientId)
+                .exchangeToMono(response -> response.statusCode().isError()
+                        ? response.bodyToMono(ProblemDetail.class)
+                        : response.bodyToMono(PatientDto.class))
+                .flatMap(body -> {
+                    setSessionAttribute(body, session, "deleted !");
+                    return Mono.just(Rendering.redirectTo("/").build());
+                });
+
+    }
+
     /**
-     * method to add an error or success message to websession
+     * method to add an error or success message to websession for a futur redirection (cause spring
+     * webflux not supports redirectAttributes)
      * 
      * @param body body content of a response from webclient request to add to message
-     * @param session the websession of the request of application
-     * @return String if body is ProblemDetail then return is ERRORMESSAGE else SUCCESSMESSAGE
+     * @param session the websession of the request of endpoint
+     * @return String : if body is ProblemDetail then return is ERRORMESSAGE else SUCCESSMESSAGE
      */
     private String setSessionAttribute(Object body, WebSession session, String typeOfOperation) {
 
