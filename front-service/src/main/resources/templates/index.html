@@ -83,6 +83,7 @@
             <table id="patient-table" class="table table-sm table-hover ">
                 <caption>List of all patients</caption>
                 <!-- TODO pagination for table-->
+                <!-- TODO hide patient id and just display a number -->
                 <thead>
                     <tr>
                         <th>#</th>
@@ -120,7 +121,6 @@
         <script th:inline="javascript">
             var errorMessage =/*[[${errorMessage}]]*/ '';
             var successMessage =/*[[${successMessage}]]*/ '';
-         
         </script>
     </th:block>
     <th:block layout:fragment="page-script">

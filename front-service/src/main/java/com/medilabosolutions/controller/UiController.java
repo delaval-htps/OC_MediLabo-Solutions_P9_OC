@@ -1,6 +1,5 @@
 package com.medilabosolutions.controller;
 
-import org.apache.hc.core5.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,23 +35,24 @@ public class UiController {
 
     /**
      * Endpoint to display the index page of medilabo-solution with the list of all registred
-     * PatientDtos
+     * PatientDtos (never get error , just only a avoid list of patients)
      * 
      * @param model model to add PatientDtos to the view
      * @return the view "index.html"
      */
     @GetMapping("/")
-    public String index(Model model, WebSession session) {
+    public Mono<Rendering> index(Model model, WebSession session) {
 
         Flux<PatientDto> patients = webclient.get().uri(patientServiceUrl)
-                .retrieve().bodyToFlux(PatientDto.class);
-        // TODO gestion des erreurs en récupérant le flux de PatientDtos (flux.onErrorResume)
+                .retrieve()
+                .bodyToFlux(PatientDto.class);
 
         addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE);
 
         model.addAttribute("patientToCreate", new PatientDto());
         model.addAttribute("patients", patients);
-        return "index";
+
+        return Mono.just(Rendering.view("index").build());
     }
 
     /**
@@ -64,21 +63,22 @@ public class UiController {
      * @return the view of the record of Patient (personnal informations for the moment)
      */
     @GetMapping("/patient-record/{id}")
-    public String getPatientRecord(@PathVariable(value = "id") Long patientId, WebSession session,
+    public Mono<Rendering> getPatientRecord(@PathVariable(value = "id") Long patientId,
+            WebSession session,
             Model model) {
 
-        Mono<PatientDto> patient =
-                webclient.get().uri(patientServiceUrl + "/{id}", patientId)
-                        .retrieve().bodyToMono(PatientDto.class);
+        return webclient.get().uri(patientServiceUrl + "/{id}", patientId)
+                .retrieve()
+                .bodyToMono(PatientDto.class)
+                .flatMap(body -> {
+                    logger.info("GET patient-record with id {} = {}", patientId, body);
+                    addAttributeSessionToModel(model, session, ERROR_MESSAGE,
+                            SUCCESS_MESSAGE);
+                    model.addAttribute("patient", body);
+                    return Mono.just(Rendering.view("patient-record").build());
+                });
 
         // TODO gestion du retour mono vide
-
-        logger.info("patient with id {} is : {}", patientId, patient.map(Object::toString));
-
-        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE);
-
-        model.addAttribute("patient", patient);
-        return "patient-record";
     }
 
     /**
@@ -97,14 +97,13 @@ public class UiController {
         return webclient.post().uri(patientServiceUrl)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(patientToCreate), PatientDto.class)
-
                 .exchangeToMono(response -> response.statusCode().isError()
                         ? response.bodyToMono(ProblemDetail.class)
                         : response.bodyToMono(PatientDto.class))
 
                 .flatMap(body -> {
                     setSessionAttribute(body, session, "created !");
-                    logger.info("request createPatient return {}", body);
+                    logger.info("POST createPatient return = {}", body);
                     return Mono.just(Rendering.redirectTo("/").build());
                 });
 
@@ -136,7 +135,7 @@ public class UiController {
                         : response.bodyToMono(PatientDto.class)
 
                 ).flatMap(body -> {
-                    logger.info("request updatePatient return {}", body);
+                    logger.info("POST updatePatient with id {} return = {}", patientId, body);
                     return setSessionAttribute(body, session, "updated").equals(SUCCESS_MESSAGE)
                             ? Mono.just(Rendering.redirectTo("/").build())
                             : Mono.just(Rendering.view("patient-record").build());
@@ -144,6 +143,13 @@ public class UiController {
 
     }
 
+    /**
+     * endpoint to delete a patient with given id in request
+     * 
+     * @param patientId the given id of patient to delete
+     * @param session the websession to redirect to same view "/"
+     * @return Mono<Renderring> for redirection
+     */
     @GetMapping("/delete-patient/{id}")
     public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId,
             WebSession session) {
@@ -153,6 +159,7 @@ public class UiController {
                         ? response.bodyToMono(ProblemDetail.class)
                         : response.bodyToMono(PatientDto.class))
                 .flatMap(body -> {
+                    logger.info("GET deletePatient return = {}", body);
                     setSessionAttribute(body, session, "deleted !");
                     return Mono.just(Rendering.redirectTo("/").build());
                 });
