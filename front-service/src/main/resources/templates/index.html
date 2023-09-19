@@ -14,11 +14,8 @@
         <div class="col-8 d-flex justify-content-center align-items-baseline">
 
             <div class="alert alert-info d-flex" role="alert">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                    class="bi bi-info-circle-fill" viewBox="0 0 16 16">
-                    <path
-                        d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
-                </svg>
+
+                <i class="bi bi-info-circle"></i>
 
                 <div class="ms-3">
                     To create a new patient, click on right button "Create". To display informations of a
@@ -33,46 +30,88 @@
             </div>
         </div>
 
-        <div id="form-creation-patient" class="col-8" style="display: none;">
+        <div id="form-creation-patient" class="col-8" th:style="${#maps.isEmpty(bindingResult)}?'display: none':''">
+
             <form th:action="@{/patient}" method="post" th:object="${patientToCreate}">
+                
                 <fieldset class="p-3 shadow mb-5 mt-3 bg-white rounded">
+                    
                     <div class="row">
                         <legend>Fill in personal informations </legend>
                     </div>
+                    
                     <div class="row g-3">
+                        
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
                             <label for="lastname" class="form-label">Lastname</label>
-                            <input type="text" class="form-control" th:field="*{lastName}">
+                            <input type="text" class="form-control" th:field="*{lastName}"
+                                th:classappend="${#maps.containsKey(bindingResult,'lastName')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(bindingResult,'lastName')} "
+                                    th:text="${bindingResult['lastName']}" class="field-error"></li>
+                            </ul>
                         </div>
+                        
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
                             <label for="firstname" class="form-label">Firstname</label>
-                            <input type="text" class="form-control" th:field="*{firstName}">
+                            <input type="text" class="form-control" th:field="*{firstName}"
+                                th:classappend="${#maps.containsKey(bindingResult,'firstName')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(bindingResult,'firstName')} "
+                                    th:text="${bindingResult['firstName']}" class="field-error"></li>
+                            </ul>
                         </div>
+                        
                         <div class="col-xl-3 col-lg-8 col-md-8 mb-3">
                             <label for="dateOfBirth" class="form-label">Date of Birth</label>
-                            <input type="date" class="form-control" th:field="*{dateOfBirth}">
+                            <input type="date" class="form-control" th:field="*{dateOfBirth}"
+                                th:classappend="${#maps.containsKey(bindingResult,'dateOfBirth')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(bindingResult,'dateOfBirth')} "
+                                    th:text="${bindingResult['dateOfBirth']}" class="field-error"></li>
+                            </ul>
                         </div>
+                        
                         <div class="col-xl-1 col-lg-4 col-md-4 mb-3">
                             <label for="genre" class="form-label">Genre</label>
-                            <select class="form-select" th:field="*{genre}">
+                            <select class="form-select" th:field="*{genre}"
+                                th:classappend="${#maps.containsKey(bindingResult,'genre')}?'is-invalid':''">
                                 <option selected th:value="M" th:text="M"></option>
                                 <option th:value="F" th:text="F"></option>
                             </select>
+                            <ul>
+                                <li th:if="${#maps.containsKey(bindingResult,'genre')} "
+                                    th:text="${bindingResult['genre']}" class="field-error"></li>
+                            </ul>
                         </div>
                     </div>
+                    
                     <div class="row g-3">
+                    
                         <div class="col-xl-8 col-md-8 col-sm-12 col-xsm-12 mb-3">
                             <label for="address" class="form-label">Address</label>
-                            <input type="text" class="form-control" th:field="*{address}">
+                            <input type="text" class="form-control" th:field="*{address}"
+                                th:classappend="${#maps.containsKey(bindingResult,'address')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(bindingResult,'address')} "
+                                    th:text="${bindingResult['address']}" class="field-error"></li>
+                            </ul>
                         </div>
+                    
                         <div class="col-xl-4 col-md-4 col-sm-12 mb-3">
                             <label for="phoneNumber" class="form-label">phoneNumber</label>
-                            <input type="text" class="form-control" th:field="*{phoneNumber}">
+                            <input type="text" class="form-control" th:field="*{phoneNumber}"
+                    
+                            th:classappend="${#maps.containsKey(bindingResult,'phoneNumber')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(bindingResult,'phoneNumber')} "
+                                    th:text="${bindingResult['phoneNumber']}" class="field-error"></li>
+                            </ul>
                         </div>
                     </div>
+
                     <div class="row p-3 justify-content-center">
-                        <button type="submit" class="col-1 col-md-2 col-sm-3 btn btn-primary"
-                            onclick="toggleFormPatient()">Create</button>
+                        <button type="submit" class="col-1 col-md-2 col-sm-3 btn btn-primary">Create</button>
                     </div>
 
                 </fieldset>
@@ -80,7 +119,9 @@
         </div>
 
         <div class="col-8 table-responsive">
+
             <table id="patient-table" class="table table-sm table-hover ">
+
                 <caption>List of all patients</caption>
                 <!-- TODO pagination for table-->
                 <!-- TODO hide patient id and just display a number -->
@@ -108,8 +149,10 @@
                         <td th:text="${patient.phoneNumber}?:'-'"></td>
                         <td class="text-end">
                             <div class="d-flex flewx-nowrap justify-content-end m-1">
-                                <a th:href="@{/patient-record/}+${patient.id}" type="button" class="btn btn-sm btn-outline-success me-3">Update</a>
-                                <a th:href="@{/delete-patient/}+${patient.id}" data-method="delete"  type="button" class="btn btn-sm btn-outline-danger">Delete</a>
+                                <a th:href="@{/patient-record/}+${patient.id}" type="button"
+                                    class="btn btn-sm btn-outline-success me-3">Update</a>
+                                <a th:href="@{/delete-patient/}+${patient.id}" data-method="delete" type="button"
+                                    class="btn btn-sm btn-outline-danger">Delete</a>
                             </div>
                         </td>
                     </tr>
@@ -117,15 +160,19 @@
             </table>
         </div>
     </th:block>
+
     <th:block layout:fragment="other-script">
         <script th:inline="javascript">
             var errorMessage =/*[[${errorMessage}]]*/ '';
             var successMessage =/*[[${successMessage}]]*/ '';
+            var bindingResult = /*[[${bindingResult}]]*/ '';
         </script>
     </th:block>
+
     <th:block layout:fragment="page-script">
-    <script type="text/javascript" th:src="@{/js/index.js}"></script>
+        <script type="text/javascript" th:src="@{/js/index.js}"></script>
     </th:block>
+
 </body>
 
 </html>

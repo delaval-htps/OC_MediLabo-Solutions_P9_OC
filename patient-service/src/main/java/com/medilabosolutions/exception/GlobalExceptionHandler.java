@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -24,6 +25,10 @@ public class GlobalExceptionHandler {
         @Value("${application.url}")
         private String applicationUrl;
 
+
+        // TODO change final String with a code of error to put in problemDetail to identify much
+        // better the type of problem in front service.
+
         private static final String INVALIDFIELDS = "Invalid fields in Patient";
         private static final String PATIENTNOTFOUND = "Patient Not Found";
         private static final String PATIENTNOTCREATED = "Patient Not Created";
@@ -39,13 +44,24 @@ public class GlobalExceptionHandler {
         public Mono<ResponseEntity<ProblemDetail>> handleValidationException(
                         WebExchangeBindException webe, ServerHttpRequest request) {
 
-                String bindingResult = webe.getBindingResult().getAllErrors().stream()
-                                .map(errors -> errors.getDefaultMessage())
-                                .collect(Collectors.toList()).toString();
 
-                return Mono.just(ResponseEntity.badRequest()
-                                .body(createProblemDetail(HttpStatus.BAD_REQUEST,
-                                                bindingResult, INVALIDFIELDS, request)));
+                HashMap<String, String> mapFieldErrors = new HashMap<>();
+
+                String fieldsInError =
+                                webe.getBindingResult().getFieldErrors().stream()
+                                                .map(error -> {
+                                                        mapFieldErrors.put(error.getField(),
+                                                                        error.getDefaultMessage());
+                                                        return error.getField();
+                                                })
+                                                .collect(Collectors.joining(" , "));
+
+                ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST,
+                                fieldsInError, INVALIDFIELDS, request);
+
+                problemDetail.setProperty("bindingResult", mapFieldErrors);
+
+                return Mono.just(ResponseEntity.badRequest().body(problemDetail));
         }
 
         /**
@@ -104,14 +120,18 @@ public class GlobalExceptionHandler {
                         ServerHttpRequest request) {
 
                 ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, details);
+
                 try {
                         problemDetail.setType(new URI(applicationUrl));
                 } catch (URISyntaxException e) {
                         problemDetail.setProperty("type", applicationUrl);
                 }
+
                 problemDetail.setTitle(title);
+
                 problemDetail.setProperty("timeStamp",
                                 LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+
                 problemDetail.setProperty("requestId", request.getId());
 
                 return problemDetail;

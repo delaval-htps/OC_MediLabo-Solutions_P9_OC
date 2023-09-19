@@ -1,5 +1,7 @@
 package com.medilabosolutions.controller;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,10 +49,13 @@ public class UiController {
                 .retrieve()
                 .bodyToFlux(PatientDto.class);
 
-        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE);
+        model.addAttribute("bindingResult", new HashMap<String, String>());
+
+        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "bindingResult");
 
         model.addAttribute("patientToCreate", new PatientDto());
         model.addAttribute("patients", patients);
+
 
         return Mono.just(Rendering.view("index").build());
     }
@@ -71,10 +76,13 @@ public class UiController {
                 .retrieve()
                 .bodyToMono(PatientDto.class)
                 .flatMap(body -> {
+
                     logger.info("GET patient-record with id {} = {}", patientId, body);
-                    addAttributeSessionToModel(model, session, ERROR_MESSAGE,
-                            SUCCESS_MESSAGE);
+
+                    addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE);
+
                     model.addAttribute("patient", body);
+
                     return Mono.just(Rendering.view("patient-record").build());
                 });
 
@@ -91,12 +99,17 @@ public class UiController {
      */
     @PostMapping("/patient")
     public Mono<Rendering> createPatient(
-            @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate, Model model,
-            WebSession session) {
+             @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate,
+            Model model, WebSession session) {
+
+        // TODO retrieve only fields errors from bindingResult from patient service and use it in
+        // index.html with thymeleaf
+
 
         return webclient.post().uri(patientServiceUrl)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(patientToCreate), PatientDto.class)
+
                 .exchangeToMono(response -> response.statusCode().isError()
                         ? response.bodyToMono(ProblemDetail.class)
                         : response.bodyToMono(PatientDto.class))
@@ -167,23 +180,38 @@ public class UiController {
     }
 
     /**
-     * method to add an error or success message to websession for a futur redirection (cause spring
-     * webflux not supports redirectAttributes)
+     * method to add an error (with bindingResult, if exists) or success message to websession for a
+     * futur redirection (cause spring webflux not supports redirectAttributes)
      * 
      * @param body body content of a response from webclient request to add to message
      * @param session the websession of the request of endpoint
-     * @return String : if body is ProblemDetail then return is ERRORMESSAGE else SUCCESSMESSAGE
+     * @return String : if body is ProblemDetail then return is ERRORMESSAGE (with if exists
+     *         bindingResult) else SUCCESSMESSAGE
      */
     private String setSessionAttribute(Object body, WebSession session, String typeOfOperation) {
 
         if (body instanceof ProblemDetail) {
-            session.getAttributes().put(ERROR_MESSAGE,
-                    ((ProblemDetail) body).getTitle() + ((ProblemDetail) body).getDetail());
+
+            ProblemDetail pb = (ProblemDetail) body;
+
+            Map<String, Object> properties = pb.getProperties();
+
+            if (properties != null && properties.containsKey("bindingResult")) {
+
+                session.getAttributes().put("bindingResult", properties.get("bindingResult"));
+            }
+
+            session.getAttributes().put(ERROR_MESSAGE, pb.getTitle() + pb.getDetail());
+
             return ERROR_MESSAGE;
+
         } else {
+
+            PatientDto patient = (PatientDto) body;
+
             session.getAttributes().put(SUCCESS_MESSAGE,
-                    "Patient " + ((PatientDto) body).getLastName() + " was correctly "
-                            + typeOfOperation);
+                    "Patient " + patient.getLastName() + " was correctly " + typeOfOperation);
+
             return SUCCESS_MESSAGE;
         }
     }
@@ -197,9 +225,13 @@ public class UiController {
      * @param messages list of (String)messages to remove from websession and add to model
      */
     private void addAttributeSessionToModel(Model model, WebSession session, String... messages) {
+
         for (String message : messages) {
+
             if (session.getAttribute(message) != null) {
+
                 model.addAttribute(message, session.getAttribute(message));
+
                 session.getAttributes().remove(message);
             }
         }

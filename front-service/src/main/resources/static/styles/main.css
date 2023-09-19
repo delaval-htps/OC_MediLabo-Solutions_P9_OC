@@ -7,3 +7,9 @@ fieldset {
     border-radius: 5px !important;
 
 }
+
+.field-error{
+    color: red;
+    font-size: 0.8rem;
+}
+

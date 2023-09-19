@@ -1,5 +1,6 @@
 console.log("errorMessage = " + errorMessage)
 console.log("successMessage = " + successMessage)
+console.log("bindingResult  = " + JSON.stringify(bindingResult))
 
 let btnToCreatePatient = document.getElementById('btn-creation-patient')
 let formToCreatePatient = document.getElementById('form-creation-patient')
@@ -11,14 +12,14 @@ const indexToast = document.getElementById('index-toast')
 const toastBootstrap = bootstrap.Toast.getOrCreateInstance(indexToast)
 
 if (successMessage != null && successMessage != '') {
-    fillInToast('text-bg-danger','text-bg-success',successMessage);
+    fillInToast('text-bg-danger', 'text-bg-success', successMessage);
 }
 
 if (errorMessage != null && errorMessage != '') {
-    fillInToast('text-bg-success','text-bg-danger',errorMessage);
+    fillInToast('text-bg-success', 'text-bg-danger', errorMessage);
 }
 
-function fillInToast(classToRemove,classToAdd,message){
+function fillInToast(classToRemove, classToAdd, message) {
     indexToast.classList.remove(classToRemove)
     indexToast.classList.add(classToAdd)
     document.getElementById('toast-content').textContent = message
@@ -39,7 +40,7 @@ function toggleFormPatient() {
         btnToCreatePatient.classList.remove('btn-primary')
         btnToCreatePatient.classList.add('btn-outline-primary')
         btnToCreatePatient.innerText = 'Cancel'
-    } else {
+    } else if (bindingResult != ''){
         formToCreatePatient.style.display = "none";
         btnToCreatePatient.classList.add('btn-primary')
         btnToCreatePatient.classList.remove('btn-outline-primary')
