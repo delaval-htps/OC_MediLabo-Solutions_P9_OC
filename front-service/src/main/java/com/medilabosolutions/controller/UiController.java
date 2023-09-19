@@ -49,9 +49,9 @@ public class UiController {
                 .retrieve()
                 .bodyToFlux(PatientDto.class);
 
-        model.addAttribute("bindingResult", new HashMap<String, String>());
+        model.addAttribute("fieldsOnError", new HashMap<String, String>());
 
-        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "bindingResult");
+        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError");
 
         model.addAttribute("patientToCreate", new PatientDto());
         model.addAttribute("patients", patients);
@@ -198,7 +198,7 @@ public class UiController {
 
             if (properties != null && properties.containsKey("bindingResult")) {
 
-                session.getAttributes().put("bindingResult", properties.get("bindingResult"));
+                session.getAttributes().put("fieldsOnError", properties.get("bindingResult"));
             }
 
             session.getAttributes().put(ERROR_MESSAGE, pb.getTitle() + pb.getDetail());

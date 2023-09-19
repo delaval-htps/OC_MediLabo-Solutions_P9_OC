@@ -30,7 +30,7 @@
             </div>
         </div>
 
-        <div id="form-creation-patient" class="col-8" th:style="${#maps.isEmpty(bindingResult)}?'display: none':''">
+        <div id="form-creation-patient" class="col-8" th:style="${#maps.isEmpty(fieldsOnError)}?'display: none':''">
 
             <form th:action="@{/patient}" method="post" th:object="${patientToCreate}">
                 
@@ -45,43 +45,43 @@
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
                             <label for="lastname" class="form-label">Lastname</label>
                             <input type="text" class="form-control" th:field="*{lastName}"
-                                th:classappend="${#maps.containsKey(bindingResult,'lastName')}?'is-invalid':''">
+                                th:classappend="${#maps.containsKey(fieldsOnError,'lastName')}?'is-invalid':''">
                             <ul>
-                                <li th:if="${#maps.containsKey(bindingResult,'lastName')} "
-                                    th:text="${bindingResult['lastName']}" class="field-error"></li>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'lastName')} "
+                                    th:text="${fieldsOnError['lastName']}" class="field-error"></li>
                             </ul>
                         </div>
                         
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
                             <label for="firstname" class="form-label">Firstname</label>
                             <input type="text" class="form-control" th:field="*{firstName}"
-                                th:classappend="${#maps.containsKey(bindingResult,'firstName')}?'is-invalid':''">
+                                th:classappend="${#maps.containsKey(fieldsOnError,'firstName')}?'is-invalid':''">
                             <ul>
-                                <li th:if="${#maps.containsKey(bindingResult,'firstName')} "
-                                    th:text="${bindingResult['firstName']}" class="field-error"></li>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'firstName')} "
+                                    th:text="${fieldsOnError['firstName']}" class="field-error"></li>
                             </ul>
                         </div>
                         
                         <div class="col-xl-3 col-lg-8 col-md-8 mb-3">
                             <label for="dateOfBirth" class="form-label">Date of Birth</label>
                             <input type="date" class="form-control" th:field="*{dateOfBirth}"
-                                th:classappend="${#maps.containsKey(bindingResult,'dateOfBirth')}?'is-invalid':''">
+                                th:classappend="${#maps.containsKey(fieldsOnError,'dateOfBirth')}?'is-invalid':''">
                             <ul>
-                                <li th:if="${#maps.containsKey(bindingResult,'dateOfBirth')} "
-                                    th:text="${bindingResult['dateOfBirth']}" class="field-error"></li>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'dateOfBirth')} "
+                                    th:text="${fieldsOnError['dateOfBirth']}" class="field-error"></li>
                             </ul>
                         </div>
                         
                         <div class="col-xl-1 col-lg-4 col-md-4 mb-3">
                             <label for="genre" class="form-label">Genre</label>
                             <select class="form-select" th:field="*{genre}"
-                                th:classappend="${#maps.containsKey(bindingResult,'genre')}?'is-invalid':''">
+                                th:classappend="${#maps.containsKey(fieldsOnError,'genre')}?'is-invalid':''">
                                 <option selected th:value="M" th:text="M"></option>
                                 <option th:value="F" th:text="F"></option>
                             </select>
                             <ul>
-                                <li th:if="${#maps.containsKey(bindingResult,'genre')} "
-                                    th:text="${bindingResult['genre']}" class="field-error"></li>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'genre')} "
+                                    th:text="${fieldsOnError['genre']}" class="field-error"></li>
                             </ul>
                         </div>
                     </div>
@@ -91,10 +91,10 @@
                         <div class="col-xl-8 col-md-8 col-sm-12 col-xsm-12 mb-3">
                             <label for="address" class="form-label">Address</label>
                             <input type="text" class="form-control" th:field="*{address}"
-                                th:classappend="${#maps.containsKey(bindingResult,'address')}?'is-invalid':''">
+                                th:classappend="${#maps.containsKey(fieldsOnError,'address')}?'is-invalid':''">
                             <ul>
-                                <li th:if="${#maps.containsKey(bindingResult,'address')} "
-                                    th:text="${bindingResult['address']}" class="field-error"></li>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'address')} "
+                                    th:text="${fieldsOnError['address']}" class="field-error"></li>
                             </ul>
                         </div>
                     
@@ -102,10 +102,10 @@
                             <label for="phoneNumber" class="form-label">phoneNumber</label>
                             <input type="text" class="form-control" th:field="*{phoneNumber}"
                     
-                            th:classappend="${#maps.containsKey(bindingResult,'phoneNumber')}?'is-invalid':''">
+                            th:classappend="${#maps.containsKey(fieldsOnError,'phoneNumber')}?'is-invalid':''">
                             <ul>
-                                <li th:if="${#maps.containsKey(bindingResult,'phoneNumber')} "
-                                    th:text="${bindingResult['phoneNumber']}" class="field-error"></li>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'phoneNumber')} "
+                                    th:text="${fieldsOnError['phoneNumber']}" class="field-error"></li>
                             </ul>
                         </div>
                     </div>
@@ -165,7 +165,7 @@
         <script th:inline="javascript">
             var errorMessage =/*[[${errorMessage}]]*/ '';
             var successMessage =/*[[${successMessage}]]*/ '';
-            var bindingResult = /*[[${bindingResult}]]*/ '';
+            var fieldsOnError = /*[[${fieldsOnError}]]*/ '';
         </script>
     </th:block>
 

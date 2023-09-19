@@ -29,15 +29,15 @@ public class GlobalExceptionHandler {
         // TODO change final String with a code of error to put in problemDetail to identify much
         // better the type of problem in front service.
 
-        private static final String INVALIDFIELDS = "Invalid fields in Patient";
-        private static final String PATIENTNOTFOUND = "Patient Not Found";
-        private static final String PATIENTNOTCREATED = "Patient Not Created";
+        private static final String INVALIDFIELDS = "Invalid fields in Patient: ";
+        private static final String PATIENTNOTFOUND = "Patient Not Found: ";
+        private static final String PATIENTNOTCREATED = "Patient Not Created: ";
 
         /**
          * BindingResult exception handler
          * 
          * @param webe of type WebExchangeBindException
-         * @return a ResponseEntity with list of validation errors message
+         * @return a ResponseEntity with list of validation errors messages
          * @throws URISyntaxException
          */
         @ExceptionHandler(WebExchangeBindException.class)
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
 
                 HashMap<String, String> mapFieldErrors = new HashMap<>();
 
-                String fieldsInError =
+                String fieldsOnError =
                                 webe.getBindingResult().getFieldErrors().stream()
                                                 .map(error -> {
                                                         mapFieldErrors.put(error.getField(),
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
                                                 .collect(Collectors.joining(" , "));
 
                 ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST,
-                                fieldsInError, INVALIDFIELDS, request);
+                                fieldsOnError, INVALIDFIELDS, request);
 
                 problemDetail.setProperty("bindingResult", mapFieldErrors);
 

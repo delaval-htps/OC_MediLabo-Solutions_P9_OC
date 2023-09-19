@@ -1,6 +1,6 @@
 console.log("errorMessage = " + errorMessage)
 console.log("successMessage = " + successMessage)
-console.log("bindingResult  = " + JSON.stringify(bindingResult))
+console.log("fieldsOnError  = " + JSON.stringify(fieldsOnError))
 
 let btnToCreatePatient = document.getElementById('btn-creation-patient')
 let formToCreatePatient = document.getElementById('form-creation-patient')
@@ -40,7 +40,7 @@ function toggleFormPatient() {
         btnToCreatePatient.classList.remove('btn-primary')
         btnToCreatePatient.classList.add('btn-outline-primary')
         btnToCreatePatient.innerText = 'Cancel'
-    } else if (bindingResult != ''){
+    } else if (fieldsOnError != ''){
         formToCreatePatient.style.display = "none";
         btnToCreatePatient.classList.add('btn-primary')
         btnToCreatePatient.classList.remove('btn-outline-primary')
