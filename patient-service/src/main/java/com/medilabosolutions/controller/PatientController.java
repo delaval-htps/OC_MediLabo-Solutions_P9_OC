@@ -1,6 +1,8 @@
 package com.medilabosolutions.controller;
 
+import java.util.Locale;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,6 +34,11 @@ public class PatientController {
 
         private final ModelMapper modelMapper;
 
+        private final MessageSource messageSource;
+
+
+        private static final String PATIENT_NOT_FOUND = "patient.not.found";
+
         /**
          * endpoint to return all patients in db
          * 
@@ -59,7 +66,10 @@ public class PatientController {
 
                 return patientService.findById(patientId)
                                 .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
-                                .switchIfEmpty(Mono.error(new PatientNotFoundException(patientId)));
+                                .switchIfEmpty(Mono.error(new PatientNotFoundException(
+                                                messageSource.getMessage(PATIENT_NOT_FOUND,
+                                                                new Object[] {patientId},
+                                                                Locale.ENGLISH))));
         }
 
         /**
@@ -77,8 +87,8 @@ public class PatientController {
                                 .map(p -> new ResponseEntity<Object>(
                                                 modelMapper.map(p, PatientDto.class),
                                                 HttpStatus.CREATED))
-                                .onErrorMap(throwable -> new PatientCreationException());
-
+                                .onErrorMap(throwable -> new PatientCreationException(
+                                                "patient.not.created"));
         }
 
         /**
@@ -97,10 +107,15 @@ public class PatientController {
         public Mono<ResponseEntity<PatientDto>> updatePatient(@PathVariable("id") Long patientId,
                         @RequestBody Patient patient) {
 
-                //TODO verify validation for patient (not yet implemented)
+                // TODO verify validation for patient (not yet implemented)
+
                 return patientService.updatePatient(patientId, patient)
                                 .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
-                                .switchIfEmpty(Mono.error(new PatientNotFoundException(patientId)));
+                                .switchIfEmpty(Mono.error(new PatientNotFoundException(
+                                                messageSource.getMessage(
+                                                                PATIENT_NOT_FOUND,
+                                                                new Object[] {patientId},
+                                                                Locale.ENGLISH))));
         }
 
         /**
@@ -120,6 +135,10 @@ public class PatientController {
 
                 return patientService.deleteById(patientId)
                                 .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
-                                .switchIfEmpty(Mono.error(new PatientNotFoundException(patientId)));
+                                .switchIfEmpty(Mono.error(new PatientNotFoundException(
+                                                messageSource.getMessage(
+                                                                PATIENT_NOT_FOUND,
+                                                                new Object[] {patientId},
+                                                                Locale.ENGLISH))));
         }
 }

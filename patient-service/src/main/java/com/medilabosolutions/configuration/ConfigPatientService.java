@@ -1,9 +1,11 @@
 package com.medilabosolutions.configuration;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.r2dbc.connection.init.CompositeDatabasePopulator;
 import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
@@ -41,7 +43,8 @@ public class ConfigPatientService {
     }
 
     /**
-     * Bean to use singleton of modelMapper by injection in application 
+     * Bean to use singleton of modelMapper by injection in application
+     * 
      * @return modelMapper to map entity to Dto and vice versa
      */
     @Bean
@@ -49,4 +52,17 @@ public class ConfigPatientService {
         return new ModelMapper();
     }
 
+    /**
+     * Bean to use messages.properties as a library of messages
+     * 
+     * @return MessageSource to retrieve messages for log and response entity
+     */
+    @Bean
+    public MessageSource getMessageSource() {
+        ReloadableResourceBundleMessageSource messageSource =
+                new ReloadableResourceBundleMessageSource();
+        messageSource.setBasename("classpath:messages");
+        messageSource.setDefaultEncoding("UTF-8");
+        return messageSource;
+    }
 }
