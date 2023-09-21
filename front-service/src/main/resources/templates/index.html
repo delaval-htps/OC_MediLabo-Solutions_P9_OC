@@ -32,16 +32,16 @@
 
         <div id="form-creation-patient" class="col-8" th:style="${#maps.isEmpty(fieldsOnError)}?'display: none':''">
 
-            <form th:action="@{/patient}" method="post" th:object="${patientToCreate}">
-                
+            <form th:action="@{/patient}" method="post" th:object="${patient}">
+
                 <fieldset class="p-3 shadow mb-5 mt-3 bg-white rounded">
-                    
+
                     <div class="row">
                         <legend>Fill in personal informations </legend>
                     </div>
-                    
+
                     <div class="row g-3">
-                        
+
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
                             <label for="lastname" class="form-label">Lastname</label>
                             <input type="text" class="form-control" th:field="*{lastName}"
@@ -51,7 +51,7 @@
                                     th:text="${fieldsOnError['lastName']}" class="field-error"></li>
                             </ul>
                         </div>
-                        
+
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
                             <label for="firstname" class="form-label">Firstname</label>
                             <input type="text" class="form-control" th:field="*{firstName}"
@@ -61,7 +61,7 @@
                                     th:text="${fieldsOnError['firstName']}" class="field-error"></li>
                             </ul>
                         </div>
-                        
+
                         <div class="col-xl-3 col-lg-8 col-md-8 mb-3">
                             <label for="dateOfBirth" class="form-label">Date of Birth</label>
                             <input type="date" class="form-control" th:field="*{dateOfBirth}"
@@ -71,7 +71,7 @@
                                     th:text="${fieldsOnError['dateOfBirth']}" class="field-error"></li>
                             </ul>
                         </div>
-                        
+
                         <div class="col-xl-1 col-lg-4 col-md-4 mb-3">
                             <label for="genre" class="form-label">Genre</label>
                             <select class="form-select" th:field="*{genre}"
@@ -85,9 +85,9 @@
                             </ul>
                         </div>
                     </div>
-                    
+
                     <div class="row g-3">
-                    
+
                         <div class="col-xl-8 col-md-8 col-sm-12 col-xsm-12 mb-3">
                             <label for="address" class="form-label">Address</label>
                             <input type="text" class="form-control" th:field="*{address}"
@@ -97,12 +97,11 @@
                                     th:text="${fieldsOnError['address']}" class="field-error"></li>
                             </ul>
                         </div>
-                    
+
                         <div class="col-xl-4 col-md-4 col-sm-12 mb-3">
                             <label for="phoneNumber" class="form-label">phoneNumber</label>
                             <input type="text" class="form-control" th:field="*{phoneNumber}"
-                    
-                            th:classappend="${#maps.containsKey(fieldsOnError,'phoneNumber')}?'is-invalid':''">
+                                th:classappend="${#maps.containsKey(fieldsOnError,'phoneNumber')}?'is-invalid':''">
                             <ul>
                                 <li th:if="${#maps.containsKey(fieldsOnError,'phoneNumber')} "
                                     th:text="${fieldsOnError['phoneNumber']}" class="field-error"></li>
@@ -161,13 +160,13 @@
         </div>
     </th:block>
 
-    <th:block layout:fragment="other-script">
+    <!-- <th:block layout:fragment="other-script">
         <script th:inline="javascript">
             var errorMessage =/*[[${errorMessage}]]*/ '';
             var successMessage =/*[[${successMessage}]]*/ '';
             var fieldsOnError = /*[[${fieldsOnError}]]*/ '';
         </script>
-    </th:block>
+    </th:block> -->
 
     <th:block layout:fragment="page-script">
         <script type="text/javascript" th:src="@{/js/index.js}"></script>

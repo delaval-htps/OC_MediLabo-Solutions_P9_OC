@@ -48,6 +48,9 @@ public class GlobalExceptionHandler {
         public Mono<ResponseEntity<ProblemDetail>> handleValidationException(
                         WebExchangeBindException webe, ServerHttpRequest request) {
 
+                // TODO change map into map<String,List<String>> to display many error messages at
+                // same times
+
                 HashMap<String, String> mapFieldErrors = new HashMap<>();
 
                 String fieldsOnError =
@@ -66,7 +69,6 @@ public class GlobalExceptionHandler {
                                 request);
 
                 pb.setProperty("bindingResult", mapFieldErrors);
-
                 return Mono.just(ResponseEntity.badRequest().body(pb));
         }
 

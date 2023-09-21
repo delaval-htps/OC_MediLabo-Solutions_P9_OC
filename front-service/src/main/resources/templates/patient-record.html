@@ -20,39 +20,70 @@
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
                             <label for="lastname" class="form-label">Lastname</label>
                             <input type="text" class="form-control" th:field="*{lastName}"
-                                style="background-color: white;">
+                                style="background-color: white;"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'lastName')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'lastName')} "
+                                    th:text="${fieldsOnError['lastName']}" class="field-error"></li>
+                            </ul>
                         </div>
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
                             <label for="firstname" class="form-label">Firstname</label>
                             <input type="text" class="form-control" th:field="*{firstName}"
-                                style="background-color: white;">
+                                style="background-color: white;"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'firstName')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'firstName')} "
+                                    th:text="${fieldsOnError['firstName']}" class="field-error"></li>
+                            </ul>
+
                         </div>
                         <div class="col-xl-3 col-lg-8 col-md-8 mb-3">
                             <label for="dateOfBirth" class="form-label">Date of Birth</label>
-                            <input type="date"  class="form-control" th:field="*{dateOfBirth}"
-                                style="background-color: white;">
+                            <input type="date" class="form-control" th:field="*{dateOfBirth}"
+                                style="background-color: white;"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'firstName')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'dateOfBirth')} "
+                                    th:text="${fieldsOnError['dateOfBirth']}" class="field-error"></li>
+                            </ul>
                         </div>
                         <div class="col-xl-1 col-lg-4 col-md-4 mb-3">
                             <label for="genre" class="form-label">Genre</label>
-                            <select class="form-select" id="genre" style="background-color: white;" th:field="*{genre}">
+                            <select class="form-select" id="genre" style="background-color: white;" th:field="*{genre}"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'firstName')}?'is-invalid':''">
                                 <option selected hidden th:value="*{genre}" th:text="*{genre}"></option>
                                 <option value="M">M</option>
                                 <option value="F">F</option>
                             </select>
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'genre')} "
+                                    th:text="${fieldsOnError['genre']}" class="field-error"></li>
+                            </ul>
                         </div>
                     </div>
                     <div class="row g-3">
                         <div class="col-xl-8 col-md-8 col-sm-12 col-xsm-12 mb-3">
                             <label for="address" class="form-label">Address</label>
-                            <input type="text"  class="form-control" name="address" id="address"
+                            <input type="text" class="form-control" name="address" id="address"
                                 th:value="*{address != ''}?*{address}:'-- no informations --'" th:field="*{address}"
-                                style="background-color: white;">
+                                style="background-color: white;"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'firstName')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'address')} "
+                                    th:text="${fieldsOnError['address']}" class="field-error"></li>
+                            </ul>
                         </div>
                         <div class="col-xl-4 col-md-4 col-sm-12 mb-3">
                             <label for="phoneNumber" class="form-label">phoneNumber</label>
-                            <input type="text"  class="form-control" name="phoneNumber" id="phoneNumber"
+                            <input type="text" class="form-control" name="phoneNumber" id="phoneNumber"
                                 th:value="*{phoneNumber != ''}?*{phoneNumber}:'-- no informations --'"
-                                th:field="*{phoneNumber}" style="background-color: white;">
+                                th:field="*{phoneNumber}" style="background-color: white;"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'firstName')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'phoneNumber')} "
+                                    th:text="${fieldsOnError['phoneNumber']}" class="field-error"></li>
+                            </ul>
                         </div>
                     </div>
                     <div class="row p-3 justify-content-center">

@@ -35,6 +35,10 @@ public class UiController {
     private static final String ERROR_MESSAGE = "errorMessage";
     private static final String SUCCESS_MESSAGE = "successMessage";
 
+    private static final String CREATION = "created !";
+    private static final String UPDATE = "updated !";
+    private static final String DELETE = "deleted !";
+
     /**
      * Endpoint to display the index page of medilabo-solution with the list of all registred
      * PatientDtos (never get error , just only a avoid list of patients)
@@ -51,11 +55,13 @@ public class UiController {
 
         model.addAttribute("fieldsOnError", new HashMap<String, String>());
 
+        model.addAttribute("patient", new PatientDto());
+
+        // in case of bindingResult , we have to add to model fieldsOnError and to override patient
+        // with fields filled in by user to be able to display his errors
         addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError");
 
-        model.addAttribute("patientToCreate", new PatientDto());
         model.addAttribute("patients", patients);
-
 
         return Mono.just(Rendering.view("index").build());
     }
@@ -79,9 +85,15 @@ public class UiController {
 
                     logger.info("GET patient-record with id {} = {}", patientId, body);
 
-                    addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE);
+                    model.addAttribute("fieldsOnError", new HashMap<String, String>());
 
                     model.addAttribute("patient", body);
+
+                    // in case of bindingResult , we have to add to model fieldsOnError and to
+                    // override patient with fields filled in by user to be able to display his
+                    // errors
+                    addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE,
+                            "fieldsOnError");
 
                     return Mono.just(Rendering.view("patient-record").build());
                 });
@@ -99,12 +111,8 @@ public class UiController {
      */
     @PostMapping("/patient")
     public Mono<Rendering> createPatient(
-             @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate,
+            @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate,
             Model model, WebSession session) {
-
-        // TODO retrieve only fields errors from bindingResult from patient service and use it in
-        // index.html with thymeleaf
-
 
         return webclient.post().uri(patientServiceUrl)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -115,7 +123,7 @@ public class UiController {
                         : response.bodyToMono(PatientDto.class))
 
                 .flatMap(body -> {
-                    setSessionAttribute(body, session, "created !");
+                    setSessionAttribute(body, session, CREATION, patientToCreate);
                     logger.info("POST createPatient return = {}", body);
                     return Mono.just(Rendering.redirectTo("/").build());
                 });
@@ -137,7 +145,9 @@ public class UiController {
             @ModelAttribute(value = "patient") PatientDto updatedPatient, WebSession session,
             Model model) {
 
-        // TODO bindigResult
+        // delete id of patientDto to have a id null (must to have a correct validation in
+        // patient-service)
+        updatedPatient.setId(null);
 
         return webclient.put().uri(patientServiceUrl + "/{id}", patientId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -149,9 +159,12 @@ public class UiController {
 
                 ).flatMap(body -> {
                     logger.info("POST updatePatient with id {} return = {}", patientId, body);
-                    return setSessionAttribute(body, session, "updated").equals(SUCCESS_MESSAGE)
-                            ? Mono.just(Rendering.redirectTo("/").build())
-                            : Mono.just(Rendering.view("patient-record").build());
+
+                    return setSessionAttribute(body, session, UPDATE, updatedPatient)
+                            .equals(SUCCESS_MESSAGE)
+                                    ? Mono.just(Rendering.redirectTo("/").build())
+                                    : Mono.just(Rendering.redirectTo("/patient-record/" + patientId)
+                                            .build());
                 });
 
     }
@@ -173,7 +186,7 @@ public class UiController {
                         : response.bodyToMono(PatientDto.class))
                 .flatMap(body -> {
                     logger.info("GET deletePatient return = {}", body);
-                    setSessionAttribute(body, session, "deleted !");
+                    setSessionAttribute(body, session, DELETE);
                     return Mono.just(Rendering.redirectTo("/").build());
                 });
 
@@ -185,10 +198,16 @@ public class UiController {
      * 
      * @param body body content of a response from webclient request to add to message
      * @param session the websession of the request of endpoint
+     * @param typeOfOperation String to modify message in toast in case of success message according
+     *        to type of operation: create/update or delete a patient
+     * @param PatientDto... optional parameter of user-provided patient in form to create one or
+     *        update a existing one
      * @return String : if body is ProblemDetail then return is ERRORMESSAGE (with if exists
-     *         bindingResult) else SUCCESSMESSAGE
+     *         bindingResult and user-provided patient ) else customized SUCCESSMESSAGE with type of
+     *         operation ( created, updated or deleted !)
      */
-    private String setSessionAttribute(Object body, WebSession session, String typeOfOperation) {
+    private String setSessionAttribute(Object body, WebSession session, String typeOfOperation,
+            PatientDto... userProvidedPatient) {
 
         if (body instanceof ProblemDetail) {
 
@@ -196,12 +215,19 @@ public class UiController {
 
             Map<String, Object> properties = pb.getProperties();
 
+            // in case of existence of bindingResult in problemDetail , we have to add it to session
+            // to be retrieve in redirection and add fieldsOnError in model
             if (properties != null && properties.containsKey("bindingResult")) {
-
                 session.getAttributes().put("fieldsOnError", properties.get("bindingResult"));
             }
+            
+            // TODO return the userProvided patient in session to display fields filled in by user
+            if (userProvidedPatient != null) {
+                session.getAttributes().put("patient", userProvidedPatient);
+            }
 
-            session.getAttributes().put(ERROR_MESSAGE, pb.getTitle() + pb.getDetail());
+            session.getAttributes().put(ERROR_MESSAGE,
+                    "A problem occurs: " + pb.getTitle() + " => " + pb.getDetail());
 
             return ERROR_MESSAGE;
 
@@ -218,11 +244,12 @@ public class UiController {
 
 
     /**
-     * method to remove attribute of a websession and add it to model of view
+     * method to remove attributes of a websession and add them to model of view
      * 
      * @param model the model to add attribute
      * @param session the attribute to remove and add to model of view
-     * @param messages list of (String)messages to remove from websession and add to model
+     * @param messages list of (String)messages (name of attribute in session)to remove from
+     *        websession and add them to model
      */
     private void addAttributeSessionToModel(Model model, WebSession session, String... messages) {
 
