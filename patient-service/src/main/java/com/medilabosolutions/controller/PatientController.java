@@ -64,7 +64,8 @@ public class PatientController {
         @GetMapping("/{id}")
         public Mono<ResponseEntity<PatientDto>> getPatientById(@PathVariable("id") Long patientId) {
 
-                return patientService.findById(patientId)
+                return patientService
+                                .findById(patientId)
                                 .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
                                 .switchIfEmpty(Mono.error(new PatientNotFoundException(
                                                 messageSource.getMessage(PATIENT_NOT_FOUND,
@@ -83,7 +84,8 @@ public class PatientController {
         public Mono<ResponseEntity<Object>> createPatient(
                         @Valid @RequestBody PatientDto patientDto) {
 
-                return patientService.createPatient(modelMapper.map(patientDto, Patient.class))
+                return patientService
+                                .createPatient(modelMapper.map(patientDto, Patient.class))
                                 .map(p -> new ResponseEntity<Object>(
                                                 modelMapper.map(p, PatientDto.class),
                                                 HttpStatus.CREATED))
@@ -105,11 +107,10 @@ public class PatientController {
          */
         @PutMapping(value = "/{id}")
         public Mono<ResponseEntity<PatientDto>> updatePatient(@PathVariable("id") Long patientId,
-                        @RequestBody Patient patient) {
+                        @Valid @RequestBody PatientDto patient) {
 
-                // TODO verify validation for patient (not yet implemented)
-
-                return patientService.updatePatient(patientId, patient)
+                return patientService
+                                .updatePatient(patientId, modelMapper.map(patient, Patient.class))
                                 .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
                                 .switchIfEmpty(Mono.error(new PatientNotFoundException(
                                                 messageSource.getMessage(
@@ -133,7 +134,8 @@ public class PatientController {
         @DeleteMapping("/{id}")
         public Mono<ResponseEntity<PatientDto>> deletePatient(@PathVariable("id") Long patientId) {
 
-                return patientService.deleteById(patientId)
+                return patientService
+                                .deleteById(patientId)
                                 .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
                                 .switchIfEmpty(Mono.error(new PatientNotFoundException(
                                                 messageSource.getMessage(
