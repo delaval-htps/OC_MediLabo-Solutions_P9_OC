@@ -26,7 +26,7 @@
 
             <div class="ms-auto p-2 ">
                 <button id="btn-creation-patient" type="button" class=" btn btn-primary "
-                    onclick="toggleFormPatient()">Add new patient</button>
+                    onclick="toggleFormPatient()" th:text="${#maps.isEmpty(fieldsOnError)}?'Add new Patient':'Cancel'"></button>
             </div>
         </div>
 

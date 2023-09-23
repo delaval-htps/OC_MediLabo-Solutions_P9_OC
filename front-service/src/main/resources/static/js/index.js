@@ -17,7 +17,7 @@ function toggleFormPatient() {
         btnToCreatePatient.classList.remove('btn-primary')
         btnToCreatePatient.classList.add('btn-outline-primary')
         btnToCreatePatient.innerText = 'Cancel'
-    } else if (fieldsOnError != ''){
+    } else {
         formToCreatePatient.style.display = "none";
         btnToCreatePatient.classList.add('btn-primary')
         btnToCreatePatient.classList.remove('btn-outline-primary')
