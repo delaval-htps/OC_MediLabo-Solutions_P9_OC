@@ -9,7 +9,6 @@ function rowClicked(patientId) {
 }
 
 // toggle form to create new patient
-//TODO if there is a bindingresult then button add new patient must display cancel
 
 function toggleFormPatient() {
     if (formToCreatePatient.style.display === 'none') {

@@ -126,6 +126,7 @@
                 <!-- TODO hide patient id and just display a number -->
                 <thead>
                     <tr>
+                        <th class="d-none"></th>
                         <th>#</th>
                         <th>Lastname</th>
                         <th>Firstname</th>
@@ -137,9 +138,10 @@
                     </tr>
                 </thead>
                 <tbody class="table-group-divider">
-                    <tr th:each="patient : ${patients}" style="cursor:pointer;" th:patientId="${patient.id}"
+                    <tr th:each="patient,iterator : ${patients}" style="cursor:pointer;" th:patientId="${patient.id}"
                         onclick="rowClicked(this.getAttribute('patientId'))">
-                        <td th:text="${patient.id}"></td>
+                        <td th:text="${patient.id}" class="d-none"></td>
+                        <td th:text="${iterator.index}"></td>
                         <td th:text="${patient.lastName}"></td>
                         <td th:text="${patient.firstName}"></td>
                         <td th:text="${patient.dateOfBirth}"></td>
