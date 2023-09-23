@@ -46,6 +46,6 @@ public class PatientDto {
 
     private String address;
 
-    @Pattern(regexp = "^[0-9]{3}-[0-9]{3}-[0-9]{4}$",  message="invalid phone number, example : 333-444-5555")
+    @Pattern(regexp = "^$|^[0-9]{3}-[0-9]{3}-[0-9]{4}$",  message="invalid phone number, example : 333-444-5555")
     private String phoneNumber;
 }
