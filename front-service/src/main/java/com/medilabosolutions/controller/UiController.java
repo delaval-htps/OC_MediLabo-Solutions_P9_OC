@@ -2,6 +2,7 @@ package com.medilabosolutions.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,14 +55,15 @@ public class UiController {
                 .bodyToFlux(PatientDto.class);
 
         model.addAttribute("fieldsOnError", new HashMap<String, String>());
-
         model.addAttribute("patient", new PatientDto());
 
         // in case of bindingResult , we have to add to model fieldsOnError and to override patient
         // with fields filled in by user to be able to display his errors
-        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError");
+        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError",
+                "patient");
 
         model.addAttribute("patients", patients);
+        logger.info("request GET all patients");
 
         return Mono.just(Rendering.view("index").build());
     }
@@ -86,7 +88,6 @@ public class UiController {
                     logger.info("GET patient-record with id {} = {}", patientId, body);
 
                     model.addAttribute("fieldsOnError", new HashMap<String, String>());
-
                     model.addAttribute("patient", body);
 
                     // in case of bindingResult , we have to add to model fieldsOnError and to
@@ -123,8 +124,10 @@ public class UiController {
                         : response.bodyToMono(PatientDto.class))
 
                 .flatMap(body -> {
-                    setSessionAttribute(body, session, CREATION, patientToCreate);
-                    logger.info("POST createPatient return = {}", body);
+
+                    logger.info("request POST createPatient");
+                    setSessionAttribute(body, session, CREATION, Optional.of(patientToCreate));
+
                     return Mono.just(Rendering.redirectTo("/").build());
                 });
 
@@ -158,9 +161,10 @@ public class UiController {
                         : response.bodyToMono(PatientDto.class)
 
                 ).flatMap(body -> {
-                    logger.info("POST updatePatient with id {} return = {}", patientId, body);
 
-                    return setSessionAttribute(body, session, UPDATE, updatedPatient)
+                    logger.info("request POST updatePatient with id {}", patientId);
+
+                    return setSessionAttribute(body, session, UPDATE, Optional.of(updatedPatient))
                             .equals(SUCCESS_MESSAGE)
                                     ? Mono.just(Rendering.redirectTo("/").build())
                                     : Mono.just(Rendering.redirectTo("/patient-record/" + patientId)
@@ -184,9 +188,11 @@ public class UiController {
                 .exchangeToMono(response -> response.statusCode().isError()
                         ? response.bodyToMono(ProblemDetail.class)
                         : response.bodyToMono(PatientDto.class))
+
                 .flatMap(body -> {
-                    logger.info("GET deletePatient return = {}", body);
-                    setSessionAttribute(body, session, DELETE);
+                    logger.info("request GET deletePatient");
+                    setSessionAttribute(body, session, DELETE, Optional.empty());
+
                     return Mono.just(Rendering.redirectTo("/").build());
                 });
 
@@ -207,7 +213,7 @@ public class UiController {
      *         operation ( created, updated or deleted !)
      */
     private String setSessionAttribute(Object body, WebSession session, String typeOfOperation,
-            PatientDto... userProvidedPatient) {
+            Optional<PatientDto> userProvidedPatient) {
 
         if (body instanceof ProblemDetail) {
 
@@ -220,23 +226,26 @@ public class UiController {
             if (properties != null && properties.containsKey("bindingResult")) {
                 session.getAttributes().put("fieldsOnError", properties.get("bindingResult"));
             }
-            
-            // TODO return the userProvided patient in session to display fields filled in by user
-            if (userProvidedPatient != null) {
+
+            // add into session , the fields that user filled in that represents patientDto
+            if (userProvidedPatient.isPresent()) {
                 session.getAttributes().put("patient", userProvidedPatient);
             }
 
-            session.getAttributes().put(ERROR_MESSAGE,
-                    "A problem occurs: " + pb.getTitle() + " => " + pb.getDetail());
+            logger.error("error of type {} : {} \t {}", typeOfOperation, pb.getTitle(),
+                    pb.getDetail());
+            session.getAttributes().put(ERROR_MESSAGE, "A problem occurs, "
+                    + pb.getTitle().split("-")[1]
+                    + pb.getDetail() + ".");
 
             return ERROR_MESSAGE;
 
         } else {
 
             PatientDto patient = (PatientDto) body;
-
             session.getAttributes().put(SUCCESS_MESSAGE,
                     "Patient " + patient.getLastName() + " was correctly " + typeOfOperation);
+            logger.info("success : {} {}", body, typeOfOperation);
 
             return SUCCESS_MESSAGE;
         }
