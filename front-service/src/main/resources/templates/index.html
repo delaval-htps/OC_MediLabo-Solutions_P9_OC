@@ -25,8 +25,8 @@
             </div>
 
             <div class="ms-auto p-2 ">
-                <button id="btn-creation-patient" type="button" class=" btn btn-primary "
-                    onclick="toggleFormPatient()" th:text="${#maps.isEmpty(fieldsOnError)}?'Add new Patient':'Cancel'"></button>
+                <button id="btn-creation-patient" type="button" class=" btn btn-primary " onclick="toggleFormPatient()"
+                    th:text="${#maps.isEmpty(fieldsOnError)}?'Add new Patient':'Cancel'"></button>
             </div>
         </div>
 
@@ -121,9 +121,9 @@
 
             <table id="patient-table" class="table table-sm table-hover ">
 
-                <caption>List of all patients</caption>
+                <caption style="display:none;">List of all patients</caption>
+
                 <!-- TODO pagination for table-->
-                <!-- TODO hide patient id and just display a number -->
                 <thead>
                     <tr>
                         <th class="d-none"></th>
@@ -138,7 +138,7 @@
                     </tr>
                 </thead>
                 <tbody class="table-group-divider">
-                    <tr th:each="patient,iterator : ${patients}" style="cursor:pointer;" th:patientId="${patient.id}"
+                    <tr th:each="patient,iterator : ${patientPages.content}" style="cursor:pointer;" th:patientId="${patient.id}"
                         onclick="rowClicked(this.getAttribute('patientId'))">
                         <td th:text="${patient.id}" class="d-none"></td>
                         <td th:text="${iterator.index}"></td>
@@ -157,8 +157,23 @@
                             </div>
                         </td>
                     </tr>
+
                 </tbody>
+
             </table>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item"><a class="page-link" th:href="${patientPages.number>0}? @{/(page=${patientPages.number -1},size=${patientPages.size})}:''">Previous</a></li>
+                    <p th:each="pageNumber : ${pageNumbers}">
+                        <li class="page-item">
+                            <a class="page-link" th:href="@{/(page=${pageNumber -1},size=${patientPages.size})}" th:text="${pageNumber}"
+                                th:classAppend="${pageNumber==patientPages.number+ 1} ? active"></a>
+                        </li>
+                    </p>
+                    <li class="page-item"><a class="page-link"  th:href="${patientPages.number < patientPages.totalPages-1}? @{/(page=${patientPages.number+1 },size=${patientPages.size})}:''">Next</a></li>
+                </ul>
+            </nav>
+
         </div>
     </th:block>
 
