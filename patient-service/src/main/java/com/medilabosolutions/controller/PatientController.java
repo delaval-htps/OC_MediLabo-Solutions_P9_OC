@@ -3,6 +3,8 @@ package com.medilabosolutions.controller;
 import java.util.Locale;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,8 +49,15 @@ public class PatientController {
         @GetMapping
         public ResponseEntity<Flux<PatientDto>> getAllPatients() {
 
-                return ResponseEntity.ok(patientService.findAll()
-                                .map(p -> modelMapper.map(p, PatientDto.class)));
+                return ResponseEntity.ok(patientService.findAll().map(p -> modelMapper.map(p, PatientDto.class)));
+        }
+
+        @GetMapping("/{page}/{size}")
+        public ResponseEntity<Mono<Page<Patient>>> getPagePatients(
+                        @PathVariable(value = "page") int pageNumber,
+                        @PathVariable(value = "size") int pageSize) {
+
+                return ResponseEntity.ok(patientService.findAllByPage(PageRequest.of(pageNumber, pageSize)));
         }
 
         /**
@@ -64,33 +73,25 @@ public class PatientController {
         @GetMapping("/{id}")
         public Mono<ResponseEntity<PatientDto>> getPatientById(@PathVariable("id") Long patientId) {
 
-                return patientService
-                                .findById(patientId)
+                return patientService.findById(patientId)
                                 .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
-                                .switchIfEmpty(Mono.error(new PatientNotFoundException(
-                                                messageSource.getMessage(PATIENT_NOT_FOUND,
-                                                                new Object[] {patientId},
-                                                                Locale.ENGLISH))));
+                                .switchIfEmpty(Mono.error(new PatientNotFoundException(messageSource.getMessage(PATIENT_NOT_FOUND,
+                                                new Object[] {patientId}, Locale.ENGLISH))));
         }
 
         /**
          * create a patient
          * 
          * @param patient in json format in requestBody
-         * @return a reactive stream of ResponseEntity with HttpStatus.created and body created
-         *         patient
+         * @return a reactive stream of ResponseEntity with HttpStatus.created and body created patient
          */
         @PostMapping
         public Mono<ResponseEntity<Object>> createPatient(
                         @Valid @RequestBody PatientDto patientDto) {
 
-                return patientService
-                                .createPatient(modelMapper.map(patientDto, Patient.class))
-                                .map(p -> new ResponseEntity<Object>(
-                                                modelMapper.map(p, PatientDto.class),
-                                                HttpStatus.CREATED))
-                                .onErrorMap(throwable -> new PatientCreationException(
-                                                "patient.not.created"));
+                return patientService.createPatient(modelMapper.map(patientDto, Patient.class))
+                                .map(p -> new ResponseEntity<Object>(modelMapper.map(p, PatientDto.class), HttpStatus.CREATED))
+                                .onErrorMap(throwable -> new PatientCreationException("patient.not.created"));
         }
 
         /**
@@ -101,22 +102,17 @@ public class PatientController {
          * @return a reactive stream of ResponseEntity :
          *         <ul>
          *         <li>- with HttpStatus.ok and patient in body, if update operation is ok</li>
-         *         <li>- with HttpStatus.badRequest with empty patient if update operation
-         *         fails</li>
+         *         <li>- with HttpStatus.badRequest with empty patient if update operation fails</li>
          *         </ul>
          */
         @PutMapping(value = "/{id}")
         public Mono<ResponseEntity<PatientDto>> updatePatient(@PathVariable("id") Long patientId,
                         @Valid @RequestBody PatientDto patient) {
 
-                return patientService
-                                .updatePatient(patientId, modelMapper.map(patient, Patient.class))
+                return patientService.updatePatient(patientId, modelMapper.map(patient, Patient.class))
                                 .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
-                                .switchIfEmpty(Mono.error(new PatientNotFoundException(
-                                                messageSource.getMessage(
-                                                                PATIENT_NOT_FOUND,
-                                                                new Object[] {patientId},
-                                                                Locale.ENGLISH))));
+                                .switchIfEmpty(Mono.error(new PatientNotFoundException(messageSource.getMessage(PATIENT_NOT_FOUND,
+                                                new Object[] {patientId}, Locale.ENGLISH))));
         }
 
         /**
@@ -125,22 +121,16 @@ public class PatientController {
          * @param patientId id of patient to delete
          * @return a reactive stream of ResponseEntity :
          *         <ul>
-         *         <li>- with HttpStatus.ok and deleted patient in body, if delete operation is
-         *         ok</li>
-         *         <li>- with HttpStatus.notfound with empty patient if delete operation fails
-         *         because of not found patient</li>
+         *         <li>- with HttpStatus.ok and deleted patient in body, if delete operation is ok</li>
+         *         <li>- with HttpStatus.notfound with empty patient if delete operation fails because of not found patient</li>
          *         </ul>
          */
         @DeleteMapping("/{id}")
         public Mono<ResponseEntity<PatientDto>> deletePatient(@PathVariable("id") Long patientId) {
 
-                return patientService
-                                .deleteById(patientId)
+                return patientService.deleteById(patientId)
                                 .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
-                                .switchIfEmpty(Mono.error(new PatientNotFoundException(
-                                                messageSource.getMessage(
-                                                                PATIENT_NOT_FOUND,
-                                                                new Object[] {patientId},
-                                                                Locale.ENGLISH))));
+                                .switchIfEmpty(Mono.error(new PatientNotFoundException(messageSource.getMessage(PATIENT_NOT_FOUND,
+                                                new Object[] {patientId}, Locale.ENGLISH))));
         }
 }

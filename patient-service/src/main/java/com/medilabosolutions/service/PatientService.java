@@ -1,8 +1,12 @@
 package com.medilabosolutions.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.medilabosolutions.model.Patient;
 import com.medilabosolutions.repository.PatientRepository;
+import com.medilabosolutions.repository.PatientSortRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,14 +16,27 @@ import reactor.core.publisher.Mono;
 public class PatientService {
 
     private final PatientRepository patientRepository;
+    private final PatientSortRepository patientSortRepository;
 
     /*
      * method to retrieve all patients in db
-     * 
      * @return Reactive Stream of all patients presents in db
      */
     public Flux<Patient> findAll() {
         return patientRepository.findAll();
+    }
+
+    /**
+     * method to return a page of patients
+     * 
+     * @param pageable abstract interface for pagination
+     * @return a Mono of Page of patients
+     */
+    public Mono<Page<Patient>> findAllByPage(Pageable pageable) {
+        return patientSortRepository.findAllBy(pageable)
+                .collectList()
+                .zipWith(patientRepository.count())
+                .map(p -> new PageImpl<>(p.getT1(), pageable, p.getT2()));
     }
 
     /**
@@ -52,16 +69,16 @@ public class PatientService {
     public Mono<Patient> updatePatient(Long patientId, Patient patient) {
 
         return patientRepository.findById(patientId)
-                .flatMap(p -> { // use of flatmap instead map
-                                // 'cause of its return of type
-                                // Mono<Patient> contrary to map
-                                // that is Mono<Object>
+                .flatMap(p -> {
+                    // use of flatmap instead map 'cause of its return of type
+                    // Mono<Patient> contrary to map that is Mono<Object>
                     p.setLastName(patient.getLastName());
                     p.setFirstName(patient.getFirstName());
                     p.setDateOfBirth(patient.getDateOfBirth());
                     p.setGenre(patient.getGenre());
                     p.setAddress(patient.getAddress());
                     p.setPhoneNumber(patient.getPhoneNumber());
+
                     return patientRepository.save(p);
                 });
     }
@@ -74,8 +91,7 @@ public class PatientService {
      */
     public Mono<Patient> deleteById(Long patientId) {
         return patientRepository.findById(patientId)
-                .flatMap(patientToDelete -> patientRepository
-                        .delete(patientToDelete)
+                .flatMap(patientToDelete -> patientRepository.delete(patientToDelete)
                         .thenReturn(patientToDelete));
     }
 }
