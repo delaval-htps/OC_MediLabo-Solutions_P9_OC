@@ -26,13 +26,13 @@
 
             <div class="ms-auto p-2 ">
                 <button id="btn-creation-patient" type="button" class=" btn btn-primary " onclick="toggleFormPatient()"
-                    th:text="${#maps.isEmpty(fieldsOnError)}?'Add new Patient':'Cancel'"></button>
+                    th:text="${#maps.isEmpty(fieldsOnError)}?'Add new patient':'Cancel'"></button>
             </div>
         </div>
 
-        <div id="form-creation-patient" class="col-8" th:style="${#maps.isEmpty(fieldsOnError)}?'display: none':''">
+        <div id="patient-creation-div" class="col-8" th:style="${#maps.isEmpty(fieldsOnError)}?'display: none':''">
 
-            <form th:action="@{/patient}" method="post" th:object="${patient}">
+            <form  id="form-patient" th:action="@{/patient}" method="post" th:object="${patient}">
 
                 <fieldset class="p-3 shadow mb-5 mt-3 bg-white rounded">
 
@@ -163,7 +163,7 @@
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-center">
                     <li class="page-item"><a class="page-link"
-                            th:href=" @{/(page=0,size=${patientPages.size})}">&laquo;</a>
+                            th:href=" @{/(page=0,size=${patientPages.size})}">First</a>
                     </li>
                     <li class="page-item"><a class="page-link"
                             th:href="${patientPages.number>0}? @{/(page=${patientPages.number -1},size=${patientPages.size})}:''">Previous</a>
@@ -221,7 +221,7 @@
                             th:href="${patientPages.number < patientPages.totalPages-1}? @{/(page=${patientPages.number+1 },size=${patientPages.size})}:''">Next</a>
                     </li>
                     <li class="page-item"><a class="page-link"
-                            th:href=" @{/(page=${patientPages.totalPages -1},size=${patientPages.size})}">&raquo;</a>
+                            th:href=" @{/(page=,size=${patientPages.size})}">First</a>
                     </li>
                 </ul>
             </nav>

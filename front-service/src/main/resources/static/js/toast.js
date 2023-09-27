@@ -1,3 +1,9 @@
+
+console.log("errorMessage = " + errorMessage)
+console.log("successMessage = " + successMessage)
+console.log("fieldsOnError  = " + JSON.stringify(fieldsOnError))
+console.log("totalPages ="+ JSON.stringify(totalPages))
+
 //management of toast in page
 
 const indexToast = document.getElementById('index-toast')
