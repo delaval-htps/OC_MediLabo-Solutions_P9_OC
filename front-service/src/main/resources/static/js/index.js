@@ -5,8 +5,8 @@ let formPatient = document.getElementById("form-patient")
 // display patient record when click on table row
 
 function rowClicked(patientId) {
-    
-    location.href = "/patient-record/" + patientId +"?update=false"
+
+    location.href = "/patient-record/" + patientId + "?update=false"
 }
 
 // toggle form to create new patient
@@ -22,9 +22,14 @@ function toggleFormPatient() {
         btnToCreatePatient.classList.add('btn-primary')
         btnToCreatePatient.classList.remove('btn-outline-primary')
         btnToCreatePatient.innerText = 'Add new patient'
-        formPatient.reset()
-        if (fieldsOnError !={}){
-            document.location.reload();
-        }
+
+        document.querySelectorAll('#form-patient .field-patient').forEach(element => {
+            element.querySelector('ul').innerHTML = ''
+            console.log(element.querySelector('.form-control'))
+            element.querySelector('.form-control').classList.remove('is-invalid')
+            element.querySelector('.form-control').value=''
+        });
     }
+
+
 }
