@@ -140,7 +140,7 @@
                     <tr th:each="patient,iterator : ${patientPages.content}" style="cursor:pointer;"
                         th:patientId="${patient.id}" onclick="rowClicked(this.getAttribute('patientId'))">
                         <td th:text="${patient.id}" class="d-none"></td>
-                        <td th:text="${iterator.index}"></td>
+                        <td th:text="${iterator.index + (patientPages.number)*10 }"></td>
                         <td th:text="${patient.lastName}"></td>
                         <td th:text="${patient.firstName}"></td>
                         <td th:text="${patient.dateOfBirth}"></td>
