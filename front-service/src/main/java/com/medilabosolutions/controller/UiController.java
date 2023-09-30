@@ -75,12 +75,12 @@ public class UiController {
                                         }
 
                                         model.addAttribute("fieldsOnError", new HashMap<String, String>());
-                                        model.addAttribute("patient", new PatientDto());
+                                        model.addAttribute("patientToCreate", new PatientDto());
                                         model.addAttribute("patientPages", restPage);
 
                                         // in case of bindingResult , we have to add to model fieldsOnError and to override patientwith fields filled
                                         // in by user to be able to display his errors
-                                        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError", "patient");
+                                        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError", "patientToCreate");
 
                                         logger.info("request GET all patients");
 

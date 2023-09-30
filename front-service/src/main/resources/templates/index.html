@@ -32,7 +32,7 @@
 
         <div id="patient-creation-div" class="col-8" th:style="${#maps.isEmpty(fieldsOnError)}?'display: none':''">
 
-            <form  id="form-patient" th:action="@{/patient}" method="post" th:object="${patient}">
+            <form  id="form-patient" th:action="@{/patient}" method="post" th:object="${patientToCreate}">
 
                 <fieldset class="p-3 shadow mb-5 mt-3 bg-white rounded">
 
@@ -42,7 +42,7 @@
 
                     <div class="row g-3">
 
-                        <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
+                        <div class="col-xl-4 col-lg-6 col-md-6 mb-3 field-patient">
                             <label for="lastname" class="form-label">Lastname</label>
                             <input type="text" class="form-control" th:field="*{lastName}"
                                 th:classappend="${#maps.containsKey(fieldsOnError,'lastName')}?'is-invalid':''">
@@ -52,7 +52,7 @@
                             </ul>
                         </div>
 
-                        <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
+                        <div class="col-xl-4 col-lg-6 col-md-6 mb-3 field-patient">
                             <label for="firstname" class="form-label">Firstname</label>
                             <input type="text" class="form-control" th:field="*{firstName}"
                                 th:classappend="${#maps.containsKey(fieldsOnError,'firstName')}?'is-invalid':''">
@@ -62,7 +62,7 @@
                             </ul>
                         </div>
 
-                        <div class="col-xl-3 col-lg-8 col-md-8 mb-3">
+                        <div class="col-xl-3 col-lg-8 col-md-8 mb-3 field-patient">
                             <label for="dateOfBirth" class="form-label">Date of Birth</label>
                             <input type="date" class="form-control" th:field="*{dateOfBirth}"
                                 th:classappend="${#maps.containsKey(fieldsOnError,'dateOfBirth')}?'is-invalid':''">
@@ -72,7 +72,7 @@
                             </ul>
                         </div>
 
-                        <div class="col-xl-1 col-lg-4 col-md-4 mb-3">
+                        <div class="col-xl-1 col-lg-4 col-md-4 mb-3 ">
                             <label for="genre" class="form-label">Genre</label>
                             <select class="form-select" th:field="*{genre}"
                                 th:classappend="${#maps.containsKey(fieldsOnError,'genre')}?'is-invalid':''">
@@ -88,7 +88,7 @@
 
                     <div class="row g-3">
 
-                        <div class="col-xl-8 col-md-8 col-sm-12 col-xsm-12 mb-3">
+                        <div class="col-xl-8 col-md-8 col-sm-12 col-xsm-12 mb-3 field-patient">
                             <label for="address" class="form-label">Address</label>
                             <input type="text" class="form-control" th:field="*{address}"
                                 th:classappend="${#maps.containsKey(fieldsOnError,'address')}?'is-invalid':''">
@@ -98,7 +98,7 @@
                             </ul>
                         </div>
 
-                        <div class="col-xl-4 col-md-4 col-sm-12 mb-3">
+                        <div class="col-xl-4 col-md-4 col-sm-12 mb-3 field-patient">
                             <label for="phoneNumber" class="form-label">phoneNumber</label>
                             <input type="text" class="form-control" th:field="*{phoneNumber}"
                                 th:classappend="${#maps.containsKey(fieldsOnError,'phoneNumber')}?'is-invalid':''">
