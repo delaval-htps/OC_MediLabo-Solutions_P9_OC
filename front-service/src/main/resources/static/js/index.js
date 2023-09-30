@@ -5,7 +5,8 @@ let formPatient = document.getElementById("form-patient")
 // display patient record when click on table row
 
 function rowClicked(patientId) {
-    location.href = "/patient-record/" + patientId
+    
+    location.href = "/patient-record/" + patientId +"?update=false"
 }
 
 // toggle form to create new patient

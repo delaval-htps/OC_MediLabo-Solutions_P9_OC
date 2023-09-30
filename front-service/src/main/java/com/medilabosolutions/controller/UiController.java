@@ -58,8 +58,7 @@ public class UiController {
         public Mono<Rendering> index(@RequestParam(value = "page") Optional<Integer> page,
                         @RequestParam(value = "size") Optional<Integer> size,
                         Model model, WebSession session) {
-                                
-                // TODO conserver la page lors d'une redirection !!!!!!
+
                 int currentPage = page.orElse(0);
                 int pageSize = size.orElse(10);
 
@@ -245,8 +244,8 @@ public class UiController {
 
                         logger.error("error of type {} : {} \t {}", typeOfOperation, pb.getTitle(),
                                         pb.getDetail());
-                        session.getAttributes().put(ERROR_MESSAGE, "A problem occurs, "
-                                        + pb.getTitle().split("-")[1]
+                        session.getAttributes().put(ERROR_MESSAGE, "<h6><ins>A problem occurs, "
+                                        + pb.getTitle().split("-")[1] + "</ins></h6>"
                                         + pb.getDetail() + ".");
 
                         return ERROR_MESSAGE;
@@ -254,9 +253,9 @@ public class UiController {
                 } else {
 
                         PatientDto patient = (PatientDto) body;
-                        session.getAttributes().put(SUCCESS_MESSAGE,
+                        session.getAttributes().put(SUCCESS_MESSAGE, "<h6><ins>Sucessful action!</ins></h6>" +
                                         "Patient " + patient.getLastName() + " was correctly "
-                                                        + typeOfOperation);
+                                        + typeOfOperation);
                         logger.info("success : {} {}", body, typeOfOperation);
 
                         return SUCCESS_MESSAGE;
