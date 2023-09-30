@@ -169,7 +169,7 @@
                             th:href="${patientPages.number>0}? @{/(page=${patientPages.number -1},size=${patientPages.size})}:''">Previous</a>
                     </li>
 
-                    <th:block id="page-number-list" th:if="${#lists.size(pageNumbers) <10 }"
+                    <th:block id="page-number-list" th:if="${#lists.size(pageNumbers) <= 10 }"
                         th:each="pageNumber : ${pageNumbers}">
                         <li class="page-item">
                             <a class="page-link" th:href="@{/(page=${pageNumber -1},size=${patientPages.size})}"
