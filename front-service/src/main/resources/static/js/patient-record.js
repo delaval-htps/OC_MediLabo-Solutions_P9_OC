@@ -1,6 +1,8 @@
-let updateQueryString = location.search.substring(1)
-console.log(updateQueryString)
-let update = updateQueryString.split('=')[1]
+// let updateQueryString = location.search.substring(1)
+// console.log(updateQueryString)
+// let update = updateQueryString.split('=')[1]
+const urlParams = new URLSearchParams(window.location.search)
+const update = urlParams.get('update')
 console.log(update)
 
 if (update == 'false') {
