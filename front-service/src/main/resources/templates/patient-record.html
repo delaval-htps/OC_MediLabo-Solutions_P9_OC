@@ -8,14 +8,37 @@
 
 <body>
     <th:block layout:fragment="content">
-        <div class="col-8 justify-content-center align-items-baseline">
-
+        <div class="col-8 ">
+            
+            <div class="d-flex inline-flex align-items-baseline">
+            
+                <div class="alert alert-info d-flex" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <div class="ms-3">
+                        You can edit informations by clicking the blue pencil displayed on right on each fielset.
+                    </div>
+                </div>
+            
+                <div class="ms-auto">
+                    <a th:href="@{/}"><button id="btn-return-index" type="button" class="btn btn-primary">Return</button></a>
+                </div>
+            </div>
+            
             <form id="form-update-patient" th:object="${patient}" th:action="@{/patient/}+*{id}" method="post">
 
-                <fieldset class="p-3 shadow m-5 bg-white rounded ">
-                    <div class="row">
-                        <legend>Personal Informations </legend>
+                <fieldset class="pt-1 px-3 shadow mt-3 bg-white rounded-4 ">
+                    
+                    <div class="d-flex inline-flex align-items-baseline mb-3">
+                        <legend class="text-primary fs-5 mb-3"><ins>Personal Informations:</ins></legend>
+                        <i class="bi bi-pencil-square text-primary" style="font-size: 2rem; cursor:pointer;"
+                            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip"
+                            data-bs-title="Click to update personal information of patient."
+                            onclick="enablePersonalInformation()"></i>
+                        <i class="bi bi-x-square text-primary" style="font-size: 2rem; cursor:pointer;display:none;"
+                            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip"
+                            data-bs-title="Undo patient edit." onclick="disablePersonalInformation()"> </i>
                     </div>
+                    
                     <div class="row g-3">
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
                             <label for="lastname" class="form-label">Lastname</label>
@@ -40,7 +63,7 @@
                         </div>
                         <div class="col-xl-3 col-lg-8 col-md-8 mb-3">
                             <label for="dateOfBirth" class="form-label">Date of Birth</label>
-                            <input type="date" class="form-control" th:field="*{dateOfBirth}"
+                            <input id="dateOfBirth" type="date" class="form-control" th:field="*{dateOfBirth}"
                                 style="background-color: white;"
                                 th:classappend="${#maps.containsKey(fieldsOnError,'dateOfBirth')}?'is-invalid':''">
                             <ul>
@@ -86,8 +109,9 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="row p-3 justify-content-center">
-                        <button id="submit-personal-information" class="col-xl-2 col-sm-3 btn btn-primary" type="submit">Update</button>
+                    <div id="div-submit-btn" class="row p-3 justify-content-center">
+                        <button id="submit-personal-information-btn" class="col-xl-2 col-sm-3 btn btn-primary"
+                            type="submit">Update</button>
                     </div>
 
                 </fieldset>

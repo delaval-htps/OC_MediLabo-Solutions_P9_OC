@@ -2,15 +2,19 @@ fieldset:disabled {
     background-color: white !important;
 }
 
-fieldset {
+fieldset {    
     box-shadow: 0px 0px 1px rgb(0, 0, 0) !important;
     border-radius: 5px !important;
-
 }
 
-.field-error{
+
+.field-error {
     color: red;
     font-size: 0.8rem;
 }
 
+.custom-tooltip {
+    --bs-tooltip-bg: var(--bs-primary) !important;
+}
 
+  
