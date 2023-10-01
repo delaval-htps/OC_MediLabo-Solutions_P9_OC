@@ -9,25 +9,26 @@
 <body>
     <th:block layout:fragment="content">
         <div class="col-8 ">
-            
+
             <div class="d-flex inline-flex align-items-baseline">
-            
+
                 <div class="alert alert-info d-flex" role="alert">
                     <i class="bi bi-info-circle"></i>
                     <div class="ms-3">
                         You can edit informations by clicking the blue pencil displayed on right on each fielset.
                     </div>
                 </div>
-            
+
                 <div class="ms-auto">
-                    <a th:href="@{/}"><button id="btn-return-index" type="button" class="btn btn-primary">Return</button></a>
+                    <a th:href="@{/}"><button id="btn-return-index" type="button"
+                            class="btn btn-primary">Return</button></a>
                 </div>
             </div>
-            
+
             <form id="form-update-patient" th:object="${patient}" th:action="@{/patient/}+*{id}" method="post">
 
                 <fieldset class="pt-1 px-3 shadow mt-3 bg-white rounded-4 ">
-                    
+
                     <div class="d-flex inline-flex align-items-baseline mb-3">
                         <legend class="text-primary fs-5 mb-3"><ins>Personal Informations:</ins></legend>
                         <i class="bi bi-pencil-square text-primary" style="font-size: 2rem; cursor:pointer;"
@@ -38,7 +39,7 @@
                             data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip"
                             data-bs-title="Undo patient edit." onclick="disablePersonalInformation()"> </i>
                     </div>
-                    
+
                     <div class="row g-3">
                         <div class="col-xl-4 col-lg-6 col-md-6 mb-3">
                             <label for="lastname" class="form-label">Lastname</label>

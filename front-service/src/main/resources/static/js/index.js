@@ -27,9 +27,27 @@ function toggleFormPatient() {
             element.querySelector('ul').innerHTML = ''
             console.log(element.querySelector('.form-control'))
             element.querySelector('.form-control').classList.remove('is-invalid')
-            element.querySelector('.form-control').value=''
+            element.querySelector('.form-control').value = ''
         });
     }
+}
 
+function deletePatient(urlPatientToDelete) {
+    const deleteModal = new bootstrap.Modal('#deleteModal')
+    document.querySelector('.modal-footer a').setAttribute("href",urlPatientToDelete)
+    deleteModal.show()
+}
 
+function myEventHandler(e) {
+    if (!e)
+        e = Event;
+
+    //IE9 & Other Browsers
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+    //IE8 and Lower
+    else {
+        e.cancelBubble = true;
+    }
 }

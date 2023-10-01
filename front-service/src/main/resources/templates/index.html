@@ -32,9 +32,9 @@
 
         <div id="patient-creation-div" class="col-8" th:style="${#maps.isEmpty(fieldsOnError)}?'display: none':''">
 
-            <form  id="form-patient" th:action="@{/patient}" method="post" th:object="${patientToCreate}">
+            <form id="form-patient" th:action="@{/patient}" method="post" th:object="${patientToCreate}">
 
-                <fieldset class="pt-1 px-3 shadow mb-5 mt-3 bg-white rounded-4">
+                <fieldset class="pt-1 px-3 shadow  mb-3 mt-3 bg-white rounded-4">
 
                     <div class="row">
                         <legend class="text-primary fs-5 pt-2 mb-3"><ins>Fill in personal informations:</ins></legend>
@@ -117,7 +117,7 @@
             </form>
         </div>
 
-        <div class="col-8 table-responsive">
+        <div class="col-8 table-responsive mt-3">
 
             <table id="patient-table" class="table table-sm table-hover ">
 
@@ -151,8 +151,9 @@
                             <div class="d-flex flewx-nowrap justify-content-end m-1">
                                 <a th:href="@{/patient-record/}+${patient.id}+'?update=true'" type="button"
                                     class="btn btn-sm btn-outline-success me-3">Update</a>
-                                <a th:href="@{/delete-patient/}+${patient.id}" data-method="delete" type="button"
-                                    class="btn btn-sm btn-outline-danger">Delete</a>
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                    th:urlPatientToDelete="'/delete-patient/' +${patient.id}"
+                                    onclick="myEventHandler(event);deletePatient(this.getAttribute('urlPatientToDelete'));">Delete</button>
                             </div>
                         </td>
                     </tr>
@@ -221,14 +222,32 @@
                             th:href="${patientPages.number < patientPages.totalPages-1}? @{/(page=${patientPages.number+1 },size=${patientPages.size})}:''">Next</a>
                     </li>
                     <li class="page-item"><a class="page-link"
-                        th:href=" @{/(page=${patientPages.totalPages -1},size=${patientPages.size})}">&raquo;</a>
+                            th:href=" @{/(page=${patientPages.totalPages -1},size=${patientPages.size})}">&raquo;</a>
                     </li>
                 </ul>
             </nav>
 
         </div>
-    </th:block>
 
+        <!-- delete Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        Are you sure you want to delete this patient ?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <a href="" data-method="delete"><button type="button" class="btn btn-sm btn-danger">Delete
+                                it</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       
+    </th:block>
+   
     <th:block layout:fragment="page-script">
         <script type="text/javascript" th:src="@{/js/index.js}"></script>
     </th:block>
