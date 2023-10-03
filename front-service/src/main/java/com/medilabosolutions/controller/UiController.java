@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Role;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Controller;
@@ -25,6 +26,7 @@ import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.server.WebSession;
 import com.medilabosolutions.dto.PatientDto;
 import com.medilabosolutions.model.RestPage;
+import jakarta.annotation.security.RolesAllowed;
 import reactor.core.publisher.Mono;
 
 @Controller
