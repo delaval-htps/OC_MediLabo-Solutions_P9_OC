@@ -14,8 +14,7 @@ public class FrontSecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http.authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/**").hasAuthority("USER")
-                .anyExchange().authenticated())
+                .pathMatchers("/**").permitAll())
                 .csrf(CsrfSpec::disable);
         return http.build();
     }

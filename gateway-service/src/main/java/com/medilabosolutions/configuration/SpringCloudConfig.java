@@ -20,7 +20,8 @@ public class SpringCloudConfig {
                                                 .uri("lb://PATIENT-SERVICE"))
 
                                 // route for front-service
-                                .route("front-service", r -> r.path("/**")
+                                .route("front-service", r -> r.path("/front/**")
+                                                .filters(f->f.stripPrefix(1))
                                                 .uri("lb://FRONT-SERVICE"))
 
                                 .build();
