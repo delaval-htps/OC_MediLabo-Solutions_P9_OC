@@ -1,33 +1,25 @@
 package com.medilabosolutions.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import com.medilabosolutions.dto.PatientDto;
+import com.medilabosolutions.model.RestPage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Role;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.server.WebSession;
-import com.medilabosolutions.dto.PatientDto;
-import com.medilabosolutions.model.RestPage;
-import jakarta.annotation.security.RolesAllowed;
 import reactor.core.publisher.Mono;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class UiController {
@@ -41,7 +33,7 @@ public class UiController {
         @Autowired
         private ModelMapper modelMapper;
 
-        private Logger logger = LogManager.getLogger(UiController.class);
+        private final Logger logger = LogManager.getLogger(UiController.class);
 
         private static final String ERROR_MESSAGE = "errorMessage";
         private static final String SUCCESS_MESSAGE = "successMessage";
@@ -217,7 +209,7 @@ public class UiController {
          * @param body body content of a response from webclient request to add to message
          * @param session the websession of the request of endpoint
          * @param typeOfOperation String to modify message in toast in case of success message according to type of operation: create/update or delete a patient
-         * @param PatientDto... optional parameter of user-provided patient in form to create one or update a existing one
+         * @param userProvidedPatient optional parameter of user-provided patient in form to create one or update a existing one
          * @return String : if body is ProblemDetail then return is ERRORMESSAGE (with if exists bindingResult and user-provided patient ) else customized SUCCESSMESSAGE with type of operation ( created,
          *         updated or deleted !)
          */
@@ -247,7 +239,7 @@ public class UiController {
                         logger.error("error of type {} : {} \t {}", typeOfOperation, pb.getTitle(),
                                         pb.getDetail());
                         session.getAttributes().put(ERROR_MESSAGE, "<h6><ins>A problem occurs, "
-                                        + pb.getTitle().split("-")[1] + "</ins></h6>"
+                                        + Objects.requireNonNull(pb.getTitle()).split("-")[1] + "</ins></h6>"
                                         + pb.getDetail() + ".");
 
                         return ERROR_MESSAGE;
