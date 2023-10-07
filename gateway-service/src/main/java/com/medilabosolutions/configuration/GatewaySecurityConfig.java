@@ -25,11 +25,11 @@ public class GatewaySecurityConfig {
         http
                 .formLogin(login -> login
 
-                        .authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/front")))
+                        .authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler("/")))
 
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/login").permitAll()
-                        .pathMatchers("/front/**").permitAll()
+                        .pathMatchers("/**").permitAll()
                         .pathMatchers("/api/v1/patients/**").permitAll()
                         .anyExchange().authenticated())
 
