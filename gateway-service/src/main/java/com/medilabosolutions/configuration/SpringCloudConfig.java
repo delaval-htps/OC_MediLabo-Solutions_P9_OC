@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class SpringCloudConfig {
 
         @Bean
-        public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
+        public RouteLocator gatewayRoutes(RouteLocatorBuilder builder, GlobalLoginFilter globalLoginFilter) {
 
                 return builder.routes()
 
@@ -19,9 +19,13 @@ public class SpringCloudConfig {
                                                 .filters(f -> f.stripPrefix(2))
                                                 .uri("lb://PATIENT-SERVICE"))
 
-                                // route for front-service
-                                .route("front-service", r -> r.path("/**")
-                                                // .filters(f->f.stripPrefix(1))
+                                // route for front-service page
+                                .route("front-service", r -> r.path("/front/**")
+                                                .filters(f -> f.stripPrefix(1))
+                                                .uri("lb://FRONT-SERVICE"))
+
+                                // route for front-resources like css , js in public
+                                .route("front-resource", r -> r.path("/public/**")
                                                 .uri("lb://FRONT-SERVICE"))
 
                                 .build();
