@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class SpringCloudConfig {
+public class GlobalRoutesConfig {
 
         @Bean
         public RouteLocator gatewayRoutes(RouteLocatorBuilder builder, GlobalLoginFilter globalLoginFilter) {
@@ -23,7 +23,10 @@ public class SpringCloudConfig {
                                 .route("front-service", r -> r.path("/front/**")
                                                 .filters(f -> f.stripPrefix(1))
                                                 .uri("lb://FRONT-SERVICE"))
-
+                                // route for front-service page
+                                .route("front-service", r -> r.path("/patient-record/**","/patient/**")
+                                                
+                                                .uri("lb://FRONT-SERVICE"))
                                 // route for front-resources like css , js in public
                                 .route("front-resource", r -> r.path("/public/**")
                                                 .uri("lb://FRONT-SERVICE"))

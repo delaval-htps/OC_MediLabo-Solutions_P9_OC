@@ -32,7 +32,7 @@ public class GatewaySecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/front/**").authenticated()
                         .pathMatchers("/login","/").permitAll()
-                        .pathMatchers("/public/**","/favicon.ico").permitAll()
+                        .pathMatchers("/public/**","/favicon.ico","/patient-record/**","/patient/**").permitAll()
                         .pathMatchers("/api/v1/patients/**").permitAll())
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(HttpBasicSpec::disable)

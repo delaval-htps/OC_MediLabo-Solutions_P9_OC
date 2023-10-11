@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity.CsrfSpec;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.session.ReactiveMapSessionRepository;
 import org.springframework.session.ReactiveSessionRepository;
@@ -23,7 +24,8 @@ public class FrontSecurityConfig {
                 // .pathMatchers("/**").permitAll())
                 .anyExchange().permitAll())
                 .formLogin(f -> f.disable())
-                .httpBasic(h -> h.disable());
+                .httpBasic(h -> h.disable())
+                .csrf(CsrfSpec::disable);
         return http.build();
     }
 
