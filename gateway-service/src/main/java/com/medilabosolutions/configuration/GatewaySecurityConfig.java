@@ -25,9 +25,9 @@ public class GatewaySecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
         http.authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/front/**").authenticated()
-                .pathMatchers("/login", "/").permitAll()
-                .pathMatchers("/public/**", "/favicon.ico", "/patient-record/**", "/patient/**").permitAll()
+                .pathMatchers("/").authenticated()
+                .pathMatchers("/login").permitAll()
+                .pathMatchers("/public/**", "/favicon.ico", "/patient-record/**", "/patient/**","/delete-patient/**").permitAll()
                 .pathMatchers("/api/v1/patients/**").permitAll())
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(HttpBasicSpec::disable)
