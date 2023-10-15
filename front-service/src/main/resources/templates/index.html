@@ -32,7 +32,7 @@
 
         <div id="patient-creation-div" class="col-8" th:style="${#maps.isEmpty(fieldsOnError)}?'display: none':''">
 
-            <form id="form-patient" th:action="@{/patient}" method="post" th:object="${patientToCreate}">
+            <form id="form-patient" th:action="@{/patient/create}" method="post" th:object="${patientToCreate}">
 
                 <fieldset class="pt-1 px-3 shadow  mb-3 mt-3 bg-white rounded-4">
 
@@ -149,10 +149,10 @@
                         <td th:text="${patient.phoneNumber}?:'-'"></td>
                         <td class="text-end">
                             <div class="d-flex flewx-nowrap justify-content-end m-1">
-                                <a th:href="@{/patient-record/}+${patient.id}+'?update=true'" type="button"
+                                <a th:href="@{/patient/}+${patient.id}+'?update=true'" type="button"
                                     class="btn btn-sm btn-outline-success me-3">Update</a>
                                 <button type="button" class="btn btn-sm btn-outline-danger"
-                                    th:urlPatientToDelete="'/delete-patient/' +${patient.id}"
+                                    th:urlPatientToDelete="'/patient/delete/' +${patient.id}"
                                     onclick="myEventHandler(event);deletePatient(this.getAttribute('urlPatientToDelete'));">Delete</button>
                             </div>
                         </td>

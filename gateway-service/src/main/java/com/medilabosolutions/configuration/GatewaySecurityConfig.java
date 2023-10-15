@@ -13,21 +13,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 
 @Configuration
 @EnableWebFluxSecurity
-@EnableSpringWebSession
 public class GatewaySecurityConfig {
-
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
         http.authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/").authenticated()
+                .pathMatchers("/", "/patient/**").authenticated()
                 .pathMatchers("/login").permitAll()
-                .pathMatchers("/public/**", "/favicon.ico", "/patient-record/**", "/patient/**","/delete-patient/**").permitAll()
+                .pathMatchers("/public/**", "/favicon.ico").permitAll()
                 .pathMatchers("/api/v1/patients/**").permitAll())
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(HttpBasicSpec::disable)

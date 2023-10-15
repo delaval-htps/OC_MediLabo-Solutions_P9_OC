@@ -16,12 +16,13 @@ public class FrontSecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         
         http.authorizeExchange(exchanges -> exchanges
-                .pathMatchers( "/public/**", "/favicon.ico").permitAll()
-                // .pathMatchers("/**").permitAll())
+                // .pathMatchers( "/public/**", "/favicon.ico").permitAll()
+                .pathMatchers("/**").permitAll()
                 .anyExchange().permitAll())
                 .formLogin(f -> f.disable())
                 .httpBasic(h -> h.disable())
                 .csrf(CsrfSpec::disable);
+            
         return http.build();
     }
 

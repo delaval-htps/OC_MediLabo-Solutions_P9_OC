@@ -97,7 +97,7 @@ public class UiController {
          * @param model model to return to the view
          * @return the view of the record of Patient (personnal informations for the moment)
          */
-        @GetMapping("/patient-record/{id}")
+        @GetMapping("/patient/{id}")
         public Mono<Rendering> getPatientRecord(@PathVariable(value = "id") Long patientId, WebSession session, Model model) {
 
                 return webclient.get().uri(patientServiceUrl + "/{id}", patientId)
@@ -127,7 +127,7 @@ public class UiController {
          * @param session session to add attribute to model when redirect to index.html
          * @return rendering with redirection to index.html
          */
-        @PostMapping("/patient")
+        @PostMapping("/patient/create")
         public Mono<Rendering> createPatient(
                         @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate,
                         Model model, WebSession session) {
@@ -158,7 +158,7 @@ public class UiController {
          * @param model model to add sucess attribute when patient correctly updated
          * @return Mono<Rendering> with view to index if success or redirection to the same page (form) if error
          */
-        @PostMapping("/patient/{id}")
+        @PostMapping("/patient/update/{id}")
         public Mono<Rendering> updatePatient(@PathVariable(value = "id") Long patientId,
                         @ModelAttribute(value = "patient") PatientDto updatedPatient,
                         WebSession session,
@@ -181,7 +181,7 @@ public class UiController {
 
                                         return setSessionAttribute(body, session, UPDATE, Optional.of(updatedPatient)).equals(SUCCESS_MESSAGE)
                                                         ? Mono.just(Rendering.redirectTo("/").build())
-                                                        : Mono.just(Rendering.redirectTo("/patient-record/" + patientId).build());
+                                                        : Mono.just(Rendering.redirectTo("/patient/" + patientId).build());
                                 });
 
         }
@@ -193,7 +193,7 @@ public class UiController {
          * @param session the websession to redirect to same view "/"
          * @return Mono<Renderring> for redirection
          */
-        @GetMapping("/delete-patient/{id}")
+        @GetMapping("/patient/delete/{id}")
         public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId,
                         WebSession session) {
 

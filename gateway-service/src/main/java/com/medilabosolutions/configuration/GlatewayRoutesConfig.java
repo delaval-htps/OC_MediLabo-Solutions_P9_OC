@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class GlobalRoutesConfig {
+public class GlatewayRoutesConfig {
 
         @Bean
         public RouteLocator gatewayRoutes(RouteLocatorBuilder builder, GlobalLoginFilter globalLoginFilter) {
@@ -19,17 +19,10 @@ public class GlobalRoutesConfig {
                                                 .filters(f -> f.stripPrefix(2))
                                                 .uri("lb://PATIENT-SERVICE"))
 
-                                // route for front-service page
-                                .route("front-service", r -> r.path("//**","/patient-record/**","/patient/**","/delete-patient/**")
-                                                // .filters(f -> f.stripPrefix(1))
+                                // route for ui-service 
+                                .route("front-service", r -> r.path("/","/patient/**","/public/**")
                                                 .uri("lb://FRONT-SERVICE"))
-                                // // route for front-service page
-                                // .route("front-service", r -> r.path("/patient-record/**","/patient/**")
-                                                
-                                //                 .uri("lb://FRONT-SERVICE"))
-                                // route for front-resources like css , js in public
-                                .route("front-resource", r -> r.path("/public/**")
-                                                .uri("lb://FRONT-SERVICE"))
+
 
                                 .build();
         }
