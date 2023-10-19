@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class GlatewayRoutesConfig {
 
         @Bean
-        public RouteLocator gatewayRoutes(RouteLocatorBuilder builder, GlobalLoginFilter globalLoginFilter) {
+        public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
 
                 return builder.routes()
 
@@ -19,8 +19,8 @@ public class GlatewayRoutesConfig {
                                                 .filters(f -> f.stripPrefix(2))
                                                 .uri("lb://PATIENT-SERVICE"))
 
-                                // route for ui-service 
-                                .route("front-service", r -> r.path("/","/patient/**","/public/**")
+                                // route for ui-service
+                                .route("front-service", r -> r.path("/", "/patient/**", "/public/**")
                                                 .uri("lb://FRONT-SERVICE"))
 
 
