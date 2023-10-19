@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity.CsrfSpec;
 import org.springframework.security.config.web.server.ServerHttpSecurity.HttpBasicSpec;
@@ -21,14 +22,18 @@ public class GatewaySecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
-        http.authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/", "/patient/**").authenticated()
-                .pathMatchers("/login").permitAll()
-                .pathMatchers("/public/**", "/favicon.ico").permitAll()
-                .pathMatchers("/api/v1/patients/**").permitAll())
+        http
+                .addFilterBefore(new CsrfHeaderFilter(), SecurityWebFiltersOrder.CSRF)
+                .authorizeExchange(exchanges -> exchanges
+                        .pathMatchers("/", "/patient/**").authenticated()
+                        .pathMatchers("/login").permitAll()
+                        .pathMatchers("/public/**", "/favicon.ico").permitAll()
+                        .pathMatchers("/api/v1/patients/**").permitAll())
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(HttpBasicSpec::disable)
                 .csrf(CsrfSpec::disable);
+              
+
         return http.build();
     }
 
