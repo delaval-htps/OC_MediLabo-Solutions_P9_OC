@@ -115,8 +115,6 @@ public class UiController {
 
                                         return Mono.just(Rendering.view("patient-record").build());
                                 });
-
-                // TODO gestion du retour mono vide
         }
 
         /**

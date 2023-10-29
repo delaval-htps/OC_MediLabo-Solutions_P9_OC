@@ -2,7 +2,6 @@ package com.medilabosolutions.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity.CsrfSpec;
@@ -19,6 +18,11 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class GatewaySecurityConfig {
 
     @Bean
+    public CustomAuthenticationSucessHandler customAuthenticationSucessHandler() {
+        return new CustomAuthenticationSucessHandler();
+    }
+
+    @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
         http.authorizeExchange(exchanges -> exchanges
@@ -26,7 +30,7 @@ public class GatewaySecurityConfig {
                 .pathMatchers("/login").permitAll()
                 .pathMatchers("/public/**", "/favicon.ico").permitAll()
                 .pathMatchers("/api/v1/patients/**").permitAll())
-                .formLogin(Customizer.withDefaults())
+                .formLogin(f -> f.authenticationSuccessHandler(customAuthenticationSucessHandler()))
                 .httpBasic(HttpBasicSpec::disable)
                 .csrf(CsrfSpec::disable);
         return http.build();
