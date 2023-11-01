@@ -31,7 +31,7 @@ import reactor.core.publisher.Mono;
 
 @Controller
 public class UiController {
-
+        // TODO use builder for webclient to be able to add headers etc...
         @Value("${patient.service.url.from.gateway}")
         private String patientServiceUrl;
 
