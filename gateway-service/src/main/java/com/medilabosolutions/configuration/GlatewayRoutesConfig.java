@@ -20,10 +20,15 @@ public class GlatewayRoutesConfig {
                                                 .uri("lb://PATIENT-SERVICE"))
 
                                 // route for ui-service
-                                .route("front-service", r -> r.path("/", "/patient/**", "/public/**")
+                                .route("front-service", r -> r
+                                                .header("Authorization", "Bearer (.*)")
+                                                .and()
+                                                .path("/", "/patient/**", "/public/**")
                                                 .uri("lb://FRONT-SERVICE"))
 
 
                                 .build();
         }
+
+
 }
