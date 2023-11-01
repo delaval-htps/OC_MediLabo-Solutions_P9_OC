@@ -8,5 +8,7 @@
         "editor.insertSpaces": true
     },
     "boot-java.change-detection.on": true,
-    "java.debug.settings.onBuildFailureProceed": true
+    "java.debug.settings.onBuildFailureProceed": true,
+    "editor.fontSize": 12,
+    "editor.suggestFontSize": 10
 }
