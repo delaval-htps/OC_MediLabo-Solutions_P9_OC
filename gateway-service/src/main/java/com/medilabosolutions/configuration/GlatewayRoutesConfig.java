@@ -4,6 +4,7 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import io.netty.handler.codec.http.HttpMethod;
 
 @Configuration
 public class GlatewayRoutesConfig {
@@ -25,7 +26,10 @@ public class GlatewayRoutesConfig {
                                                 .and()
                                                 .path("/", "/patient/**", "/public/**")
                                                 .uri("lb://FRONT-SERVICE"))
-
+                                .route("authentication", r -> r.method("GET")
+                                                .and()
+                                                .path("/login")
+                                                .uri("lb://AUTH-SERVER"))
 
                                 .build();
         }
