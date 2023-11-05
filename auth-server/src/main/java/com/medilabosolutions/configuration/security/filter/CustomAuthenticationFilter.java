@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import javax.crypto.SecretKey;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -33,7 +34,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
 
-        // TODO create a jwt for authresult and add it to response header
+        // add JWT for authenticated user in headers
 
         String username = ((User) authResult.getPrincipal()).getUsername();
         String tokenSecret = environment.getProperty("token.secret.key");
@@ -43,8 +44,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         Instant now = Instant.now();
 
         String jwToken = Jwts.builder()
+                .header().add("typ", "JWT")
+                .and()
                 .subject(username)
-                .id(username)
+                .id(DigestUtils.md5Hex(username))
                 .expiration(Date.from(now.plusMillis(Long.parseLong(environment.getProperty("token.expiration.time")))))
                 .issuedAt(Date.from(now))
                 .signWith(secretKey)
