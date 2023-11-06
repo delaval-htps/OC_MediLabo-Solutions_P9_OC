@@ -1,20 +1,81 @@
 package com.medilabosolutions.filter;
 
+import java.util.Base64;
+import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import reactor.core.publisher.Mono;
 
 @Component
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
 
-    public static class Config {
+    @Autowired
+    private Environment environment;
 
+    public AuthorizationHeaderFilter(){
+        super(Config.class);
+    }
+    
+    public static class Config {
     }
 
     @Override
     public GatewayFilter apply(Config config) {
         // TODO Auto-generated method stub
-        return null;
+        return (exchange, chain) -> {
+
+            ServerHttpRequest request = exchange.getRequest();
+
+            if (!request.getHeaders().containsKey("jwtoken")) {
+                return onError(exchange, "No Jwtoken header", HttpStatus.UNAUTHORIZED);
+            }
+
+            String jwt = request.getHeaders().get("jwtoken").get(0);
+
+            if (!isJwtValid(jwt)){
+                return onError(exchange,"JWT token is not valid",HttpStatus.UNAUTHORIZED);
+            }
+
+            return chain.filter(exchange);
+        };
     }
 
+    private Mono<Void> onError(ServerWebExchange exchange, String string, HttpStatus status) {
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(status);
+
+        return response.setComplete();
+    }
+
+    private boolean isJwtValid(String jws) {
+
+        boolean returnValue = true;
+
+        String tokenSecret = environment.getProperty("token.secret.key");
+        byte[] secretKeyBytes = Base64.getEncoder().encode(tokenSecret.getBytes());
+        SecretKey secretKey = Keys.hmacShaKeyFor(secretKeyBytes);
+
+        try {
+
+            Claims jwClaims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(jws).getPayload();
+
+            if (jwClaims.isEmpty() || jwClaims.get("jti") == null) {
+                returnValue = false;
+            }
+
+        } catch (Exception e) {
+            returnValue = false;
+        }
+        return returnValue;
+    }
 }

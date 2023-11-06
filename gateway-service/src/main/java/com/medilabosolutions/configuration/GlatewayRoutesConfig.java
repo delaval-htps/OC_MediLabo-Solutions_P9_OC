@@ -23,10 +23,9 @@ public class GlatewayRoutesConfig {
                                                 .uri("lb://PATIENT-SERVICE"))
 
                                 // route for ui-service
-                                .route("front-service", r -> r
-                                                .header("jwtoken", "(.*)")
+                                .route("front-service", r -> r.path("/", "/patient/**", "/public/**")
                                                 .and()
-                                                .path("/", "/patient/**", "/public/**")
+                                                .header("jwtoken", "(.*)")
                                                 .filters(f -> f.filter(authorizationHeaderFilter.apply(new Config())))
                                                 .uri("lb://FRONT-SERVICE"))
 
