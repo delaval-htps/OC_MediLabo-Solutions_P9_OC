@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 
 
 @Configuration
@@ -22,7 +22,7 @@ public class FrontSecurityConfig {
                         .anyExchange().permitAll())
                 .formLogin(f -> f.disable())
                 .httpBasic(h -> h.disable())
-                .csrf(csrf -> csrf.csrfTokenRepository(new WebSessionServerCsrfTokenRepository()));
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
 
         return http.build();
     }

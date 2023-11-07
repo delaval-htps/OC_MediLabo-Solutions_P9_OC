@@ -10,20 +10,20 @@
 	</parent>
 
 	<groupId>com.medilabosolutions</groupId>
-	<artifactId>gateway-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>gateway-service</name>
+	<artifactId>auth-server</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<name>auth-server</name>
 	<packaging>jar</packaging>
-	<description>gateway-microservice</description>
+	<description>authentication-server</description>
 
 	<properties>
 		<java.version>17</java.version>
 	</properties>
-
 	<dependencies>
+		<!-- mandatory to fetch application.properties from config-server-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-gateway</artifactId>
+			<artifactId>spring-cloud-starter-config</artifactId>
 		</dependency>
 
 		<dependency>
@@ -31,6 +31,16 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -52,9 +62,9 @@
 			<scope>runtime</scope>
 		</dependency>
 
+
 	</dependencies>
 
-	<!-- to resolve conflict beetween eureka & security -->
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -62,7 +72,6 @@
 				<artifactId>guava</artifactId>
 				<version>32.0.1-jre</version>
 			</dependency>
-
 			<dependency>
 				<groupId>com.netflix.servo</groupId>
 				<artifactId>servo-core</artifactId>

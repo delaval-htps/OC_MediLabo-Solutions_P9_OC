@@ -4,12 +4,15 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.medilabosolutions.predicate.AuthorizationHeaderFilter;
+import com.medilabosolutions.predicate.AuthorizationHeaderFilter.Config;
 
 @Configuration
 public class GlatewayRoutesConfig {
 
         @Bean
-        public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
+        public RouteLocator gatewayRoutes(RouteLocatorBuilder builder, AuthorizationHeaderFilter authorizationHeaderFilter) {
+
 
                 return builder.routes()
 
@@ -21,9 +24,17 @@ public class GlatewayRoutesConfig {
 
                                 // route for ui-service
                                 .route("front-service", r -> r.path("/", "/patient/**", "/public/**")
+                                                .and()
+                                                .header("jwtoken", "(.*)")
+                                                .filters(f -> f.filter(authorizationHeaderFilter.apply(new Config())))
                                                 .uri("lb://FRONT-SERVICE"))
 
+                                // route for auth-service
+                                .route("authentication", r -> r.path("/login")
+                                                .uri("lb://AUTH-SERVER"))
 
                                 .build();
         }
+
+
 }
