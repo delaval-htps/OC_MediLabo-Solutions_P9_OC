@@ -1,4 +1,4 @@
-package com.medilabosolutions.filter;
+package com.medilabosolutions.predicate;
 
 import java.util.Base64;
 import javax.crypto.SecretKey;
@@ -16,16 +16,19 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import reactor.core.publisher.Mono;
 
+/**
+ * A filter predicate that check if request has a header key jwtoken and check if its value jwt token is valid.
+ */
 @Component
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
 
     @Autowired
     private Environment environment;
 
-    public AuthorizationHeaderFilter(){
+    public AuthorizationHeaderFilter() {
         super(Config.class);
     }
-    
+
     public static class Config {
     }
 
@@ -42,8 +45,8 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
             String jwt = request.getHeaders().get("jwtoken").get(0);
 
-            if (!isJwtValid(jwt)){
-                return onError(exchange,"JWT token is not valid",HttpStatus.UNAUTHORIZED);
+            if (!isJwtValid(jwt)) {
+                return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
             }
 
             return chain.filter(exchange);

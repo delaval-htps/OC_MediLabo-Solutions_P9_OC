@@ -4,8 +4,8 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.medilabosolutions.filter.AuthorizationHeaderFilter;
-import com.medilabosolutions.filter.AuthorizationHeaderFilter.Config;
+import com.medilabosolutions.predicate.AuthorizationHeaderFilter;
+import com.medilabosolutions.predicate.AuthorizationHeaderFilter.Config;
 
 @Configuration
 public class GlatewayRoutesConfig {
