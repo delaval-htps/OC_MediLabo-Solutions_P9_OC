@@ -1,0 +1,3 @@
+[submodule "MedilaboConfigServer"]
+	path = MedilaboConfigServer
+	url = git@github.com:delaval-htps/MediLabo-Solutions-Config-Server.git
