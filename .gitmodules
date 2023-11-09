@@ -1,7 +1,3 @@
-[submodule "MediLabo-Solutions-Config-Server"]
-	path = MediLabo-Solutions-Config-Server
-	url = git@github.com:delaval-htps/MediLabo-Solutions-Config-Server.git
 [submodule "MedilaboConfigServer"]
 	path = MedilaboConfigServer
 	url = git@github.com:delaval-htps/MediLabo-Solutions-Config-Server.git
-	branch = front-behind-gateway
