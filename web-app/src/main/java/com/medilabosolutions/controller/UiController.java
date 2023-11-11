@@ -59,7 +59,7 @@ public class UiController {
          * endpoint to show form login 
          * @return view login
          */
-        @GetMapping("/login")
+        @GetMapping("/")
         public String getLogin(Model model) {
                 model.addAttribute("userCredential", new UserCredential());
                 return "login";
@@ -71,7 +71,7 @@ public class UiController {
          * @param model model to add PatientDtos to the view
          * @return the view "index.html" //
          */
-        @GetMapping("/")
+        @GetMapping("/patients")
         public Mono<Rendering> index(@RequestParam(value = "page") Optional<Integer> page,
                         @RequestParam(value = "size") Optional<Integer> size,
                         Model model, WebSession session) {
@@ -112,7 +112,7 @@ public class UiController {
          * @param model model to return to the view
          * @return the view of the record of Patient (personnal informations for the moment)
          */
-        @GetMapping("/patient/{id}")
+        @GetMapping("/patients/{id}")
         public Mono<Rendering> getPatientRecord(@PathVariable(value = "id") Long patientId, WebSession session, Model model) {
 
                 return webclient.get().uri(baseUrlGateway + pathPatientService + "/{id}", patientId)
@@ -140,7 +140,7 @@ public class UiController {
          * @param session session to add attribute to model when redirect to index.html
          * @return rendering with redirection to index.html
          */
-        @PostMapping("/patient/create")
+        @PostMapping("/patients/create")
         public Mono<Rendering> createPatient(
                         @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate,
                         Model model, WebSession session) {
@@ -171,7 +171,7 @@ public class UiController {
          * @param model model to add sucess attribute when patient correctly updated
          * @return Mono<Rendering> with view to index if success or redirection to the same page (form) if error
          */
-        @PostMapping("/patient/update/{id}")
+        @PostMapping("/patients/update/{id}")
         public Mono<Rendering> updatePatient(@PathVariable(value = "id") Long patientId,
                         @ModelAttribute(value = "patient") PatientDto updatedPatient,
                         WebSession session,
@@ -194,7 +194,7 @@ public class UiController {
 
                                         return setSessionAttribute(body, session, UPDATE, Optional.of(updatedPatient)).equals(SUCCESS_MESSAGE)
                                                         ? Mono.just(Rendering.redirectTo("/").build())
-                                                        : Mono.just(Rendering.redirectTo("/patient/" + patientId).build());
+                                                        : Mono.just(Rendering.redirectTo("/patients/" + patientId).build());
                                 });
 
         }
@@ -206,7 +206,7 @@ public class UiController {
          * @param session the websession to redirect to same view "/"
          * @return Mono<Renderring> for redirection
          */
-        @GetMapping("/patient/delete/{id}")
+        @GetMapping("/patients/delete/{id}")
         public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId,
                         WebSession session) {
 
