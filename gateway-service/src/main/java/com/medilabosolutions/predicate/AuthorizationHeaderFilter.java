@@ -34,7 +34,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
     @Override
     public GatewayFilter apply(Config config) {
-        // TODO Auto-generated method stub
+        
         return (exchange, chain) -> {
 
             ServerHttpRequest request = exchange.getRequest();

@@ -26,14 +26,17 @@ import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.server.WebSession;
 import com.medilabosolutions.dto.PatientDto;
 import com.medilabosolutions.model.RestPage;
+import com.medilabosolutions.model.UserCredential;
 import reactor.core.publisher.Mono;
 
 
 @Controller
 public class UiController {
         // TODO use builder for webclient to be able to add headers etc...
+        // TODO add form to retrieve credential for user of application
+
         @Value("${base.url.gateway}")
-        private String baseUrlGateway ;
+        private String baseUrlGateway;
         @Value("${path.patient.service}")
         private String pathPatientService;
 
@@ -53,6 +56,16 @@ public class UiController {
         private static final String DELETE = "deleted !";
 
         /**
+         * endpoint to show form login 
+         * @return view login
+         */
+        @GetMapping("/login")
+        public String getLogin(Model model) {
+                model.addAttribute("userCredential", new UserCredential());
+                return "login";
+        }
+
+        /**
          * Endpoint to display the index page of medilabo-solution with the list of all registred PatientDtos (never get error , just only a avoid list of patients)
          * 
          * @param model model to add PatientDtos to the view
@@ -66,7 +79,7 @@ public class UiController {
                 int currentPage = page.orElse(0);
                 int pageSize = size.orElse(10);
 
-                return webclient.get().uri(baseUrlGateway + pathPatientService+"/{page}/{size}", currentPage, pageSize)
+                return webclient.get().uri(baseUrlGateway + pathPatientService + "/{page}/{size}", currentPage, pageSize)
                                 .retrieve()
                                 .bodyToMono(RestPage.class)
                                 .flatMap(restPage -> {

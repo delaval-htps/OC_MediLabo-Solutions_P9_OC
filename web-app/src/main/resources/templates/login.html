@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{default.html}">
+
+<head>
+    <title>Login Page</title>
+</head>
+
+<body>
+    <th:block layout:fragment="content">
+        <div class="col-lg-2">
+
+            <div class="card my-3 pb-3 shadow rounded-4">
+                <div class="card-body ">
+                    <h5 class="card-title">Welcome !</h5>
+                    <h6 class="card-subtitle mb-3 text-muted">Please fill in with your login & password</h6>
+                    <p class="card-subtitle mb-3 error" th:if="${loginError}">Wrong user or password</p>
+
+                    <form th:action="@{/login}" method="post" th:object="${userCredential}">
+                        <div class=" form-outline mb-3">
+                            <label class="form-label" for="username">Username</label>:
+                            <input class="form-control" type="text" th:field="*{username}" autofocus="autofocus" />
+                        </div>
+
+                        <div class="form-outline mb-3">
+                            <label class="form-label" for="password">Password</label>:
+                            <input class="form-control" type="password" th:field="*{password}" /> <br />
+                        </div>
+                        <div class="text-center">
+                            <input class="btn btn-primary w-50 " type="submit" value="Log in" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+</body>
+
+</html>
