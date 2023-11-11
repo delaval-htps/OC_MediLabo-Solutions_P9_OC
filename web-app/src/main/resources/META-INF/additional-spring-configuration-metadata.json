@@ -1,0 +1,7 @@
+{"properties": [
+  {
+    "name": "base.url.gateway",
+    "type": "java.lang.String",
+    "description": "baseUrl for gateway"
+  }
+]}

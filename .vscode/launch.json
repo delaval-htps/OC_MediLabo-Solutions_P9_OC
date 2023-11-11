@@ -63,6 +63,26 @@
             "projectName": "auth-server",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-FrontServiceApplication<web-app>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.medilabosolutions.FrontServiceApplication",
+            "projectName": "web-app",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-WebApplication<web-app>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.medilabosolutions.WebApplication",
+            "projectName": "web-app",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

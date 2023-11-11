@@ -10,7 +10,7 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 
 @Configuration
 @EnableWebFluxSecurity
-public class FrontSecurityConfig {
+public class WebAppSecurityConfig {
 
 
     @Bean

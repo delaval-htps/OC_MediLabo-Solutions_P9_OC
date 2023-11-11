@@ -32,8 +32,10 @@ import reactor.core.publisher.Mono;
 @Controller
 public class UiController {
         // TODO use builder for webclient to be able to add headers etc...
-        @Value("${patient.service.url.from.gateway}")
-        private String patientServiceUrl;
+        @Value("${base.url.gateway}")
+        private String baseUrlGateway ;
+        @Value("${path.patient.service}")
+        private String pathPatientService;
 
         @Autowired
         private WebClient webclient;
@@ -64,7 +66,7 @@ public class UiController {
                 int currentPage = page.orElse(0);
                 int pageSize = size.orElse(10);
 
-                return webclient.get().uri(patientServiceUrl + "/{page}/{size}", currentPage, pageSize)
+                return webclient.get().uri(baseUrlGateway + pathPatientService+"/{page}/{size}", currentPage, pageSize)
                                 .retrieve()
                                 .bodyToMono(RestPage.class)
                                 .flatMap(restPage -> {
@@ -100,7 +102,7 @@ public class UiController {
         @GetMapping("/patient/{id}")
         public Mono<Rendering> getPatientRecord(@PathVariable(value = "id") Long patientId, WebSession session, Model model) {
 
-                return webclient.get().uri(patientServiceUrl + "/{id}", patientId)
+                return webclient.get().uri(baseUrlGateway + pathPatientService + "/{id}", patientId)
                                 .retrieve()
                                 .bodyToMono(PatientDto.class)
                                 .flatMap(body -> {
@@ -130,7 +132,7 @@ public class UiController {
                         @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate,
                         Model model, WebSession session) {
 
-                return webclient.post().uri(patientServiceUrl)
+                return webclient.post().uri(baseUrlGateway + pathPatientService)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(Mono.just(patientToCreate), PatientDto.class)
 
@@ -166,7 +168,7 @@ public class UiController {
                 // patient-service)
                 updatedPatient.setId(null);
 
-                return webclient.put().uri(patientServiceUrl + "/{id}", patientId)
+                return webclient.put().uri(baseUrlGateway + pathPatientService + "/{id}", patientId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(Mono.just(updatedPatient), PatientDto.class)
 
@@ -195,7 +197,7 @@ public class UiController {
         public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId,
                         WebSession session) {
 
-                return webclient.delete().uri(patientServiceUrl + "/{id}", patientId)
+                return webclient.delete().uri(baseUrlGateway + pathPatientService + "/{id}", patientId)
                                 .exchangeToMono(response -> response.statusCode().isError()
                                                 ? response.bodyToMono(ProblemDetail.class)
                                                 : response.bodyToMono(PatientDto.class))
