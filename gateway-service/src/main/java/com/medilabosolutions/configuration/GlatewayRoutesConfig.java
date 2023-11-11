@@ -22,12 +22,12 @@ public class GlatewayRoutesConfig {
                                                 .filters(f -> f.stripPrefix(2))
                                                 .uri("lb://PATIENT-SERVICE"))
 
-                                // route for ui-service
-                                .route("front-service", r -> r.path("/", "/patient/**", "/public/**")
-                                                .and()
-                                                .header("jwtoken", "(.*)")
-                                                .filters(f -> f.filter(authorizationHeaderFilter.apply(new Config())))
-                                                .uri("lb://FRONT-SERVICE"))
+                                // // route for ui-service
+                                // .route("front-service", r -> r.path("/", "/patient/**", "/public/**")
+                                //                 .and()
+                                //                 .header("jwtoken", "(.*)")
+                                //                 .filters(f -> f.filter(authorizationHeaderFilter.apply(new Config())))
+                                //                 .uri("lb://FRONT-SERVICE"))
 
                                 // route for auth-service
                                 .route("authentication", r -> r.path("/login")
