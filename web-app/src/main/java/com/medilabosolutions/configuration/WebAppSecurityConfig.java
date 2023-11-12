@@ -16,10 +16,7 @@ public class WebAppSecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
-        http
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/**").permitAll()
-                        .anyExchange().permitAll())
+        http.authorizeExchange(exchanges -> exchanges.anyExchange().permitAll())
                 .formLogin(f -> f.disable())
                 .httpBasic(h -> h.disable())
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance());

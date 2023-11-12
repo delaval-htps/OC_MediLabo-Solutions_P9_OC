@@ -7,19 +7,20 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.result.view.Rendering;
@@ -27,26 +28,30 @@ import org.springframework.web.server.WebSession;
 import com.medilabosolutions.dto.PatientDto;
 import com.medilabosolutions.model.RestPage;
 import com.medilabosolutions.model.UserCredential;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 
 @Controller
+@Slf4j
 public class UiController {
         // TODO use builder for webclient to be able to add headers etc...
         // TODO add form to retrieve credential for user of application
 
-        @Value("${base.url.gateway}")
-        private String baseUrlGateway;
+
         @Value("${path.patient.service}")
         private String pathPatientService;
 
-        @Autowired
-        private WebClient webclient;
+        private final WebClient webclient;
+        private final PasswordEncoder passwordEncoder;
+        private final ModelMapper modelMapper;
 
         @Autowired
-        private ModelMapper modelMapper;
-
-        private final Logger logger = LogManager.getLogger(UiController.class);
+        public UiController(WebClient webclient, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
+                this.webclient = webclient;
+                this.modelMapper = modelMapper;
+                this.passwordEncoder = passwordEncoder;
+        }
 
         private static final String ERROR_MESSAGE = "errorMessage";
         private static final String SUCCESS_MESSAGE = "successMessage";
@@ -56,13 +61,32 @@ public class UiController {
         private static final String DELETE = "deleted !";
 
         /**
-         * endpoint to show form login 
+         * endpoint to show form login
+         * 
          * @return view login
          */
         @GetMapping("/")
         public String getLogin(Model model) {
                 model.addAttribute("userCredential", new UserCredential());
                 return "login";
+        }
+
+        @PostMapping("/login")
+        public Mono<Rendering> postLogin(@RequestBody UserCredential credential) {
+
+                credential.setPassword(passwordEncoder.encode(credential.getPassword()));
+               
+                // call auth-service to get jwtoken to identify user that just fill in form login
+                return webclient.post().uri("/login").bodyValue(credential)
+                                .exchangeToMono(response -> {
+                                        if (response.statusCode().equals(HttpStatus.OK)) {
+                                                return Mono.just(Rendering.redirectTo("/patients").build());
+
+                                        } else {
+                                                //TODO add message error with thymeleaf to display it in login page
+                                                return Mono.just(Rendering.redirectTo("/").build());
+                                        }
+                                });
         }
 
         /**
@@ -79,7 +103,7 @@ public class UiController {
                 int currentPage = page.orElse(0);
                 int pageSize = size.orElse(10);
 
-                return webclient.get().uri(baseUrlGateway + pathPatientService + "/{page}/{size}", currentPage, pageSize)
+                return webclient.get().uri(pathPatientService + "/{page}/{size}", currentPage, pageSize)
                                 .retrieve()
                                 .bodyToMono(RestPage.class)
                                 .flatMap(restPage -> {
@@ -99,7 +123,7 @@ public class UiController {
                                         // in by user to be able to display his errors
                                         addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError", "patientToCreate");
 
-                                        logger.info("request GET all patients");
+                                        log.info("request GET all patients");
 
                                         return Mono.just(Rendering.view("index").build());
                                 });
@@ -115,11 +139,11 @@ public class UiController {
         @GetMapping("/patients/{id}")
         public Mono<Rendering> getPatientRecord(@PathVariable(value = "id") Long patientId, WebSession session, Model model) {
 
-                return webclient.get().uri(baseUrlGateway + pathPatientService + "/{id}", patientId)
+                return webclient.get().uri(pathPatientService + "/{id}", patientId)
                                 .retrieve()
                                 .bodyToMono(PatientDto.class)
                                 .flatMap(body -> {
-                                        logger.info("GET patient-record with id {} = {}", patientId, body);
+                                        log.info("GET patient-record with id {} = {}", patientId, body);
 
                                         model.addAttribute("fieldsOnError", new HashMap<String, String>());
                                         model.addAttribute("patient", body);
@@ -145,7 +169,7 @@ public class UiController {
                         @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate,
                         Model model, WebSession session) {
 
-                return webclient.post().uri(baseUrlGateway + pathPatientService)
+                return webclient.post().uri(pathPatientService)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(Mono.just(patientToCreate), PatientDto.class)
 
@@ -154,10 +178,10 @@ public class UiController {
                                                 : response.bodyToMono(PatientDto.class))
 
                                 .flatMap(body -> {
-                                        logger.info("request POST createPatient");
+                                        log.info("request POST createPatient");
                                         setSessionAttribute(body, session, CREATION, Optional.of(patientToCreate));
 
-                                        return Mono.just(Rendering.redirectTo("/").build());
+                                        return Mono.just(Rendering.redirectTo("/patients").build());
                                 });
 
         }
@@ -181,7 +205,7 @@ public class UiController {
                 // patient-service)
                 updatedPatient.setId(null);
 
-                return webclient.put().uri(baseUrlGateway + pathPatientService + "/{id}", patientId)
+                return webclient.put().uri(pathPatientService + "/{id}", patientId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(Mono.just(updatedPatient), PatientDto.class)
 
@@ -190,7 +214,7 @@ public class UiController {
                                                 : response.bodyToMono(PatientDto.class))
 
                                 .flatMap(body -> {
-                                        logger.info("request POST updatePatient with id {}", patientId);
+                                        log.info("request POST updatePatient with id {}", patientId);
 
                                         return setSessionAttribute(body, session, UPDATE, Optional.of(updatedPatient)).equals(SUCCESS_MESSAGE)
                                                         ? Mono.just(Rendering.redirectTo("/").build())
@@ -210,16 +234,16 @@ public class UiController {
         public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId,
                         WebSession session) {
 
-                return webclient.delete().uri(baseUrlGateway + pathPatientService + "/{id}", patientId)
+                return webclient.delete().uri(pathPatientService + "/{id}", patientId)
                                 .exchangeToMono(response -> response.statusCode().isError()
                                                 ? response.bodyToMono(ProblemDetail.class)
                                                 : response.bodyToMono(PatientDto.class))
 
                                 .flatMap(body -> {
-                                        logger.info("request GET deletePatient");
+                                        log.info("request GET deletePatient");
                                         setSessionAttribute(body, session, DELETE, Optional.empty());
 
-                                        return Mono.just(Rendering.redirectTo("/").build());
+                                        return Mono.just(Rendering.redirectTo("/patients").build());
                                 });
 
         }
@@ -257,7 +281,7 @@ public class UiController {
                                 session.getAttributes().put("patient", userProvidedPatient);
                         }
 
-                        logger.error("error of type {} : {} \t {}", typeOfOperation, pb.getTitle(),
+                        log.error("error of type {} : {} \t {}", typeOfOperation, pb.getTitle(),
                                         pb.getDetail());
                         session.getAttributes().put(ERROR_MESSAGE, "<h6><ins>A problem occurs, "
                                         + Objects.requireNonNull(pb.getTitle()).split("-")[1] + "</ins></h6>"
@@ -271,7 +295,7 @@ public class UiController {
                         session.getAttributes().put(SUCCESS_MESSAGE, "<h6><ins>Sucessful action!</ins></h6>" +
                                         "Patient " + patient.getLastName() + " was correctly "
                                         + typeOfOperation);
-                        logger.info("success : {} {}", body, typeOfOperation);
+                        log.info("success : {} {}", body, typeOfOperation);
 
                         return SUCCESS_MESSAGE;
                 }
