@@ -1,5 +1,6 @@
 package com.medilabosolutions.configuration.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -23,10 +24,9 @@ import com.medilabosolutions.configuration.security.filter.CustomAuthenticationF
 @EnableWebSecurity
 public class AuthSecurityConfig {
 
-    private Environment environment;
+    private final Environment environment;
 
-
-
+    @Autowired
     public AuthSecurityConfig(Environment environment) {
         this.environment = environment;
     }
@@ -38,12 +38,12 @@ public class AuthSecurityConfig {
         AuthenticationManager authenticationManager = authManagerBuilder.getOrBuild();
 
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManager, environment);
-        
+
         http.authorizeHttpRequests(httpRequest -> httpRequest
                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
                 .anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults())
-                .httpBasic(h -> h.disable())
+                .formLogin(f -> f.disable())
+                .httpBasic(Customizer.withDefaults())
                 .csrf(c -> c.disable())
                 .addFilter(customAuthenticationFilter)
                 .authenticationManager(authenticationManager)

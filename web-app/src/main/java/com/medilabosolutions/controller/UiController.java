@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.server.WebSession;
@@ -35,9 +35,6 @@ import reactor.core.publisher.Mono;
 @Controller
 @Slf4j
 public class UiController {
-        // TODO use builder for webclient to be able to add headers etc...
-        // TODO add form to retrieve credential for user of application
-
 
         @Value("${path.patient.service}")
         private String pathPatientService;
@@ -71,19 +68,22 @@ public class UiController {
                 return "login";
         }
 
-        @PostMapping("/login")
-        public Mono<Rendering> postLogin(@RequestBody UserCredential credential) {
+        // TODO validation of credential with jakarta
+        @PostMapping(value = "/login")
+        public Mono<Rendering> postLogin(@ModelAttribute UserCredential credential, WebSession session) {
 
-                credential.setPassword(passwordEncoder.encode(credential.getPassword()));
-               
                 // call auth-service to get jwtoken to identify user that just fill in form login
-                return webclient.post().uri("/login").bodyValue(credential)
+                return webclient.post().uri("/login").contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(credential))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.OK)) {
+                                                // TODO store the token in context to be able to reuse it after
+                                                session.getAttributes().put("jwtoken", response.headers().header("jwtoken"));
+                                                log.info("jwtoken is {}", session.getAttributeOrDefault("jwtoken", "-"));
+
                                                 return Mono.just(Rendering.redirectTo("/patients").build());
 
                                         } else {
-                                                //TODO add message error with thymeleaf to display it in login page
+                                                // TODO add message error with thymeleaf to display it in login page
                                                 return Mono.just(Rendering.redirectTo("/").build());
                                         }
                                 });
@@ -104,6 +104,8 @@ public class UiController {
                 int pageSize = size.orElse(10);
 
                 return webclient.get().uri(pathPatientService + "/{page}/{size}", currentPage, pageSize)
+                                // TODO change replace with function more adapted to not use them in jwtoken
+                                .headers(h -> h.add("jwtoken", session.getAttribute("jwtoken").toString().replace("[", "").replace("]", "")))
                                 .retrieve()
                                 .bodyToMono(RestPage.class)
                                 .flatMap(restPage -> {
