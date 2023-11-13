@@ -76,12 +76,10 @@ public class UiController {
                 return webclient.post().uri("/login").contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(credential))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.OK)) {
-                                                // TODO store the token in context to be able to reuse it after
                                                 session.getAttributes().put("jwtoken", response.headers().header("jwtoken"));
                                                 log.info("jwtoken is {}", session.getAttributeOrDefault("jwtoken", "-"));
 
                                                 return Mono.just(Rendering.redirectTo("/patients").build());
-
                                         } else {
                                                 // TODO add message error with thymeleaf to display it in login page
                                                 return Mono.just(Rendering.redirectTo("/").build());
@@ -324,5 +322,21 @@ public class UiController {
                         }
                 }
         }
+
+        /**
+         * method to just verify if token is correctly saved in cookie session
+         * 
+         * @param session
+         * @return
+         */
+        @GetMapping("/websession")
+        public Mono<String> getWebsession(WebSession session) {
+                if (session.getAttribute("jwtoken") != null) {
+                        return Mono.just("session = " + session.getAttribute("jwtoken"));
+                } else {
+                        return Mono.just("le token n'est pas enregistré");
+                }
+        }
+
 
 }
