@@ -76,7 +76,7 @@ public class UiController {
                 return webclient.post().uri("/login").contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(credential))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.OK)) {
-                                                session.getAttributes().put("jwtoken", response.headers().header("jwtoken"));
+                                                session.getAttributes().put("jwtoken", response.headers().header("jwtoken").get(0));
                                                 log.info("jwtoken is {}", session.getAttributeOrDefault("jwtoken", "-"));
 
                                                 return Mono.just(Rendering.redirectTo("/patients").build());
@@ -103,7 +103,7 @@ public class UiController {
 
                 return webclient.get().uri(pathPatientService + "/{page}/{size}", currentPage, pageSize)
                                 // TODO change replace with function more adapted to not use them in jwtoken
-                                .headers(h -> h.add("jwtoken", session.getAttribute("jwtoken").toString().replace("[", "").replace("]", "")))
+                                .headers(h -> h.add("jwtoken", session.getAttribute("jwtoken")))
                                 .retrieve()
                                 .bodyToMono(RestPage.class)
                                 .flatMap(restPage -> {
