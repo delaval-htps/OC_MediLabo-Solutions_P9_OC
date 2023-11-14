@@ -63,9 +63,26 @@ public class UiController {
          * @return view login
          */
         @GetMapping("/")
-        public String getLogin(Model model) {
-                model.addAttribute("userCredential", new UserCredential());
-                return "login";
+        public Mono<Rendering> getLogin(Model model, WebSession session) {
+
+                // check if jwt token is present
+                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
+
+                // TODO check if token is valid because with any other token we can access to /patients: need to call auth server to verify
+                if (!jwtValue.equals("")) {
+                        return Mono.just(Rendering.redirectTo("/patients").build());
+                } else {
+                        model.addAttribute("userCredential", new UserCredential());
+
+                        // if it is request from another endpoint without jwt token in header then display a login Error
+                        // retrieve it from session cause webflux not support it
+                        if (session.getAttributes().containsKey("loginError")) {
+                                model.addAttribute("loginError", true);
+                                session.getAttributes().remove("loginError");
+                        }
+                 
+                        return Mono.just(Rendering.view("login").build());
+                }
         }
 
         // TODO validation of credential with jakarta
@@ -76,13 +93,12 @@ public class UiController {
                 return webclient.post().uri("/login").contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(credential))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.OK)) {
-                                                session.getAttributes().put("jwtoken", response.headers().header("jwtoken").get(0));
-                                                log.info("jwtoken is {}", session.getAttributeOrDefault("jwtoken", "-"));
 
+                                                session.getAttributes().put("jwtoken", response.headers().header("jwtoken").get(0));
                                                 return Mono.just(Rendering.redirectTo("/patients").build());
                                         } else {
                                                 // TODO add message error with thymeleaf to display it in login page
-                                                return Mono.just(Rendering.redirectTo("/").build());
+                                                return Mono.just(Rendering.redirectTo("/login").build());
                                         }
                                 });
         }
@@ -101,32 +117,43 @@ public class UiController {
                 int currentPage = page.orElse(0);
                 int pageSize = size.orElse(10);
 
-                return webclient.get().uri(pathPatientService + "/{page}/{size}", currentPage, pageSize)
-                                // TODO change replace with function more adapted to not use them in jwtoken
-                                .headers(h -> h.add("jwtoken", session.getAttribute("jwtoken")))
-                                .retrieve()
-                                .bodyToMono(RestPage.class)
-                                .flatMap(restPage -> {
-                                        restPage.getContent().stream().map(p -> modelMapper.map(p, PatientDto.class));
+                // check if jwt token is present
+                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
 
-                                        if (restPage.getTotalPages() > 0) {
-                                                List<Integer> pageNumbers = IntStream.rangeClosed(1, restPage.getTotalPages())
-                                                                .boxed().collect(Collectors.toList());
-                                                model.addAttribute("pageNumbers", pageNumbers);
-                                        }
+                if (!jwtValue.equals("")) {
+                        return webclient.get().uri(pathPatientService + "/{page}/{size}", currentPage, pageSize)
+                                        // TODO change replace with function more adapted to not use them in jwtoken
+                                        .headers(h -> h.add("jwtoken", jwtValue))
+                                        .retrieve()
+                                        .bodyToMono(RestPage.class)
+                                        .flatMap(restPage -> {
+                                                restPage.getContent().stream().map(p -> modelMapper.map(p, PatientDto.class));
 
-                                        model.addAttribute("fieldsOnError", new HashMap<String, String>());
-                                        model.addAttribute("patientToCreate", new PatientDto());
-                                        model.addAttribute("patientPages", restPage);
+                                                if (restPage.getTotalPages() > 0) {
+                                                        List<Integer> pageNumbers = IntStream.rangeClosed(1, restPage.getTotalPages())
+                                                                        .boxed().collect(Collectors.toList());
+                                                        model.addAttribute("pageNumbers", pageNumbers);
+                                                }
 
-                                        // in case of bindingResult , we have to add to model fieldsOnError and to override patientwith fields filled
-                                        // in by user to be able to display his errors
-                                        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError", "patientToCreate");
+                                                model.addAttribute("fieldsOnError", new HashMap<String, String>());
+                                                model.addAttribute("patientToCreate", new PatientDto());
+                                                model.addAttribute("patientPages", restPage);
 
-                                        log.info("request GET all patients");
+                                                // in case of bindingResult , we have to add to model fieldsOnError and to override patientwith fields filled
+                                                // in by user to be able to display his errors
+                                                addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError", "patientToCreate");
 
-                                        return Mono.just(Rendering.view("index").build());
-                                });
+                                                log.info("request GET all patients");
+
+                                                return Mono.just(Rendering.view("index").build());
+                                        });
+                } else {
+                        // TODO add error to display problème in login page ( user is not login : no jwt)
+                        session.getAttributes().put("loginError", true);
+                        return Mono.just(Rendering.redirectTo("/").build());
+                }
+
+
         }
 
         /**
@@ -139,21 +166,30 @@ public class UiController {
         @GetMapping("/patients/{id}")
         public Mono<Rendering> getPatientRecord(@PathVariable(value = "id") Long patientId, WebSession session, Model model) {
 
-                return webclient.get().uri(pathPatientService + "/{id}", patientId)
-                                .retrieve()
-                                .bodyToMono(PatientDto.class)
-                                .flatMap(body -> {
-                                        log.info("GET patient-record with id {} = {}", patientId, body);
+                // check if jwt token is present
+                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
 
-                                        model.addAttribute("fieldsOnError", new HashMap<String, String>());
-                                        model.addAttribute("patient", body);
+                if (!jwtValue.equals("")) {
+                        return webclient.get().uri(pathPatientService + "/{id}", patientId)
+                                        .headers(h -> h.add("jwtoken", jwtValue))
+                                        .retrieve()
+                                        .bodyToMono(PatientDto.class)
+                                        .flatMap(body -> {
+                                                log.info("GET patient-record with id {} = {}", patientId, body);
 
-                                        // in case of bindingResult , we have to add to model fieldsOnError and
-                                        // to override patient with fields filled in by user to be able to display his errors
-                                        addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError");
+                                                model.addAttribute("fieldsOnError", new HashMap<String, String>());
+                                                model.addAttribute("patient", body);
 
-                                        return Mono.just(Rendering.view("patient-record").build());
-                                });
+                                                // in case of bindingResult , we have to add to model fieldsOnError and
+                                                // to override patient with fields filled in by user to be able to display his errors
+                                                addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError");
+
+                                                return Mono.just(Rendering.view("patient-record").build());
+                                        });
+                } else {
+                        // TODO add error to display problème in login page ( user is not login : no jwt)
+                        return Mono.just(Rendering.redirectTo("/").modelAttribute("loginError", "Problem with your credentials occured!").build());
+                }
         }
 
         /**
@@ -165,25 +201,33 @@ public class UiController {
          * @return rendering with redirection to index.html
          */
         @PostMapping("/patients/create")
-        public Mono<Rendering> createPatient(
-                        @ModelAttribute(value = "patientToCreate") PatientDto patientToCreate,
+        public Mono<Rendering> createPatient(@ModelAttribute(value = "patientToCreate") PatientDto patientToCreate,
                         Model model, WebSession session) {
 
-                return webclient.post().uri(pathPatientService)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(Mono.just(patientToCreate), PatientDto.class)
+                // check if jwt token is present
+                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
 
-                                .exchangeToMono(response -> response.statusCode().isError()
-                                                ? response.bodyToMono(ProblemDetail.class)
-                                                : response.bodyToMono(PatientDto.class))
+                if (!jwtValue.equals("")) {
+                        return webclient.post().uri(pathPatientService)
+                                        .headers(h -> h.add("jwtoken", jwtValue))
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .body(Mono.just(patientToCreate), PatientDto.class)
 
-                                .flatMap(body -> {
-                                        log.info("request POST createPatient");
-                                        setSessionAttribute(body, session, CREATION, Optional.of(patientToCreate));
+                                        .exchangeToMono(response -> response.statusCode().isError()
+                                                        ? response.bodyToMono(ProblemDetail.class)
+                                                        : response.bodyToMono(PatientDto.class))
 
-                                        return Mono.just(Rendering.redirectTo("/patients").build());
-                                });
+                                        .flatMap(body -> {
+                                                log.info("request POST createPatient");
+                                                setSessionAttribute(body, session, CREATION, Optional.of(patientToCreate));
 
+                                                return Mono.just(Rendering.redirectTo("/patients").build());
+                                        });
+
+                } else {
+                        // TODO add error to display problème in login page ( user is not login : no jwt)
+                        return Mono.just(Rendering.redirectTo("/").modelAttribute("loginError", "Problem with your credentials occured!").build());
+                }
         }
 
         /**
@@ -198,29 +242,39 @@ public class UiController {
         @PostMapping("/patients/update/{id}")
         public Mono<Rendering> updatePatient(@PathVariable(value = "id") Long patientId,
                         @ModelAttribute(value = "patient") PatientDto updatedPatient,
-                        WebSession session,
-                        Model model) {
+                        WebSession session, Model model) {
 
-                // delete id of patientDto to have a id null (must to have a correct validation in
-                // patient-service)
-                updatedPatient.setId(null);
+                // check if jwt token is present
+                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
 
-                return webclient.put().uri(pathPatientService + "/{id}", patientId)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(Mono.just(updatedPatient), PatientDto.class)
+                if (!jwtValue.equals("")) {
 
-                                .exchangeToMono(response -> response.statusCode().isError()
-                                                ? response.bodyToMono(ProblemDetail.class)
-                                                : response.bodyToMono(PatientDto.class))
 
-                                .flatMap(body -> {
-                                        log.info("request POST updatePatient with id {}", patientId);
+                        // delete id of patientDto to have a id null (must to have a correct validation in
+                        // patient-service)
+                        updatedPatient.setId(null);
 
-                                        return setSessionAttribute(body, session, UPDATE, Optional.of(updatedPatient)).equals(SUCCESS_MESSAGE)
-                                                        ? Mono.just(Rendering.redirectTo("/").build())
-                                                        : Mono.just(Rendering.redirectTo("/patients/" + patientId).build());
-                                });
+                        return webclient.put().uri(pathPatientService + "/{id}", patientId)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .headers(h -> h.add("jwtoken", jwtValue))
+                                        .body(Mono.just(updatedPatient), PatientDto.class)
 
+                                        .exchangeToMono(response -> response.statusCode().isError()
+                                                        ? response.bodyToMono(ProblemDetail.class)
+                                                        : response.bodyToMono(PatientDto.class))
+
+                                        .flatMap(body -> {
+                                                log.info("request POST updatePatient with id {}", patientId);
+
+                                                return setSessionAttribute(body, session, UPDATE, Optional.of(updatedPatient)).equals(SUCCESS_MESSAGE)
+                                                                ? Mono.just(Rendering.redirectTo("/patients").build())
+                                                                : Mono.just(Rendering.redirectTo("/patients/" + patientId).build());
+                                        });
+
+                } else {
+                        // TODO add error to display problème in login page ( user is not login : no jwt)
+                        return Mono.just(Rendering.redirectTo("/").modelAttribute("loginError", "Problem with your credentials occured!").build());
+                }
         }
 
         /**
@@ -231,21 +285,30 @@ public class UiController {
          * @return Mono<Renderring> for redirection
          */
         @GetMapping("/patients/delete/{id}")
-        public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId,
-                        WebSession session) {
+        public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId, WebSession session) {
 
-                return webclient.delete().uri(pathPatientService + "/{id}", patientId)
-                                .exchangeToMono(response -> response.statusCode().isError()
-                                                ? response.bodyToMono(ProblemDetail.class)
-                                                : response.bodyToMono(PatientDto.class))
+                // check if jwt token is present
+                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
 
-                                .flatMap(body -> {
-                                        log.info("request GET deletePatient");
-                                        setSessionAttribute(body, session, DELETE, Optional.empty());
+                if (!jwtValue.equals("")) {
 
-                                        return Mono.just(Rendering.redirectTo("/patients").build());
-                                });
+                        return webclient.delete().uri(pathPatientService + "/{id}", patientId)
+                                        .headers(h -> h.add("jwtoken", jwtValue))
+                                        .exchangeToMono(response -> response.statusCode().isError()
+                                                        ? response.bodyToMono(ProblemDetail.class)
+                                                        : response.bodyToMono(PatientDto.class))
 
+                                        .flatMap(body -> {
+                                                log.info("request GET deletePatient");
+                                                setSessionAttribute(body, session, DELETE, Optional.empty());
+
+                                                return Mono.just(Rendering.redirectTo("/patients").build());
+                                        });
+
+                } else {
+                        // TODO add error to display problème in login page ( user is not login : no jwt)
+                        return Mono.just(Rendering.redirectTo("/").modelAttribute("loginError", "Problem with your credentials occured!").build());
+                }
         }
 
         /**
@@ -258,8 +321,7 @@ public class UiController {
          * @return String : if body is ProblemDetail then return is ERRORMESSAGE (with if exists bindingResult and user-provided patient ) else customized SUCCESSMESSAGE with type of operation ( created,
          *         updated or deleted !)
          */
-        private String setSessionAttribute(Object body, WebSession session, String typeOfOperation,
-                        Optional<PatientDto> userProvidedPatient) {
+        private String setSessionAttribute(Object body, WebSession session, String typeOfOperation, Optional<PatientDto> userProvidedPatient) {
 
                 if (body instanceof ProblemDetail) {
 
