@@ -15,7 +15,6 @@ public class GlatewayRoutesConfig {
 
 
                 return builder.routes()
-                                // TODO add logging to view better what are doing predicate and filter
                                 // route for patient-service
                                 .route("patient-service", r -> r.path("/api/v1/patients/**")
                                                 .and()
