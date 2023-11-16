@@ -167,13 +167,13 @@
                             th:href=" @{/(page=0,size=${patientPages.size})}">&laquo;</a>
                     </li>
                     <li class="page-item"><a class="page-link"
-                            th:href="${patientPages.number>0}? @{/(page=${patientPages.number -1},size=${patientPages.size})}:''">Previous</a>
+                            th:href="${patientPages.number>0}? @{/patients(page=${patientPages.number -1},size=${patientPages.size})}:''">Previous</a>
                     </li>
 
                     <th:block id="page-number-list" th:if="${#lists.size(pageNumbers) <= 10 }"
                         th:each="pageNumber : ${pageNumbers}">
                         <li class="page-item">
-                            <a class="page-link" th:href="@{/(page=${pageNumber -1},size=${patientPages.size})}"
+                            <a class="page-link" th:href="@{/patients(page=${pageNumber -1},size=${patientPages.size})}"
                                 th:text="${pageNumber}"
                                 th:classAppend="${pageNumber==patientPages.number+ 1} ? active"></a>
                         </li>
@@ -185,7 +185,7 @@
                         <th:block th:if="${currentPage <5 || currentPage> totalOfPages-6 }">
                             <p id="page-number-list" th:each="index: ${#numbers.sequence(1,5)}">
                                 <li class="page-item">
-                                    <a class="page-link" th:href="@{/(page=${index-1},size=${patientPages.size})}"
+                                    <a class="page-link" th:href="@{/patients(page=${index-1},size=${patientPages.size})}"
                                         th:text="${index}" th:classAppend="${index == currentPage +1} ? active"></a>
                                 </li>
                             </p>
@@ -195,7 +195,7 @@
                             <p id="page-number-list" th:each="index: ${#numbers.sequence(totalOfPages-4,totalOfPages)}">
 
                                 <li class="page-item">
-                                    <a class="page-link" th:href="@{/(page=${index-1},size=${patientPages.size})}"
+                                    <a class="page-link" th:href="@{/patients(page=${index-1},size=${patientPages.size})}"
                                         th:text="${index}" th:classAppend="${index==currentPage+1} ? active"></a>
                                 </li>
                             </p>
@@ -207,7 +207,7 @@
                             </li>
                             <p id="page-number-list" th:each="index: ${#numbers.sequence(currentPage-2,currentPage+4)}">
                                 <li class="page-item">
-                                    <a class="page-link" th:href="@{/(page=${index-1},size=${patientPages.size})}"
+                                    <a class="page-link" th:href="@{/patients(page=${index-1},size=${patientPages.size})}"
                                         th:text="${index}" th:classAppend="${index == currentPage+ 1} ? active"></a>
                                 </li>
                             </p>
@@ -219,10 +219,10 @@
                     </th:block>
 
                     <li class="page-item"><a class="page-link"
-                            th:href="${patientPages.number < patientPages.totalPages-1}? @{/(page=${patientPages.number+1 },size=${patientPages.size})}:''">Next</a>
+                            th:href="${patientPages.number < patientPages.totalPages-1}? @{/patients(page=${patientPages.number+1 },size=${patientPages.size})}:''">Next</a>
                     </li>
                     <li class="page-item"><a class="page-link"
-                            th:href=" @{/(page=${patientPages.totalPages -1},size=${patientPages.size})}">&raquo;</a>
+                            th:href=" @{/patients(page=${patientPages.totalPages -1},size=${patientPages.size})}">&raquo;</a>
                     </li>
                 </ul>
             </nav>
