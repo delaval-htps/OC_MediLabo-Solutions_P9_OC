@@ -65,20 +65,21 @@ public class UiController {
         @GetMapping("/")
         public Mono<Rendering> getLogin(Model model, WebSession session) {
 
-                // check if jwt token is present
+                // Retrieve jwt if it is present
                 String jwtValue = session.getAttributeOrDefault("jwtoken", "");
 
-                // TODO check if token is valid because with any other token we can access to /patients: need to call auth server to verify
+
                 if (!jwtValue.equals("")) {
+                        /*
+                         * case user has a jwt : redirect to "/patients" : Gateway has a filter in routes to validate the token, if jwt is not valid then we have a redirection to GET "/login" with loginError (cf GET
+                         * ("/patients"))
+                         */
                         return Mono.just(Rendering.redirectTo("/patients").build());
                 } else {
-                        model.addAttribute("userCredential", new UserCredential());
-                        if (session.getAttributes().containsKey("loginError")) {
-
-                                model.addAttribute("loginError", true);
-                                session.getAttributes().remove("loginError");
-                        }
-                        return Mono.just(Rendering.view("login").build());
+                        /*
+                         * case user doesn't have a jwt then he must pass by GET "/login" to fill it his credentials
+                         */
+                        return redirectToLoginPage(model, false);
                 }
         }
 
@@ -86,15 +87,14 @@ public class UiController {
         @PostMapping(value = "/login")
         public Mono<Rendering> postLogin(@ModelAttribute UserCredential credential, WebSession session, Model model) {
 
-                // call auth-service to get jwtoken to identify user that just fill in form login
+                // call auth-service to get jwtoken to identify user
                 return webclient.post().uri("/login").contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(credential))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.OK)) {
                                                 session.getAttributes().put("jwtoken", response.headers().header("jwtoken").get(0));
                                                 return Mono.just(Rendering.redirectTo("/patients").build());
                                         } else {
-                                                model.addAttribute("loginError", true);
-                                                return Mono.just(Rendering.view("/login").build());
+                                                return redirectToLoginPage(model, true);
                                         }
                                 });
         }
@@ -121,8 +121,7 @@ public class UiController {
                                 .headers(h -> h.add("jwtoken", jwtValue))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                model.addAttribute("loginError", true);
-                                                return Mono.just(Rendering.view("/login").build());
+                                                return redirectToLoginPage(model, true);
                                         }
                                         return response.bodyToMono(RestPage.class)
                                                         .flatMap(restPage -> {
@@ -167,7 +166,7 @@ public class UiController {
                                 .headers(h -> h.add("jwtoken", jwtValue))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                return Mono.just(Rendering.redirectTo("/").build());
+                                                return redirectToLoginPage(model, true);
                                         }
                                         return response.bodyToMono(PatientDto.class)
                                                         .flatMap(body -> {
@@ -209,7 +208,7 @@ public class UiController {
                                 .exchangeToMono(response -> {
 
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                return Mono.just(Rendering.redirectTo("/").build());
+                                                return redirectToLoginPage(model, true);
                                         }
 
                                         return (response.statusCode().isError()
@@ -252,7 +251,7 @@ public class UiController {
                                 .exchangeToMono(response -> {
 
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                return Mono.just(Rendering.redirectTo("/").build());
+                                                return redirectToLoginPage(model, true);
                                         }
 
                                         return (response.statusCode().isError()
@@ -277,7 +276,7 @@ public class UiController {
          * @return Mono<Renderring> for redirection
          */
         @GetMapping("/patients/delete/{id}")
-        public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId, WebSession session) {
+        public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId, Model model, WebSession session) {
 
                 // check if jwt token is present
                 String jwtValue = session.getAttributeOrDefault("jwtoken", "");
@@ -289,7 +288,7 @@ public class UiController {
                                 .exchangeToMono(response -> {
 
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                return Mono.just(Rendering.redirectTo("/").build());
+                                                return redirectToLoginPage(model, true);
                                         }
 
                                         return (response.statusCode().isError()
@@ -303,6 +302,14 @@ public class UiController {
                                                                                 return Mono.just(Rendering.redirectTo("/patients").build());
                                                                         });
                                 });
+        }
+
+        private Mono<Rendering> redirectToLoginPage(Model model, boolean loginError) {
+                if (loginError) {
+                        model.addAttribute("loginError", true);
+                }
+                model.addAttribute("userCredential", new UserCredential());
+                return Mono.just(Rendering.view("/login").build());
         }
 
         /**
