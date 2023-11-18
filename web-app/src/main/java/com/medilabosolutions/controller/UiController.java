@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,14 +39,12 @@ public class UiController {
         private String pathPatientService;
 
         private final WebClient webclient;
-        private final PasswordEncoder passwordEncoder;
         private final ModelMapper modelMapper;
 
         @Autowired
-        public UiController(WebClient webclient, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
+        public UiController(WebClient webclient, ModelMapper modelMapper) {
                 this.webclient = webclient;
                 this.modelMapper = modelMapper;
-                this.passwordEncoder = passwordEncoder;
         }
 
         private static final String ERROR_MESSAGE = "errorMessage";
@@ -66,12 +63,12 @@ public class UiController {
         public Mono<Rendering> getLogin(Model model, WebSession session) {
 
                 // Retrieve jwt if it is present
-                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
-
+                String jwtValue = session.getAttributeOrDefault("Authorization", "");
 
                 if (!jwtValue.equals("")) {
                         /*
-                         * case user has a jwt : redirect to "/patients" : Gateway has a filter in routes to validate the token, if jwt is not valid then we have a redirection to GET "/login" with loginError (cf GET
+                         * case user has a jwt : redirect to "/patients" : Gateway has a filter in routes to validate the
+                         * token, if jwt is not valid then we have a redirection to GET "/login" with loginError (cf GET
                          * ("/patients"))
                          */
                         return Mono.just(Rendering.redirectTo("/patients").build());
@@ -91,7 +88,7 @@ public class UiController {
                 return webclient.post().uri("/login").contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromValue(credential))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.OK)) {
-                                                session.getAttributes().put("jwtoken", response.headers().header("jwtoken").get(0));
+                                                session.getAttributes().put("Authorization", response.headers().header("Authorization").get(0).replace("Bearer ",""));
                                                 return Mono.just(Rendering.redirectTo("/patients").build());
                                         } else {
                                                 return redirectToLoginPage(model, true);
@@ -100,7 +97,8 @@ public class UiController {
         }
 
         /**
-         * Endpoint to display the index page of medilabo-solution with the list of all registred PatientDtos (never get error , just only a avoid list of patients)
+         * Endpoint to display the index page of medilabo-solution with the list of all registred
+         * PatientDtos (never get error , just only a avoid list of patients)
          * 
          * @param model model to add PatientDtos to the view
          * @return the view "index.html" //
@@ -114,11 +112,10 @@ public class UiController {
                 int pageSize = size.orElse(10);
 
                 // check if jwt token is present
-                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
-
+                String jwtValue = session.getAttributeOrDefault("Authorization", "");
 
                 return webclient.get().uri(pathPatientService + "/{page}/{size}", currentPage, pageSize)
-                                .headers(h -> h.add("jwtoken", jwtValue))
+                                .headers(h -> h.setBearerAuth(jwtValue))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
                                                 return redirectToLoginPage(model, true);
@@ -137,7 +134,8 @@ public class UiController {
                                                                 model.addAttribute("patientToCreate", new PatientDto());
                                                                 model.addAttribute("patientPages", restPage);
 
-                                                                // in case of bindingResult , we have to add to model fieldsOnError and to override patientwith fields filled
+                                                                // in case of bindingResult , we have to add to model fieldsOnError and to override patientwith
+                                                                // fields filled
                                                                 // in by user to be able to display his errors
                                                                 addAttributeSessionToModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, "fieldsOnError", "patientToCreate");
 
@@ -160,10 +158,10 @@ public class UiController {
         public Mono<Rendering> getPatientRecord(@PathVariable(value = "id") Long patientId, WebSession session, Model model) {
 
                 // check if jwt token is present
-                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
+                String jwtValue = session.getAttributeOrDefault("Authorization", "");
 
                 return webclient.get().uri(pathPatientService + "/{id}", patientId)
-                                .headers(h -> h.add("jwtoken", jwtValue))
+                                .headers(h -> h.setBearerAuth(jwtValue))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
                                                 return redirectToLoginPage(model, true);
@@ -197,11 +195,10 @@ public class UiController {
         public Mono<Rendering> createPatient(@ModelAttribute(value = "patientToCreate") PatientDto patientToCreate, Model model, WebSession session) {
 
                 // check if jwt token is present
-                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
-
+                String jwtValue = session.getAttributeOrDefault("Authorization", "");
 
                 return webclient.post().uri(pathPatientService)
-                                .headers(h -> h.add("jwtoken", jwtValue))
+                                .headers(h -> h.setBearerAuth(jwtValue))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .body(Mono.just(patientToCreate), PatientDto.class)
 
@@ -230,7 +227,8 @@ public class UiController {
          * @param updatedPatient the patient with updated fields
          * @param session websession to add attribute if problem and redirect to the form
          * @param model model to add sucess attribute when patient correctly updated
-         * @return Mono<Rendering> with view to index if success or redirection to the same page (form) if error
+         * @return Mono<Rendering> with view to index if success or redirection to the same page (form) if
+         *         error
          */
         @PostMapping("/patients/update/{id}")
         public Mono<Rendering> updatePatient(@PathVariable(value = "id") Long patientId,
@@ -238,14 +236,14 @@ public class UiController {
                         WebSession session, Model model) {
 
                 // check if jwt token is present
-                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
+                String jwtValue = session.getAttributeOrDefault("Authorization", "");
 
                 // delete id of patientDto to have a id null (must to have a correct validation in patient-service)
                 updatedPatient.setId(null);
 
                 return webclient.put().uri(pathPatientService + "/{id}", patientId)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .headers(h -> h.add("jwtoken", jwtValue))
+                                .headers(h -> h.setBearerAuth(jwtValue))
                                 .body(Mono.just(updatedPatient), PatientDto.class)
 
                                 .exchangeToMono(response -> {
@@ -279,12 +277,10 @@ public class UiController {
         public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId, Model model, WebSession session) {
 
                 // check if jwt token is present
-                String jwtValue = session.getAttributeOrDefault("jwtoken", "");
-
-
+                String jwtValue = session.getAttributeOrDefault("Authorization", "");
 
                 return webclient.delete().uri(pathPatientService + "/{id}", patientId)
-                                .headers(h -> h.add("jwtoken", jwtValue))
+                                .headers(h -> h.setBearerAuth(jwtValue))
                                 .exchangeToMono(response -> {
 
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
@@ -313,14 +309,18 @@ public class UiController {
         }
 
         /**
-         * method to add an error (with bindingResult, if exists) or success message to websession for a futur redirection (cause spring webflux not supports redirectAttributes)
+         * method to add an error (with bindingResult, if exists) or success message to websession for a
+         * futur redirection (cause spring webflux not supports redirectAttributes)
          * 
          * @param body body content of a response from webclient request to add to message
          * @param session the websession of the request of endpoint
-         * @param typeOfOperation String to modify message in toast in case of success message according to type of operation: create/update or delete a patient
-         * @param userProvidedPatient optional parameter of user-provided patient in form to create one or update a existing one
-         * @return String : if body is ProblemDetail then return is ERRORMESSAGE (with if exists bindingResult and user-provided patient ) else customized SUCCESSMESSAGE with type of operation ( created,
-         *         updated or deleted !)
+         * @param typeOfOperation String to modify message in toast in case of success message according to
+         *        type of operation: create/update or delete a patient
+         * @param userProvidedPatient optional parameter of user-provided patient in form to create one or
+         *        update a existing one
+         * @return String : if body is ProblemDetail then return is ERRORMESSAGE (with if exists
+         *         bindingResult and user-provided patient ) else customized SUCCESSMESSAGE with type of
+         *         operation ( created, updated or deleted !)
          */
         private String setSessionAttribute(Object body, WebSession session, String typeOfOperation, Optional<PatientDto> userProvidedPatient) {
 
@@ -331,15 +331,13 @@ public class UiController {
                         Map<String, Object> properties = pb.getProperties();
 
                         // in case of existence of bindingResult in problemDetail , we have to add
-                        // it to session
-                        // to be retrieve in redirection and add fieldsOnError in model
+                        // it to session to be retrieve in redirection and add fieldsOnError in model
                         if (properties != null && properties.containsKey("bindingResult")) {
                                 session.getAttributes().put("fieldsOnError",
                                                 properties.get("bindingResult"));
                         }
 
-                        // add into session , the fields that user filled in that represents
-                        // patientDto
+                        // add into session , the fields that user filled in that represents patientDto
                         if (userProvidedPatient.isPresent()) {
                                 session.getAttributes().put("patient", userProvidedPatient);
                         }
@@ -370,7 +368,8 @@ public class UiController {
          * 
          * @param model the model to add attribute
          * @param session the attribute to remove and add to model of view
-         * @param messages list of (String)messages (name of attribute in session)to remove from websession and add them to model
+         * @param messages list of (String)messages (name of attribute in session)to remove from websession
+         *        and add them to model
          */
         private void addAttributeSessionToModel(Model model, WebSession session,
                         String... messages) {

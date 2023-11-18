@@ -18,8 +18,7 @@ public class GlatewayRoutesConfig {
                                 // route for patient-service
                                 .route("patient-service", r -> r.path("/api/v1/patients/**")
                                                 .and()
-                                                .header("jwtoken", "(.*)")
-
+                                                .header("Authorization", "Bearer (.*)")
                                                 // no need to change path because patient-service has as path "/patients": need to delete first and second prefix "/api/v1"
                                                 .filters(f -> f.stripPrefix(2)
                                                                 .filter(authorizationHeaderFilter.apply(new Config()), 1))

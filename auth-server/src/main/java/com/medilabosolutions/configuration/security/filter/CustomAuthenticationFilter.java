@@ -23,8 +23,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * CustomAuthenticationFilter that implements UsernamePasswordAuthenticationFilter used by formLogin. Why this custom authentication filter just to override method successfullAuthentication to add a
- * jwtoken in response when authenticate request of login is sucessfull.
+ * CustomAuthenticationFilter that implements UsernamePasswordAuthenticationFilter used by
+ * formLogin. Why this custom authentication filter just to override method
+ * successfullAuthentication to add a jwtoken in response when authenticate request of login is
+ * sucessfull.
  */
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -77,7 +79,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
                 .signWith(secretKey)
                 .compact();
 
-        response.addHeader("jwtoken", jwToken); //TODO change jwtoken by authorization and Bearer
+        response.addHeader("Authorization", "Bearer " + jwToken);
 
     }
 

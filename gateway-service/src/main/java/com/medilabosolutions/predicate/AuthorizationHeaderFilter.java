@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -17,7 +18,8 @@ import io.jsonwebtoken.security.Keys;
 import reactor.core.publisher.Mono;
 
 /**
- * A filter predicate that check if request has a header key jwtoken and check if its value jwt token is valid.
+ * A filter predicate that check if request has a header key jwtoken and check if its value jwt
+ * token is valid.
  */
 @Component
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
@@ -34,16 +36,17 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
     @Override
     public GatewayFilter apply(Config config) {
-        
+
         return (exchange, chain) -> {
 
             ServerHttpRequest request = exchange.getRequest();
 
-            if (!request.getHeaders().containsKey("jwtoken")) {
-                return onError(exchange, "No Jwtoken header", HttpStatus.UNAUTHORIZED);
+            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+                return onError(exchange, "No Authorization header", HttpStatus.UNAUTHORIZED);
             }
 
-            String jwt = request.getHeaders().get("jwtoken").get(0);
+            String authorizationHeader = request.getHeaders().get("Authorization").get(0);
+            String jwt = authorizationHeader.replace("Bearer ", "");
 
             if (!isJwtValid(jwt)) {
                 return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
@@ -56,7 +59,6 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     private Mono<Void> onError(ServerWebExchange exchange, String string, HttpStatus status) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(status);
-
         return response.setComplete();
     }
 
