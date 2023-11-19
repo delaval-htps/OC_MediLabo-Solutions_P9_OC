@@ -1,6 +1,5 @@
 package com.medilabosolutions.configuration.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -26,7 +25,6 @@ public class AuthSecurityConfig {
 
     private final Environment environment;
 
-    @Autowired
     public AuthSecurityConfig(Environment environment) {
         this.environment = environment;
     }

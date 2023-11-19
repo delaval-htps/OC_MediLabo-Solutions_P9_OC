@@ -2,7 +2,6 @@ package com.medilabosolutions.configuration.filter;
 
 import java.util.Base64;
 import javax.crypto.SecretKey;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.env.Environment;
@@ -24,11 +23,11 @@ import reactor.core.publisher.Mono;
 @Component
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
 
-    public AuthorizationHeaderFilter() {
+    public AuthorizationHeaderFilter(Environment environment) {
         super(Config.class);
+        this.environment = environment;
     }
 
     public static class Config {
@@ -46,11 +45,11 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
             }
 
             String authorizationHeader = request.getHeaders().get("Authorization").get(0);
-           
-            if (!authorizationHeader.matches("Bearer (\\S+)")){
+
+            if (!authorizationHeader.matches("Bearer (\\S+)")) {
                 return onError(exchange, "No Authorization header", HttpStatus.UNAUTHORIZED);
             }
-            
+
             String jwt = authorizationHeader.replace("Bearer ", "");
 
             if (!isJwtValid(jwt)) {
@@ -78,7 +77,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
         try {
 
             Claims jwClaims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(jws).getPayload();
-
+            // TODO expiration to verify
             if (jwClaims.isEmpty() || jwClaims.get("jti") == null) {
                 returnValue = false;
             }

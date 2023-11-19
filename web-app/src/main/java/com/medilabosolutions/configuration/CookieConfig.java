@@ -13,7 +13,7 @@ public class CookieConfig {
         resolver.setCookieName("JSESSIONID");
         resolver.addCookieInitializer(builder -> builder
                 .secure(true)
-                .maxAge(60)
+                .maxAge(36000)//TODO change duration with 10hours instead 1minute
                 .path("/")
                 .httpOnly(true));
         return resolver;
