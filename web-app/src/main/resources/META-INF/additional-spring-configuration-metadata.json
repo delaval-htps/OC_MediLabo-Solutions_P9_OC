@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "base.url.gateway",
+    "type": "java.lang.String",
+    "description": "baseUrl for gateway"
+  },
+  {
+    "name": "path.patient.service",
+    "type": "java.lang.String",
+    "description": "A description for 'path.patient.service'"
+  }
+]}

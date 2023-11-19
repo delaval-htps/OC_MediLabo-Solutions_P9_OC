@@ -156,7 +156,7 @@ parent pom) -->
             
     <module>eureka-server</module>
             
-    <module>front-service</module>
+    <module>web-app</module>
           
     <module>auth-server</module>
       

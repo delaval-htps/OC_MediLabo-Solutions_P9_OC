@@ -23,9 +23,7 @@ import com.medilabosolutions.configuration.security.filter.CustomAuthenticationF
 @EnableWebSecurity
 public class AuthSecurityConfig {
 
-    private Environment environment;
-
-
+    private final Environment environment;
 
     public AuthSecurityConfig(Environment environment) {
         this.environment = environment;
@@ -38,12 +36,12 @@ public class AuthSecurityConfig {
         AuthenticationManager authenticationManager = authManagerBuilder.getOrBuild();
 
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManager, environment);
-        
+
         http.authorizeHttpRequests(httpRequest -> httpRequest
                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
                 .anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults())
-                .httpBasic(h -> h.disable())
+                .formLogin(f -> f.disable())
+                .httpBasic(Customizer.withDefaults())
                 .csrf(c -> c.disable())
                 .addFilter(customAuthenticationFilter)
                 .authenticationManager(authenticationManager)
