@@ -1,4 +1,4 @@
-package com.medilabosolutions.predicate;
+package com.medilabosolutions.configuration.filter;
 
 import java.util.Base64;
 import javax.crypto.SecretKey;
@@ -46,6 +46,11 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
             }
 
             String authorizationHeader = request.getHeaders().get("Authorization").get(0);
+           
+            if (!authorizationHeader.matches("Bearer (\\S+)")){
+                return onError(exchange, "No Authorization header", HttpStatus.UNAUTHORIZED);
+            }
+            
             String jwt = authorizationHeader.replace("Bearer ", "");
 
             if (!isJwtValid(jwt)) {

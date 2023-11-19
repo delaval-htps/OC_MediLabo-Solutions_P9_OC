@@ -1,4 +1,4 @@
-package com.medilabosolutions.filter;
+package com.medilabosolutions.configuration.filter;
 
 import java.util.Set;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @Slf4j
-public class Prefilter implements GlobalFilter, Ordered {
+public class GlobalPrefilterLogResquest implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

@@ -7,13 +7,15 @@ import org.springframework.web.server.session.WebSessionIdResolver;
 
 @Configuration
 public class CookieConfig {
-    // TODO update config to have a secure jwt token
     @Bean
     public WebSessionIdResolver webSessionIdResolver() {
         CookieWebSessionIdResolver resolver = new CookieWebSessionIdResolver();
-        resolver.setCookieName("test");
-        resolver.addCookieInitializer(builder -> builder.path("/"));
-        resolver.addCookieInitializer(builder -> builder.httpOnly(true));
+        resolver.setCookieName("JSESSIONID");
+        resolver.addCookieInitializer(builder -> builder
+                .secure(true)
+                .maxAge(60)
+                .path("/")
+                .httpOnly(true));
         return resolver;
 
     }
