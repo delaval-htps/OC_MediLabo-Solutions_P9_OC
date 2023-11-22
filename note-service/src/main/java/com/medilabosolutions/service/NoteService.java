@@ -1,6 +1,5 @@
 package com.medilabosolutions.service;
 
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import com.medilabosolutions.model.Note;
 import com.medilabosolutions.repository.NoteRepository;
@@ -20,7 +19,7 @@ public class NoteService {
     }
 
     public Mono<Note> findById(String id) {
-        return noteRepository.findById(new ObjectId(id));
+        return noteRepository.findById(id);
     }
 
     public Mono<Note> createNote(Note note) {
@@ -28,7 +27,7 @@ public class NoteService {
     }
 
     public Mono<Note> updateNote(String id, Note note) {
-        return noteRepository.findById(new ObjectId(id)).flatMap(n -> {
+        return noteRepository.findById(id).flatMap(n -> {
             n.setDate(note.getDate());
             n.setPatient(note.getPatient());
             n.setContent(note.getContent());
@@ -37,7 +36,7 @@ public class NoteService {
     }
 
     public Mono<Note> deleteNote(String id) {
-        return noteRepository.findById(new ObjectId(id))
+        return noteRepository.findById(id)
                 .flatMap(noteToDelete -> noteRepository.delete(noteToDelete)
                         .then(Mono.just(noteToDelete)));
     }
