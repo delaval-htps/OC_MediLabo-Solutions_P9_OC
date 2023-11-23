@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "mongodb.source.load.data",
+  "type": "java.lang.String",
+  "description": "mongodb data source to load at start up"
+}]}
