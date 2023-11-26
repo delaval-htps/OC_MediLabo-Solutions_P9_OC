@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 
 @ControllerAdvice
 @PropertySource("classpath:application.properties")
-public class GlobalExceptionHandler {
+public class GlobalHandlerExceptions {
 
         @Value("${application.url}")
         private String applicationUrl;
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
         @Autowired
         private MessageSource messageSource;
 
-        private Logger logger = LogManager.getLogger(GlobalExceptionHandler.class);
+        private Logger logger = LogManager.getLogger(GlobalHandlerExceptions.class);
 
         /**
          * BindingResult exception handler: handle bindigResult , create a custom problemDetail with

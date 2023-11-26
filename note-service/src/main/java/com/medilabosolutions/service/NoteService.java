@@ -27,11 +27,11 @@ public class NoteService {
     }
 
     public Mono<Note> updateNote(String id, Note note) {
-        return noteRepository.findById(id).flatMap(n -> {
-            n.setDate(note.getDate());
-            n.setPatient(note.getPatient());
-            n.setContent(note.getContent());
-            return noteRepository.save(note);
+        return noteRepository.findById(id).flatMap(noteToUpdate -> {
+            noteToUpdate.setDate(note.getDate());
+            noteToUpdate.setPatient(note.getPatient());
+            noteToUpdate.setContent(note.getContent());
+            return noteRepository.save(noteToUpdate);
         });
     }
 

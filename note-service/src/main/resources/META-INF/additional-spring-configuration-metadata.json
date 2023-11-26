@@ -1,5 +1,12 @@
-{"properties": [{
-  "name": "mongodb.source.load.data",
-  "type": "java.lang.String",
-  "description": "mongodb data source to load at start up"
-}]}
+{"properties": [
+  {
+    "name": "mongodb.source.load.data",
+    "type": "java.lang.String",
+    "description": "mongodb data source to load at start up"
+  },
+  {
+    "name": "application.url",
+    "type": "java.lang.String",
+    "description": "url of application"
+  }
+]}
