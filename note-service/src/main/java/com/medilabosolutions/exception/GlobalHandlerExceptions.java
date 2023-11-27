@@ -30,7 +30,7 @@ public class GlobalHandlerExceptions {
 
         @Value("${application.url}")
         private String applicationUrl;
-     
+
         private final MessageSource messageSource;
 
         /**
@@ -43,8 +43,7 @@ public class GlobalHandlerExceptions {
          * @throws URISyntaxException
          */
         @ExceptionHandler(WebExchangeBindException.class)
-        public Mono<ResponseEntity<ProblemDetail>> handleValidationException(
-                        WebExchangeBindException webe, ServerHttpRequest request) {
+        public Mono<ResponseEntity<ProblemDetail>> handleValidationException(WebExchangeBindException webe, ServerHttpRequest request) {
 
                 HashMap<String, String> mapFieldErrors = new HashMap<>();
 
@@ -73,9 +72,7 @@ public class GlobalHandlerExceptions {
          * @throws URISyntaxException in case that applicationUrl is not type url (not possible)
          */
         @ExceptionHandler(NoteNotFoundException.class)
-        public ResponseEntity<ProblemDetail> handleNoteNotFoundException(
-                        NoteNotFoundException nnfe, ServerHttpRequest request)
-                        throws URISyntaxException {
+        public ResponseEntity<ProblemDetail> handleNoteNotFoundException(NoteNotFoundException nnfe, ServerHttpRequest request) throws URISyntaxException {
 
                 ProblemDetail pb = createProblemDetail(HttpStatus.NOT_FOUND,
                                 nnfe.getMessage(),
@@ -94,9 +91,7 @@ public class GlobalHandlerExceptions {
          * @throws URISyntaxException in case that applicationUrl is not type url (not possible)
          */
         @ExceptionHandler(NoteCreationException.class)
-        public ResponseEntity<ProblemDetail> handleNoteCreationException(
-                        NoteCreationException nce, ServerHttpRequest request)
-                        throws URISyntaxException {
+        public ResponseEntity<ProblemDetail> handleNoteCreationException(NoteCreationException nce, ServerHttpRequest request) throws URISyntaxException {
 
                 ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST,
                                 nce.getMessage(),
@@ -113,21 +108,19 @@ public class GlobalHandlerExceptions {
          * @return a ResponseEntity with custom problem details
          * @throws URISyntaxException in case that applicationUrl is not type url (not possible)
          */
-        @ExceptionHandler(ServerWebInputException.class)
-        public ResponseEntity<ProblemDetail> handleException(
-                        ServerWebInputException swie, ServerHttpRequest request)
-                        throws URISyntaxException {
+        // @ExceptionHandler(ServerWebInputException.class)
+        // public ResponseEntity<ProblemDetail> handleException(ServerWebInputException swie, ServerHttpRequest request) throws URISyntaxException {
 
-                ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST,
-                                swie.getMessage(),
-                                messageSource.getMessage(
-                                                "title.not.created.request.not.correct",
-                                                new Object[] {},
-                                                Locale.ENGLISH),
-                                request);
+        //         ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST,
+        //                         swie.getMessage(),
+        //                         messageSource.getMessage(
+        //                                         "title.not.created.request.not.correct",
+        //                                         new Object[] {},
+        //                                         Locale.ENGLISH),
+        //                         request);
 
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(pb);
-        }
+        //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(pb);
+        // }
 
         /**
          * Method to create a custom ProblemDetail when a exception is thrown and create a log
@@ -138,8 +131,7 @@ public class GlobalHandlerExceptions {
          * @param request the request from which the exception was thrown to retrieve it's id
          * @return a custom problemDetail with all informations
          */
-        private ProblemDetail createProblemDetail(HttpStatus status, String details, String title,
-                        ServerHttpRequest request) {
+        private ProblemDetail createProblemDetail(HttpStatus status, String details, String title, ServerHttpRequest request) {
 
                 ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, details);
 
@@ -150,10 +142,7 @@ public class GlobalHandlerExceptions {
                 }
 
                 problemDetail.setTitle(title);
-
-                problemDetail.setProperty("timeStamp",
-                                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-
+                problemDetail.setProperty("timeStamp", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
                 problemDetail.setProperty("requestId", request.getId());
 
                 log.error("{} {} -{}- : {} {}", request.getMethod(),

@@ -18,6 +18,7 @@ import com.medilabosolutions.exception.NoteCreationException;
 import com.medilabosolutions.exception.NoteNotFoundException;
 import com.medilabosolutions.model.Note;
 import com.medilabosolutions.service.NoteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -45,14 +46,14 @@ public class NoteController {
     }
 
     @PostMapping
-    public Mono<ResponseEntity<NoteDto>> createNote(@RequestBody NoteDto noteToCreate) {
+    public Mono<ResponseEntity<NoteDto>> createNote(@Valid @RequestBody NoteDto noteToCreate) {
         return noteService.createNote(modelMapper.map(noteToCreate, Note.class))
                 .map(note -> new ResponseEntity<NoteDto>(modelMapper.map(note, NoteDto.class), HttpStatus.CREATED))
                 .onErrorMap(t -> new NoteCreationException(messageSource.getMessage("note.not.created", null, Locale.ENGLISH)));
     }
 
     @PutMapping(value = "/{id}")
-    public Mono<ResponseEntity<NoteDto>> updateNote(@RequestBody NoteDto noteUpdated, @PathVariable(value = "id") String id) {
+    public Mono<ResponseEntity<NoteDto>> updateNote(@Valid @RequestBody NoteDto noteUpdated, @PathVariable(value = "id") String id) {
         return noteService.updateNote(id, modelMapper.map(noteUpdated, Note.class))
                 .map(note -> ResponseEntity.ok(modelMapper.map(note, NoteDto.class)))
                 .switchIfEmpty(Mono.error(new NoteNotFoundException((messageSource.getMessage(NOT_FOUND, new Object[] {id}, Locale.ENGLISH)))));

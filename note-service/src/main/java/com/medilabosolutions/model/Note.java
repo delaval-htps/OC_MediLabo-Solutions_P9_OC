@@ -21,9 +21,10 @@ public class Note {
 
     @Id
     private String id;
-
+    
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime date;
+
     private String content;
     
     private PatientData patient;

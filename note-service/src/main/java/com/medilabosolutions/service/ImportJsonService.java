@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.medilabosolutions.dto.NoteDto;
 import com.medilabosolutions.model.Note;
 import com.medilabosolutions.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,32 +17,33 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ImportJsonService {
 
-    private final NoteRepository noteRepository;
+    private final NoteService noteService;
+    private final ModelMapper modelMapper;
     private final ObjectMapper objectMapper;
 
-    private List<Note> generateNotes(File jsonFile) {
-        List<Note> notes = new ArrayList<>();
+    private List<NoteDto> generateNotes(File jsonFile) {
+        List<NoteDto> notes = new ArrayList<>();
 
         try {
-            notes = objectMapper.readValue(jsonFile, new TypeReference<List<Note>>() {});
+            notes = objectMapper.readValue(jsonFile, new TypeReference<List<NoteDto>>() {});
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return notes;
+    
     }
 
-    private int insertInto(List<Note> notes) {
+    private int insertInto(List<NoteDto> notes) {
         int inserts = 0;
-        for (Note note : notes) {
-            noteRepository.save(note).subscribe();
+        for (NoteDto note : notes) {
+            noteService.createNote(modelMapper.map(note, Note.class)).subscribe();
             inserts++;
         }
         return inserts;
     }
 
     public String importTo(File jsonFile) {
-        List<Note> notes = generateNotes(jsonFile);
+        List<NoteDto> notes = generateNotes(jsonFile);
         int inserts = insertInto(notes);
         return inserts + "/" + notes.size();
     }
