@@ -14,15 +14,16 @@ import lombok.RequiredArgsConstructor;
 public class ImportJsonService {
    
     private final NoteRepository noteRepository;
+    private final ObjectMapper objectMapper;
 
     private List<Note> generateNotes(List<String> lines) {
 
-        ObjectMapper mapper = new ObjectMapper();
+     
         List<Note> notes = new ArrayList<>();
 
         for (String json : lines) {
             try {
-                Note readValueNote = mapper.readValue(json, Note.class);
+                Note readValueNote = objectMapper.readValue(json, Note.class);
                 notes.add(readValueNote);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
