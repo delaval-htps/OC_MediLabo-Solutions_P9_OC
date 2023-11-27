@@ -1,5 +1,6 @@
 package com.medilabosolutions;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,9 +32,8 @@ public class NoteServiceApplication implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		try {
-			List<String> jsonlines = ImportUtils.linesFromResource(source);
-			log.info("lines : {}",jsonlines.toString());
-			String result = importJsonService.importTo(jsonlines);
+			File jsonFile = ImportUtils.jsonFileFromResource(source);
+			String result = importJsonService.importTo(jsonFile);
 			log.info("import {} - result:{}", source, result);
 		} catch (IOException e) {
 			e.printStackTrace();

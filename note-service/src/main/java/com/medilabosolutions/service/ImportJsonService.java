@@ -1,9 +1,11 @@
 package com.medilabosolutions.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.medilabosolutions.model.Note;
 import com.medilabosolutions.repository.NoteRepository;
@@ -12,22 +14,18 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ImportJsonService {
-   
+
     private final NoteRepository noteRepository;
     private final ObjectMapper objectMapper;
 
-    private List<Note> generateNotes(List<String> lines) {
-
-     
+    private List<Note> generateNotes(File jsonFile) {
         List<Note> notes = new ArrayList<>();
 
-        for (String json : lines) {
-            try {
-                Note readValueNote = objectMapper.readValue(json, Note.class);
-                notes.add(readValueNote);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
+        try {
+            notes = objectMapper.readValue(jsonFile, new TypeReference<List<Note>>() {});
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
         return notes;
     }
@@ -41,9 +39,9 @@ public class ImportJsonService {
         return inserts;
     }
 
-    public String importTo(List<String> jsonLines) {
-        List<Note> notes = generateNotes(jsonLines);
+    public String importTo(File jsonFile) {
+        List<Note> notes = generateNotes(jsonFile);
         int inserts = insertInto(notes);
-        return inserts + "/" + jsonLines.size();
+        return inserts + "/" + notes.size();
     }
 }
