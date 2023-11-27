@@ -2,6 +2,7 @@ package com.medilabosolutions.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.medilabosolutions.validation.CustomDateFormat;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -18,6 +19,6 @@ public class NoteDto {
     @NotBlank(message = "content must be not null or blank")
     private String content;
 
-    @NotNull(message = "patient must be not null")
+    @Valid
     private PatientDataDto patient;
 }

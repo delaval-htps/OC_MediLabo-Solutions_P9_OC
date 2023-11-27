@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.medilabosolutions.dto.NoteDto;
 import com.medilabosolutions.model.Note;
-import com.medilabosolutions.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
