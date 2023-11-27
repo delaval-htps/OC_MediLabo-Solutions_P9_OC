@@ -108,19 +108,19 @@ public class GlobalHandlerExceptions {
          * @return a ResponseEntity with custom problem details
          * @throws URISyntaxException in case that applicationUrl is not type url (not possible)
          */
-        // @ExceptionHandler(ServerWebInputException.class)
-        // public ResponseEntity<ProblemDetail> handleException(ServerWebInputException swie, ServerHttpRequest request) throws URISyntaxException {
+        @ExceptionHandler(ServerWebInputException.class)
+        public ResponseEntity<ProblemDetail> handleException(ServerWebInputException swie, ServerHttpRequest request) throws URISyntaxException {
 
-        //         ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST,
-        //                         swie.getMessage(),
-        //                         messageSource.getMessage(
-        //                                         "title.not.created.request.not.correct",
-        //                                         new Object[] {},
-        //                                         Locale.ENGLISH),
-        //                         request);
+                ProblemDetail pb = createProblemDetail(HttpStatus.BAD_REQUEST,
+                                swie.getMessage(),
+                                messageSource.getMessage(
+                                                "title.not.created.request.not.correct",
+                                                new Object[] {},
+                                                Locale.ENGLISH),
+                                request);
 
-        //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(pb);
-        // }
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(pb);
+        }
 
         /**
          * Method to create a custom ProblemDetail when a exception is thrown and create a log
