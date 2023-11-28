@@ -1,10 +1,10 @@
 package com.medilabosolutions.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
+@Builder
 public class PatientData {
     private Long patient_id;
     private String name;
