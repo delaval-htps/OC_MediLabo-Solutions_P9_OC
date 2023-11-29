@@ -36,7 +36,7 @@ public class NoteServiceTest {
                 .date(LocalDateTime.now())
                 .patient(PatientData.builder()
                         .name("patient_mocknote1")
-                        .patient_id((long) 1).build())
+                        .id((long) 1).build())
                 .build();
 
         mockNoteToUpdate = mockNote1;
@@ -47,7 +47,7 @@ public class NoteServiceTest {
                 .date(LocalDateTime.now())
                 .patient(PatientData.builder()
                         .name("patient_mocknote2")
-                        .patient_id((long) 2).build())
+                        .id((long) 2).build())
                 .build();
 
         mockNoteToDelete = mockNote2;

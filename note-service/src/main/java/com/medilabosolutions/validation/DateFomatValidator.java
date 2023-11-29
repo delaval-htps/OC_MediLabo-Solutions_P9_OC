@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+
 public class DateFomatValidator implements ConstraintValidator<CustomDateFormat, String> {
 
     @Override
@@ -18,9 +19,6 @@ public class DateFomatValidator implements ConstraintValidator<CustomDateFormat,
 
         Pattern pattern = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}$");
         boolean validRegex = pattern.matcher(date).matches();
-
-// check if 
-
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         simpleDateFormat.setLenient(false);

@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+import com.medilabosolutions.dto.PatientDto;
 import com.medilabosolutions.model.Patient;
 
 
@@ -35,7 +36,7 @@ class PatientControllerTest {
         @Order(1)
         void testGetAllPatients() {
                 webTestClient.get().uri("/patients").exchange().expectStatus().isOk()
-                                .expectBodyList(Patient.class)
+                                .expectBodyList(PatientDto.class)
                                 .value(patients -> patients.size(), Matchers.equalTo(4))
                                 .value(patients -> patients.get(0).getLastName(),
                                                 Matchers.equalTo("TestNone"))
@@ -52,7 +53,7 @@ class PatientControllerTest {
         @Order(2)
         void testGetPatientById() {
                 webTestClient.get().uri("/patients/{id}", 1).exchange().expectStatus().isOk()
-                                .expectBodyList(Patient.class)
+                                .expectBodyList(PatientDto.class)
                                 .value(patients -> patients.size(), Matchers.equalTo(1))
                                 .value(patients -> patients.get(0).getLastName(),
                                                 Matchers.equalTo("TestNone"))
@@ -100,7 +101,7 @@ class PatientControllerTest {
 
                 webTestClient.post().uri("/patients").bodyValue(patientToSave).exchange()
                                 .expectStatus().isCreated()
-                                .expectBody(Patient.class)
+                                .expectBody(PatientDto.class)
                                 .value(p -> p.getLastName(),
                                                 Matchers.equalTo(patientToSave.getLastName()))
                                 .value(p -> p.getFirstName(),
@@ -147,7 +148,7 @@ class PatientControllerTest {
                                 .build();
                 webTestClient.put().uri("/patients/{id}", 2).bodyValue(updatedPatient).exchange()
                                 .expectStatus().isOk()
-                                .expectBody(Patient.class)
+                                .expectBody(PatientDto.class)
                                 .value(p -> p.getLastName(),
                                                 Matchers.equalTo(updatedPatient.getLastName()))
                                 .value(p -> p.getFirstName(),
@@ -189,7 +190,7 @@ class PatientControllerTest {
         void testDeletePatient_whenExistingId_thenDeleteAndReturnDeletedPatient() {
                 webTestClient.delete().uri("/patients/{id}", 4).exchange()
                                 .expectStatus().isOk()
-                                .expectBody(Patient.class)
+                                .expectBody(PatientDto.class)
                                 .value(deletedPatient -> deletedPatient.getLastName(),
                                                 Matchers.equalTo("TestEarlyOnset"))
                                 .value(deletedPatient -> deletedPatient.getFirstName(),

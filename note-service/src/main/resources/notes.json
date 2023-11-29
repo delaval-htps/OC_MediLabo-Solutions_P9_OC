@@ -3,7 +3,7 @@
         "content": "Le patient déclare qu'il 'se sent très bien' Poids égal ou inférieur au poids recommandé",
         "date": "2023-11-12 12:00:03",
         "patient": {
-            "patient_id": 1,
+            "id": 1,
             "name": "TestNone"
         }
     },
@@ -11,7 +11,7 @@
         "content": "Le patient déclare qu'il ressent beaucoup de stress au travail Il se plaint également que son audition est anormale dernièrement",
         "date": "2023-11-27 12:00:00",
         "patient": {
-            "patient_id": 2,
+            "id": 2,
             "name": "TestBorderLine"
         }
     },
@@ -19,7 +19,7 @@
         "content": "Le patient déclare avoir fait une réaction aux médicaments au cours des 3 derniers mois Il remarque également que son audition continue d'être anormale",
         "date": "2023-05-23 11:00:05",
         "patient": {
-            "patient_id": 2,
+            "id": 2,
             "name": "TestBorderLine"
         }
     },
@@ -27,7 +27,7 @@
         "content": "Le patient déclare qu'il fume depuis peu",
         "date": "2023-11-27 14:00:34",
         "patient": {
-            "patient_id": 3,
+            "id": 3,
             "name": "TestInDanger"
         }
     },
@@ -35,7 +35,7 @@
         "content": "Le patient déclare qu'il est fumeur et qu'il a cessé de fumer l'année dernière Il se plaint également de crises d’apnée respiratoire anormales Tests de laboratoire indiquant un taux de cholestérol LDL élevé",
         "date": "2023-03-16 12:34:00",
         "patient": {
-            "patient_id": 3,
+            "id": 3,
             "name": "TestInDanger"
         }
     },
@@ -43,7 +43,7 @@
         "content": "Le patient déclare qu'il lui est devenu difficile de monter les escaliers Il se plaint également d’être essoufflé Tests de laboratoire indiquant que les anticorps sont élevés Réaction aux médicaments",
         "date": "2023-02-14 11:27:00",
         "patient": {
-            "patient_id": 4,
+            "id": 4,
             "name": "TestEarlyOnset"
         }
     },
@@ -51,7 +51,7 @@
         "content": "Le patient déclare qu'il a mal au dos lorsqu'il reste assis pendant longtemps",
         "date": "2023-11-28 15:15:30",
         "patient": {
-            "patient_id": 4,
+            "id": 4,
             "name": "TestEarlyOnset"
         }
     },
@@ -59,7 +59,7 @@
         "content": "Le patient déclare avoir commencé à fumer depuis peu Hémoglobine A1C supérieure au niveau recommandé",
         "date": "2023-11-29 18:30:00",
         "patient": {
-            "patient_id": 4,
+            "id": 4,
             "name": "TestEarlyOnset"
         }
     },
@@ -67,7 +67,7 @@
         "content": "Taille, Poids, Cholestérol, Vertige et Réaction",
         "date": "2023-11-10 19:15:00",
         "patient": {
-            "patient_id": 4,
+            "id": 4,
             "name": "TestEarlyOnset"
         }
     }

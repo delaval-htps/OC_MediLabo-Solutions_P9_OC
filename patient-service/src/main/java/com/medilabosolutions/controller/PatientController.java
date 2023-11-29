@@ -86,6 +86,7 @@ public class PatientController {
          * @return a reactive stream of ResponseEntity with HttpStatus.created and body created patient
          */
         @PostMapping
+        //TODO check why return is with object and not PatientDto ???
         public Mono<ResponseEntity<Object>> createPatient(
                         @Valid @RequestBody PatientDto patientDto) {
 

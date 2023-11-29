@@ -5,14 +5,28 @@ import com.medilabosolutions.validation.CustomDateFormat;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import jakarta.validation.constraints.Null;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@Builder
 public class NoteDto {
 
+    // validation @Null to not validation a postmapping with a id 
+    @Null(message="you don't need to post a id")
+    private String id;
 
     @NotNull(message = "date must be not null")
-    @CustomDateFormat
+    @CustomDateFormat()
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String date;
 
