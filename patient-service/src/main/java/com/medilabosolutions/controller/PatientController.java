@@ -86,12 +86,10 @@ public class PatientController {
          * @return a reactive stream of ResponseEntity with HttpStatus.created and body created patient
          */
         @PostMapping
-        //TODO check why return is with object and not PatientDto ???
-        public Mono<ResponseEntity<Object>> createPatient(
-                        @Valid @RequestBody PatientDto patientDto) {
+        public Mono<ResponseEntity<PatientDto>> createPatient(@Valid @RequestBody PatientDto patientDto) {
 
                 return patientService.createPatient(modelMapper.map(patientDto, Patient.class))
-                                .map(p -> new ResponseEntity<Object>(modelMapper.map(p, PatientDto.class), HttpStatus.CREATED))
+                                .map(p -> new ResponseEntity<PatientDto>(modelMapper.map(p, PatientDto.class), HttpStatus.CREATED))
                                 .onErrorMap(throwable -> new PatientCreationException("patient.not.created"));
         }
 
@@ -107,8 +105,7 @@ public class PatientController {
          *         </ul>
          */
         @PutMapping(value = "/{id}")
-        public Mono<ResponseEntity<PatientDto>> updatePatient(@PathVariable("id") Long patientId,
-                        @Valid @RequestBody PatientDto patient) {
+        public Mono<ResponseEntity<PatientDto>> updatePatient(@PathVariable("id") Long patientId, @Valid @RequestBody PatientDto patient) {
 
                 return patientService.updatePatient(patientId, modelMapper.map(patient, Patient.class))
                                 .map(p -> ResponseEntity.ok(modelMapper.map(p, PatientDto.class)))
@@ -123,7 +120,8 @@ public class PatientController {
          * @return a reactive stream of ResponseEntity :
          *         <ul>
          *         <li>- with HttpStatus.ok and deleted patient in body, if delete operation is ok</li>
-         *         <li>- with HttpStatus.notfound with empty patient if delete operation fails because of not found patient</li>
+         *         <li>- with HttpStatus.notfound with empty patient if delete operation fails because of
+         *         not found patient</li>
          *         </ul>
          */
         @DeleteMapping("/{id}")

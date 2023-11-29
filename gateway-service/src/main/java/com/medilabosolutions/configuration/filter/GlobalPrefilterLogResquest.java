@@ -16,18 +16,18 @@ public class GlobalPrefilterLogResquest implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        log.info("my firstprefilter ise executed...");
+        log.info("\t ********PREFILTER IS EXECUTED************");
         String requestPath = exchange.getRequest().getPath().toString();
-        log.info("requestPath is {}", requestPath);
+        log.info("\t * requestPath is {}", requestPath);
 
         HttpHeaders headers = exchange.getRequest().getHeaders();
         Set<String> headerNames = headers.keySet();
 
         headerNames.forEach(headerName -> {
             String headerValue = headers.getFirst(headerName);
-            log.info("{} : {}", headerName, headerValue);
+            log.info("\t * {} : {}", headerName, headerValue);
         });
-
+        log.info("\t ********PREFILTER IS FINISHED************\n");
         return chain.filter(exchange);
 
     }

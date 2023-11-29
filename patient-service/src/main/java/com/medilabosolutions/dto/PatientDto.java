@@ -35,8 +35,8 @@ public class PatientDto {
     @Length(max = 25, message = "firstname of patient must contain at most 25 characters")
     private String firstName;
 
-    @DateTimeFormat(iso = ISO.DATE)
-    @NotNull(message="Date must not be null")
+    @DateTimeFormat(iso = ISO.DATE) // TODO create a custom Date validator to throw a validException instead BAdRequest
+    @NotNull(message = "Date must not be null")
     @Past(message = "Date input is invalid for date of birth, must be before today")
     private LocalDate dateOfBirth;
 
@@ -46,6 +46,6 @@ public class PatientDto {
 
     private String address;
 
-    @Pattern(regexp = "^$|^[0-9]{3}-[0-9]{3}-[0-9]{4}$",  message="invalid phone number, example : 333-444-5555")
+    @Pattern(regexp = "^$|^\\d{3}-\\d{3}-\\d{4}$", message = "invalid phone number, example : 333-444-5555")
     private String phoneNumber;
 }
