@@ -1,6 +1,7 @@
 package com.medilabosolutions.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +12,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class LoginRequestModel {
-   private String username;
-   private String password; 
+@Builder
+public class PatientData {
+    private Long id;
+    private String name;
+
 }

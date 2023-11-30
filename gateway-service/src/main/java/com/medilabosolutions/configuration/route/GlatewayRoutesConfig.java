@@ -17,10 +17,15 @@ public class GlatewayRoutesConfig {
                 return builder.routes()
                                 // route for patient-service
                                 .route("patient-service", r -> r.path("/api/v1/patients/**")
-                                                // no need to change path because patient-service has as path "/patients": just need to delete first and second prefix "/api/v1"
                                                 .filters(f -> f.stripPrefix(2)
                                                                 .filter(authorizationHeaderFilter.apply(new Config()), 1))
                                                 .uri("lb://PATIENT-SERVICE"))
+
+                                // route for note-service
+                                .route("note-service", r -> r.path("/api/v1/notes/**")
+                                                .filters(f -> f.stripPrefix(2)
+                                                                .filter(authorizationHeaderFilter.apply(new Config()), 1))
+                                                .uri("lb://NOTE-SERVICE"))
 
                                 // route for auth-service
                                 .route("authentication", r -> r.method("POST")

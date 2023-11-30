@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,7 +37,7 @@ public class UiController {
         private static final String AUTHORIZATION = "Authorization";
         private static final String FIELDS_ON_ERROR = "fieldsOnError";
         private static final String PATIENT_URL = "/patients";
-        
+
         private static final String ERROR_MESSAGE = "errorMessage";
         private static final String SUCCESS_MESSAGE = "successMessage";
 
@@ -52,7 +51,6 @@ public class UiController {
         private final WebClient webclient;
         private final ModelMapper modelMapper;
 
-        @Autowired
         public UiController(WebClient webclient, ModelMapper modelMapper) {
                 this.webclient = webclient;
                 this.modelMapper = modelMapper;

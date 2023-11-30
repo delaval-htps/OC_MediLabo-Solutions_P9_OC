@@ -73,6 +73,16 @@
             "projectName": "web-app",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-NoteServiceApplication<note-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.medilabosolutions.NoteServiceApplication",
+            "projectName": "note-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

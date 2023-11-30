@@ -9,10 +9,10 @@ import com.medilabosolutions.configuration.ConfigTestR2dbc;
 @DataR2dbcTest
 @ActiveProfiles("test")
 @Import(ConfigTestR2dbc.class)
-public class PatientServiceApplicationTest {
+class PatientServiceApplicationTest {
 
     @Test
-    public void contextLoads() throws InterruptedException {
-     
+    void contextLoads() throws InterruptedException {
+
     }
 }
