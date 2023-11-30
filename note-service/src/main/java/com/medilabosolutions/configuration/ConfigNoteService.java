@@ -9,11 +9,15 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.json.ProblemDetailJacksonMixin;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.medilabosolutions.dto.NoteDto;
 import com.medilabosolutions.model.Note;
+import jakarta.validation.Validator;
 
 @Configuration
 public class ConfigNoteService {
@@ -40,7 +44,8 @@ public class ConfigNoteService {
     @Bean
     public ObjectMapper objectMapper() {
         return JsonMapper.builder()
-                .addModule(new JavaTimeModule())
+                .addModule(new JavaTimeModule()) // To be able to serialize/deserialize LocalDateTime
+                .addMixIn(ProblemDetail.class, ProblemDetailJacksonMixin.class)// to be able to unwrap properties of ProblemDetails (timestamp & request_id)
                 .build();
     }
 
@@ -50,5 +55,10 @@ public class ConfigNoteService {
         messageSource.setBasename("classpath:messages");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
+    }
+
+    @Bean
+    public Validator localValidatorFactoryBean() {
+        return new LocalValidatorFactoryBean();
     }
 }

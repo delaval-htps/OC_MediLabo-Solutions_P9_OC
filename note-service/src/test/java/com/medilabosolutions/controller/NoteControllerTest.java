@@ -9,11 +9,10 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import com.medilabosolutions.configuration.ConfigNoteService;
 import com.medilabosolutions.dto.NoteDto;
 import com.medilabosolutions.dto.PatientDataDto;
 import com.medilabosolutions.repository.NoteRepository;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@Import(value = ConfigNoteService.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
@@ -31,17 +29,14 @@ class NoteControllerTest {
         @Autowired
         private WebTestClient webTestClient;
 
-
-
         @Autowired
         private NoteRepository noteRepository;
 
-        
         private static final String MOCK_NOTE_ID = "testId";
 
         @AfterAll
         public void closeDb() {
-        noteRepository.deleteAll().subscribe();
+                noteRepository.deleteAll().subscribe();
         }
 
         @Test
@@ -78,16 +73,19 @@ class NoteControllerTest {
         @Order(3)
         void testGetNoteById_whenIdNotExisted_thenReturnNotFoundException() {
 
-                webTestClient.get().uri("/notes/{id}", "IdNotExisted").exchange()
+                EntityExchangeResult<byte[]> returnResult = webTestClient.get().uri("/notes/{id}", "IdNotExisted").exchange()
                                 .expectStatus().isNotFound().expectBody()
-                                .jsonPath("$.length()").isEqualTo(6)
+                                .jsonPath("$.length()").isEqualTo(7)
                                 .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
                                 .jsonPath("$.title").isEqualTo("404-Note not found")
                                 .jsonPath("$.status").isEqualTo("404")
                                 .jsonPath("$.detail").isEqualTo("Note with id: IdNotExisted was not found")
                                 .jsonPath("$.instance").isEqualTo("/notes/IdNotExisted")
-                                .jsonPath("$.properties.timeStamp").isNotEmpty()
-                                .jsonPath("$.properties.requestId").isNotEmpty();
+                                .jsonPath("$.timeStamp").isNotEmpty()
+                                .jsonPath("$.requestId").isNotEmpty()
+                                .returnResult();
+
+                log.info(returnResult.toString());
         }
 
 
@@ -119,16 +117,20 @@ class NoteControllerTest {
                                 .patient(PatientDataDto.builder().id(1L).name("testName").build())
                                 .build();
 
-                webTestClient.post().uri("/notes").contentType(MediaType.APPLICATION_JSON)
+                EntityExchangeResult<byte[]> returnResult = webTestClient.post().uri("/notes").contentType(MediaType.APPLICATION_JSON)
                                 .bodyValue(notebody).exchange()
                                 .expectStatus().isBadRequest().expectBody()
-                                .jsonPath("$.length()").isEqualTo(6)
+                                .jsonPath("$.length()").isEqualTo(8)
                                 .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
                                 .jsonPath("$.title").isEqualTo("400-Invalid fields: ")
                                 .jsonPath("$.status").isEqualTo("400")
+                                .jsonPath("$.detail").isEqualTo("date")
                                 .jsonPath("$.instance").isEqualTo("/notes")
-                                .jsonPath("$.properties.timeStamp").isNotEmpty()
-                                .jsonPath("$.properties.requestId").isNotEmpty();
+                                .jsonPath("$.timeStamp").isNotEmpty()
+                                .jsonPath("$.requestId").isNotEmpty()
+                                .jsonPath("$.bindingResult.date").isEqualTo("Invalid date format")
+                                .returnResult();
+                log.info(returnResult.toString());
         }
 
 
@@ -161,23 +163,24 @@ class NoteControllerTest {
                                 .content("updated content")
                                 .patient(PatientDataDto.builder().id(1L).name("updatedName").build())
                                 .build();
-                webTestClient.put().uri("/notes/{id}", "IdNotExisted").bodyValue(updatedNote).exchange()
+                EntityExchangeResult<byte[]> returnResult = webTestClient.put().uri("/notes/{id}", "IdNotExisted").bodyValue(updatedNote).exchange()
                                 .expectStatus().isNotFound()
                                 .expectBody()
-                                .jsonPath("$.length()").isEqualTo(6)
+                                .jsonPath("$.length()").isEqualTo(7)
                                 .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
                                 .jsonPath("$.title").isEqualTo("404-Note not found")
                                 .jsonPath("$.status").isEqualTo("404")
                                 .jsonPath("$.detail").isEqualTo("Note with id: IdNotExisted was not found")
                                 .jsonPath("$.instance").isEqualTo("/notes/IdNotExisted")
-                                .jsonPath("$.properties.timeStamp").isNotEmpty()
-                                .jsonPath("$.properties.requestId").isNotEmpty();
+                                .jsonPath("$.timeStamp").isNotEmpty()
+                                .jsonPath("$.requestId").isNotEmpty().returnResult();
+                log.info(returnResult.toString());
         }
 
 
 
         @Test
-        @Order(6)
+        @Order(8)
         void testDeleteNote_whenExistingId_thenDeleteAndReturnDeletedNote() {
                 webTestClient.delete().uri("/notes/{id}", MOCK_NOTE_ID).exchange()
                                 .expectStatus().isOk()
@@ -190,18 +193,19 @@ class NoteControllerTest {
         }
 
         @Test
-        @Order(7)
+        @Order(9)
         void testDeleteNote_whenNonExistingId_thenReturnNotFound() {
-                webTestClient.delete().uri("/notes/{id}", "IdNotExisted").exchange()
+                EntityExchangeResult<byte[]> returnResult = webTestClient.delete().uri("/notes/{id}", "IdNotExisted").exchange()
                                 .expectStatus().isNotFound()
                                 .expectBody()
-                                .jsonPath("$.length()").isEqualTo(6)
+                                .jsonPath("$.length()").isEqualTo(7)
                                 .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
                                 .jsonPath("$.title").isEqualTo("404-Note not found")
                                 .jsonPath("$.status").isEqualTo("404")
                                 .jsonPath("$.detail").isEqualTo("Note with id: IdNotExisted was not found")
                                 .jsonPath("$.instance").isEqualTo("/notes/IdNotExisted")
-                                .jsonPath("$.properties.timeStamp").isNotEmpty()
-                                .jsonPath("$.properties.requestId").isNotEmpty();
+                                .jsonPath("$.timeStamp").isNotEmpty()
+                                .jsonPath("$.requestId").isNotEmpty().returnResult();
+                log.info(returnResult.toString());
         }
 }
