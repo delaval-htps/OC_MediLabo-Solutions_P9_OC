@@ -28,7 +28,6 @@ import com.medilabosolutions.dto.PatientDto;
 import com.medilabosolutions.model.RestPage;
 import com.medilabosolutions.model.UserCredential;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
@@ -112,8 +111,8 @@ public class UiController {
          * @return the view "index.html" //
          */
         @GetMapping("/patients")
-        public Mono<Rendering> index(@RequestParam(value = "page") Optional<Integer> page,
-                        @RequestParam(value = "size") Optional<Integer> size,
+        public Mono<Rendering> index(
+                        @RequestParam(value = "page") Optional<Integer> page, @RequestParam(value = "size") Optional<Integer> size,
                         Model model, WebSession session) {
 
                 int currentPage = page.orElse(0);
@@ -159,123 +158,61 @@ public class UiController {
         }
 
         /**
-         * Endpoint to display record of Patient with his all medical notes
+         * Endpoint to display record of Patient with his all medical notes (existed errors are display only
+         * in a toast)
          * 
          * @param patientId the id of Patient
          * @param model model to return to the view
-         * @return the view of the record of Patient (personnal informations and his notes)
+         * @return view of the record of Patient (personnal informations and his notes). If no jwt Token
+         *         retrieved then redirection to login page. If no patient with given id is found then
+         *         redirection to "/patients" with message of error "not found".
          */
-        // @GetMapping("/patients/{id}")
-        public Mono<Rendering> getPatientRecord(@PathVariable(value = "id") Long patientId, WebSession session, Model model) {
-
-                // check if jwt token is present
-                String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
-
-                return webclient.get().uri(pathPatientService + "/{id}", patientId)
-                                .headers(h -> h.setBearerAuth(jwtValue))
-                                .exchangeToMono(response -> {
-
-                                        // case when gateway not authorize to call REST API because JJWT token not valid or not present
-                                        if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                return redirectToLoginPage(model, true);
-                                        }
-
-                                        // case of problem finding patient in REST API : example not find exception , etc...
-                                        if (response.statusCode().isError()) {
-                                                return response.bodyToMono(ProblemDetail.class)
-                                                                .flatMap(body -> {
-                                                                        setSessionAttribute(body, session, FIND, Optional.empty());
-                                                                        return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
-                                                                });
-
-                                        }
-
-                                        // correct case : REST API find the patient and return a Response with status OK
-                                        return response.bodyToMono(PatientDto.class)
-                                                        .flatMap(body -> {
-                                                                log.info("GET patient-record with id {} = {}", patientId, body);
-                                                                model.addAttribute(FIELDS_ON_ERROR, new HashMap<String, String>());
-                                                                model.addAttribute("patient", body);
-
-                                                                // in case of bindingResult , we have to add to model fieldsOnError and
-                                                                // to override patient with fields filled in by user to be able to display his errors
-                                                                moveSessionAttributeIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR);
-
-                                                                return Mono.just(Rendering.view("patient-record").build());
-                                                        });
-
-                                });
-        }
-
         @GetMapping("/patients/{id}")
         public Mono<Rendering> getPatientRecordAndNotes(@PathVariable(value = "id") Long patientId, WebSession session, Model model) {
 
                 /* check if jwt token is present */
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
 
-                Mono<Object> patientWithId = webclient.get().uri(pathPatientService + "/{id}", patientId)
-                                .headers(h -> h.setBearerAuth(jwtValue))
-                                .exchangeToMono(response -> {
-                                        if (response.statusCode().equals(HttpStatus.OK)) {
-                                                return response.bodyToMono(PatientDto.class);
-                                        }
-                                        /* case of unauthorized access: no existence of token */
-                                        if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                return response.bodyToMono(ProblemDetail.class)
-                                                                .flatMap(p -> {
-                                                                        model.addAttribute("loginError", true);
-                                                                        model.addAttribute("userCredential", new UserCredential());
-                                                                        return Mono.just(Rendering.view("/login").build());
-                                                                });
-                                        }
+                if (jwtValue.isEmpty()) {
 
-                                        /* case of exception thrown : id of patient doesn't exist and not found */
-                                        return response.bodyToMono(ProblemDetail.class)
-                                                        .flatMap(body -> {
-                                                                setSessionAttribute(body, session, FIND, Optional.empty());
-                                                                return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
-                                                        });
+                        return redirectToLoginPage(model, true);
 
-
-                                });
-
-                Flux<NoteDto> patientWithIdNotes = webclient.get().uri(pathNoteService + "/patient_id/{id}", patientId)
-                                .headers(h -> h.setBearerAuth(jwtValue))
-                                .exchangeToFlux(response -> {
-                                        /* case of unauthorized access: no existence of token */
-                                        if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                model.addAttribute("loginError", true);
-                                                model.addAttribute("userCredential", new UserCredential());
-                                                Mono.just(Rendering.view("/login").build());
-                                        }
-
-                                        /*
-                                         * never error or exception thrown : if patient id doesn't exist return a empty Flux of notes
-                                         */
-
-                                        return response.bodyToFlux(NoteDto.class);
-                                });
-                /*
-                 * transform flux of note in Mono List<Note> and zip it to Mono<Patient> to finally return a Mono<
-                 * Rendering> to patient-record html
-                 */
-
-                
-                return patientWithIdNotes.collectList().zipWith(patientWithId)
-                                .flatMap(t -> {
-                                        log.info("GET patient-record with id {} = {}", patientId, t.getT2());
-                                        model.addAttribute(FIELDS_ON_ERROR, new HashMap<String, String>());
-                                        model.addAttribute("patient", t.getT2());
-                                        model.addAttribute("notes", t.getT1());
-                                        /*
-                                         * case of bindingResult: we have to add to model fieldsOnError and to override patient with fields
-                                         * filled in by user to be able to display his errors
-                                         */
-                                        moveSessionAttributeIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR);
-                                        return Mono.just(Rendering.view("patient-record").build());
-                                });
-
-
+                } else {
+                        /*
+                         * send request to patient API, return :Mono<Rendering> to specific endpoints in function of
+                         * response
+                         */
+                        return webclient.get().uri(pathPatientService + "/{id}", patientId)
+                                        .headers(h -> h.setBearerAuth(jwtValue))
+                                        .exchangeToMono(response -> {
+                                                if (response.statusCode().isError()) {
+                                                        /* only in case of patient not found */
+                                                        return response.bodyToMono(ProblemDetail.class)
+                                                                        .flatMap(body -> {
+                                                                                setSessionAttribute(body, session, FIND, Optional.empty());
+                                                                                return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
+                                                                        });
+                                                } else {
+                                                        return response.bodyToMono(PatientDto.class)
+                                                                        /* zip with request to notes API that return all notes for patient */
+                                                                        .zipWith(webclient.get().uri(pathNoteService + "/patient_id/{id}", patientId)
+                                                                                        .headers(h -> h.setBearerAuth(jwtValue))
+                                                                                        .exchangeToFlux(r -> r.bodyToFlux(NoteDto.class)).collectList())
+                                                                        .flatMap(t -> {
+                                                                                log.info("GET patient-record with id {} = {}", patientId, t.getT1());
+                                                                                model.addAttribute(FIELDS_ON_ERROR, new HashMap<String, String>());
+                                                                                model.addAttribute("patient", t.getT1());
+                                                                                model.addAttribute("notes", t.getT2());
+                                                                                /*
+                                                                                 * case of bindingResult: Add to model fieldsOnError and override patient with fields filled in by
+                                                                                 * user to be able to display his errors
+                                                                                 */
+                                                                                moveSessionAttributeIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR);
+                                                                                return Mono.just(Rendering.view("patient-record").build());
+                                                                        });
+                                                }
+                                        });
+                }
         }
 
         /**
@@ -356,14 +293,15 @@ public class UiController {
                                                 return response.bodyToMono(ProblemDetail.class)
                                                                 .flatMap(body -> {
                                                                         setSessionAttribute(body, session, UPDATE, Optional.empty());
-                                                                        return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
+                                                                        return Mono.just(Rendering.redirectTo("/patients/" + patientId).build());
+
                                                                 });
                                         }
                                         return response.bodyToMono(PatientDto.class)
                                                         .flatMap(body -> {
                                                                 log.info("request POST updatePatient with id {}", patientId);
                                                                 setSessionAttribute(body, session, UPDATE, Optional.of(updatedPatient));
-                                                                return Mono.just(Rendering.redirectTo("/patients/" + patientId).build());
+                                                                return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
                                                         });
                                 });
 
@@ -403,6 +341,39 @@ public class UiController {
                                                                 log.info("request GET deletePatient");
                                                                 setSessionAttribute(body, session, DELETE, Optional.empty());
 
+                                                                return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
+                                                        });
+                                });
+        }
+
+        public Mono<Rendering> deletePatientWithNotes(@PathVariable(value = "id") Long patientId, Model model, WebSession session) {
+
+                // check if jwt token is present
+                String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
+
+                return webclient.delete().uri(pathPatientService + "/{id}", patientId)
+                                .headers(h -> h.setBearerAuth(jwtValue))
+                                .exchangeToMono(response -> {
+
+                                        if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
+                                                return redirectToLoginPage(model, true);
+                                        }
+                                        // case of problem finding patient in REST API : example not find exception , etc...
+                                        if (response.statusCode().isError()) {
+                                                return response.bodyToMono(ProblemDetail.class)
+                                                                .flatMap(body -> {
+                                                                        setSessionAttribute(body, session, UPDATE, Optional.empty());
+                                                                        return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
+                                                                });
+                                        }
+                                        return response.bodyToMono(PatientDto.class)
+
+                                                        .flatMap(body -> {
+                                                                log.info("request GET deletePatient");
+                                                                setSessionAttribute(body, session, DELETE, Optional.empty());
+                                                                /* delete all notes of deleted patient */
+                                                                webclient.delete().uri(pathNoteService + "/patient_id/{id}", patientId)
+                                                                                .headers(h -> h.setBearerAuth(jwtValue));
                                                                 return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
                                                         });
                                 });
