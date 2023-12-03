@@ -314,7 +314,7 @@ public class UiController {
          * @param session the websession to redirect to same view "/"
          * @return Mono<Renderring> for redirection
          */
-        @GetMapping("/patients/delete/{id}")
+        // @GetMapping("/patients/delete/{id}")
         public Mono<Rendering> deletePatient(@PathVariable(value = "id") Long patientId, Model model, WebSession session) {
 
                 // check if jwt token is present
@@ -346,6 +346,7 @@ public class UiController {
                                 });
         }
 
+        @GetMapping("/patients/delete/{id}")
         public Mono<Rendering> deletePatientWithNotes(@PathVariable(value = "id") Long patientId, Model model, WebSession session) {
 
                 // check if jwt token is present
@@ -367,16 +368,20 @@ public class UiController {
                                                                 });
                                         }
                                         return response.bodyToMono(PatientDto.class)
-
                                                         .flatMap(body -> {
                                                                 log.info("request GET deletePatient");
                                                                 setSessionAttribute(body, session, DELETE, Optional.empty());
                                                                 /* delete all notes of deleted patient */
-                                                                webclient.delete().uri(pathNoteService + "/patient_id/{id}", patientId)
-                                                                                .headers(h -> h.setBearerAuth(jwtValue));
-                                                                return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
+                                                                return webclient.delete().uri(pathNoteService + "/patient_id/{id}", patientId)
+                                                                                .headers(h -> h.setBearerAuth(jwtValue))
+                                                                                .exchangeToMono(result -> {
+                                                                                        
+                                                                                        return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
+                                                                                });
+
                                                         });
                                 });
+
         }
 
         private Mono<Rendering> redirectToLoginPage(Model model, boolean loginError) {

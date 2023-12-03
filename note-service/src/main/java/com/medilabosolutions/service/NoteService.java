@@ -44,4 +44,8 @@ public class NoteService {
     public Flux<Note> findByPatientId(Long patientId) {
         return noteRepository.findByPatientId(patientId);
     }
+
+    public Flux<Note> deleteNoteByPatientId(Long patientId) {
+     return noteRepository.deleteNoteByPatientId(patientId);
+    }
 }

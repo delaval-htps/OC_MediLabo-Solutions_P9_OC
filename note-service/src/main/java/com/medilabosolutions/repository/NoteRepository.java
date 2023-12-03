@@ -8,8 +8,11 @@ import reactor.core.publisher.Flux;
 
 
 @Repository
-public interface NoteRepository extends ReactiveMongoRepository<Note,String>{
+public interface NoteRepository extends ReactiveMongoRepository<Note, String> {
 
-@Query("{'patient.id': ?0}")
-Flux<Note> findByPatientId(Long patientId);
+    @Query("{'patient.id': ?0}")
+    Flux<Note> findByPatientId(Long patientId);
+
+    @Query(value = "{'patient.id': ?0}", delete = true)
+    Flux<Note> deleteNoteByPatientId(Long patientId);
 }

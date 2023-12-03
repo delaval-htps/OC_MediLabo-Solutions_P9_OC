@@ -80,4 +80,11 @@ public class NoteController {
         return ResponseEntity.ok(noteService.findByPatientId(patientId)
                 .map(note -> modelMapper.map(note, NoteDto.class)));
     }
+
+
+    @DeleteMapping("/patient_id/{id}")
+    public ResponseEntity<Flux<NoteDto>> deleteNotesByPatientId(@PathVariable("id") Long patientId) {
+        return ResponseEntity.ok(noteService.deleteNoteByPatientId(patientId)
+                .map(note -> modelMapper.map(note, NoteDto.class)));
+    }
 }
