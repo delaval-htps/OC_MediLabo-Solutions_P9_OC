@@ -40,4 +40,8 @@ public class NoteService {
                 .flatMap(noteToDelete -> noteRepository.delete(noteToDelete)
                         .then(Mono.just(noteToDelete)));
     }
+
+    public Flux<Note> findByPatientId(Long patientId) {
+        return noteRepository.findByPatientId(patientId);
+    }
 }

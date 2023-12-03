@@ -27,10 +27,10 @@
 
             <form id="form-update-patient" th:object="${patient}" th:action="@{/patients/update/}+*{id}" method="post">
 
-                <fieldset class="pt-1 px-3 shadow mt-3 bg-white rounded-4 ">
-                
+                <fieldset class="pt-1 px-5 shadow mt-3 bg-white rounded-4 ">
+
                     <div class="d-flex inline-flex align-items-baseline mb-3">
-                        <legend class="text-primary fs-5 mb-3"><ins>Personal Informations:</ins></legend>
+                        <legend class=" pt-4  text-primary fs-5 mb-3"><ins>Personal Informations:</ins></legend>
                         <i class="bi bi-pencil-square text-primary" style="font-size: 2rem; cursor:pointer;"
                             data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip"
                             data-bs-title="Click to update personal information of patient."
@@ -117,6 +117,47 @@
 
                 </fieldset>
             </form>
+
+            <fieldset class="pt-1 px-5 shadow mt-5 bg-white rounded-4 ">
+
+                <legend class="  pt-4 text-primary fs-5 mb-3"><ins>Patient's notes:</ins></legend>
+
+                <div class="   table-responsive mt-3">
+                    <table id="notes-table" class="table table-sm table-hover ">
+
+                        <caption style="display:none;">List of all patient's notes</caption>
+
+                        <thead>
+                            <tr>
+                                <th class="d-none"></th>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>content</th>
+                                <th class="text-end pe-3">Update/Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            <tr th:each="note,iterator : ${notes}" style="cursor:pointer;" th:patientId="${note.id}"
+                                onclick="rowClicked(this.getAttribute('noteId'))">
+                                <td th:text="${note.id}" class="d-none"></td>
+                                <td th:text="${iterator.index }"></td>
+                                <td th:text="${note.date}"></td>
+                                <td th:text="${note.content}"></td>
+                                <td class="text-end">
+                                    <div class="d-flex flewx-nowrap justify-content-end m-1">
+                                        <a th:href="@{/notes/}+${note.id}+'?update=true'" type="button"
+                                            class="btn btn-sm btn-outline-success me-3">Update</a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            th:urlNoteToDelete="'/notes/delete/' +${note.id}"
+                                            onclick="myEventHandler(event);deleteNote(this.getAttribute('urlNoteToDelete'));">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+            </fieldset>
         </div>
     </th:block>
 

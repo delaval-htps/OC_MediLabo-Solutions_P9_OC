@@ -33,6 +33,7 @@ public class NoteController {
     private final MessageSource messageSource;
 
     private static final String NOT_FOUND = "note.not.found";
+
     @GetMapping
     public ResponseEntity<Flux<Note>> getAllNotes() {
         return ResponseEntity.ok(noteService.getAllNotes());
@@ -44,6 +45,7 @@ public class NoteController {
                 .map(note -> new ResponseEntity<NoteDto>(modelMapper.map(note, NoteDto.class), HttpStatus.OK))
                 .switchIfEmpty(Mono.error(new NoteNotFoundException(messageSource.getMessage(NOT_FOUND, new Object[] {id}, Locale.ENGLISH))));
     }
+
 
     @PostMapping
     public Mono<ResponseEntity<NoteDto>> createNote(@Valid @RequestBody NoteDto noteToCreate) {
@@ -64,5 +66,18 @@ public class NoteController {
         return noteService.deleteNote(id)
                 .map(note -> ResponseEntity.ok(modelMapper.map(note, NoteDto.class)))
                 .switchIfEmpty(Mono.error(new NoteNotFoundException(messageSource.getMessage(NOT_FOUND, new Object[] {id}, Locale.ENGLISH))));
+    }
+
+    /**
+     * Return all notes for a given id of patient. If id of patient doesn't exist or is not in the
+     * collections, return a empty Flux.
+     * 
+     * @param patientId th egiven id of patient
+     * @return ResponseEntity with Flux of all notes that patient with id ownes
+     */
+    @GetMapping("/patient_id/{id}")
+    public ResponseEntity<Flux<NoteDto>> getNoteByPatientId(@PathVariable("id") Long patientId) {
+        return ResponseEntity.ok(noteService.findByPatientId(patientId)
+                .map(note -> modelMapper.map(note, NoteDto.class)));
     }
 }

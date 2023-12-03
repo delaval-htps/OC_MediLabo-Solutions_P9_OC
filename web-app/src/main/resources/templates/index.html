@@ -13,7 +13,7 @@
 
         <div class="col-8 d-flex justify-content-center align-items-baseline">
 
-            <div class="alert alert-info d-flex" role="alert">
+            <div class="alert alert-info d-flex shadow-sm" role="alert">
 
                 <i class="bi bi-info-circle"></i>
 
@@ -24,20 +24,19 @@
                 </div>
             </div>
 
-            <div class="ms-auto p-2 ">
-                <button id="btn-creation-patient" type="button" class=" btn btn-primary " onclick="toggleFormPatient()"
+            <div class="ms-auto py-2 ">
+                <button id="btn-creation-patient" type="button" class=" btn btn-primary shadow " onclick="toggleFormPatient()"
                     th:text="${#maps.isEmpty(fieldsOnError)}?'Add new patient':'Cancel'"></button>
             </div>
         </div>
 
-        <div id="patient-creation-div" class="col-8" th:style="${#maps.isEmpty(fieldsOnError)}?'display: none':''">
-
+        <div id="patient-creation-div" class="col-8 p-0" th:style="${#maps.isEmpty(fieldsOnError)}?'display: none':''">
             <form id="form-patient" th:action="@{/patients/create}" method="post" th:object="${patientToCreate}">
 
-                <fieldset class="pt-1 px-3 shadow  mb-3 mt-3 bg-white rounded-4">
+                <fieldset class="pt-4 px-4 shadow  mb-3 mt-3 bg-white rounded-4">
 
                     <div class="row">
-                        <legend class="text-primary fs-5 pt-2 mb-3"><ins>Fill in personal informations:</ins></legend>
+                        <legend class="text-primary fs-5 pt-2 mb-4"><ins>Fill in personal informations:</ins></legend>
                     </div>
 
                     <div class="row g-3">
@@ -110,124 +109,134 @@
                     </div>
 
                     <div class="row p-3 justify-content-center">
-                        <button type="submit" class="col-1 col-md-2 col-sm-3 btn btn-primary">Create</button>
+                        <button type="submit" class="col-1 col-md-2 col-sm-3 btn btn-primary shadow">Create</button>
                     </div>
 
                 </fieldset>
             </form>
         </div>
 
-        <div class="col-8 table-responsive mt-3">
+        <fieldset class="col-8 shadow my-3 bg-white rounded-4 ">
 
-            <table id="patient-table" class="table table-sm table-hover ">
+            <legend class=" pt-4 px-4 text-primary fs-5 mb-3"><ins>Patient's list:</ins></legend>
+            <div class="px-5 py-3 table-responsive mt-3">
 
-                <caption style="display:none;">List of all patients</caption>
+                <table id="patient-table" class="table table-sm table-hover ">
 
-                <thead>
-                    <tr>
-                        <th class="d-none"></th>
-                        <th>#</th>
-                        <th>Lastname</th>
-                        <th>Firstname</th>
-                        <th>DateOfBirth</th>
-                        <th>Genre</th>
-                        <th>Address</th>
-                        <th>Phone number</th>
-                        <th class="text-end pe-3">Update/Delete</th>
-                    </tr>
-                </thead>
-                <tbody class="table-group-divider">
-                    <tr th:each="patient,iterator : ${patientPages.content}" style="cursor:pointer;"
-                        th:patientId="${patient.id}" onclick="rowClicked(this.getAttribute('patientId'))">
-                        <td th:text="${patient.id}" class="d-none"></td>
-                        <td th:text="${iterator.index + (patientPages.number)*10 }"></td>
-                        <td th:text="${patient.lastName}"></td>
-                        <td th:text="${patient.firstName}"></td>
-                        <td th:text="${patient.dateOfBirth}"></td>
-                        <td th:text="${patient.genre}"></td>
-                        <td th:text="${patient.address}?:'-'"></td>
-                        <td th:text="${patient.phoneNumber}?:'-'"></td>
-                        <td class="text-end">
-                            <div class="d-flex flewx-nowrap justify-content-end m-1">
-                                <a th:href="@{/patients/}+${patient.id}+'?update=true'" type="button"
-                                    class="btn btn-sm btn-outline-success me-3">Update</a>
-                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                    th:urlPatientToDelete="'/patients/delete/' +${patient.id}"
-                                    onclick="myEventHandler(event);deletePatient(this.getAttribute('urlPatientToDelete'));">Delete</button>
-                            </div>
-                        </td>
-                    </tr>
+                    <caption style="display:none;">List of all patients</caption>
 
-                </tbody>
+                    <thead>
+                        <tr>
+                            <th class="d-none"></th>
+                            <th>#</th>
+                            <th>Lastname</th>
+                            <th>Firstname</th>
+                            <th>DateOfBirth</th>
+                            <th>Genre</th>
+                            <th>Address</th>
+                            <th>Phone number</th>
+                            <th class="text-end pe-3">Update/Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        <tr th:each="patient,iterator : ${patientPages.content}" style="cursor:pointer;"
+                            th:patientId="${patient.id}" onclick="rowClicked(this.getAttribute('patientId'))">
+                            <td th:text="${patient.id}" class="d-none"></td>
+                            <td th:text="${iterator.index + (patientPages.number)*10 }"></td>
+                            <td th:text="${patient.lastName}"></td>
+                            <td th:text="${patient.firstName}"></td>
+                            <td th:text="${patient.dateOfBirth}"></td>
+                            <td th:text="${patient.genre}"></td>
+                            <td th:text="${patient.address}?:'-'"></td>
+                            <td th:text="${patient.phoneNumber}?:'-'"></td>
+                            <td class="text-end">
+                                <div class="d-flex flewx-nowrap justify-content-end m-1">
+                                    <a th:href="@{/patients/}+${patient.id}+'?update=true'" type="button"
+                                        class="btn btn-sm btn-outline-success me-3">Update</a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                        th:urlPatientToDelete="'/patients/delete/' +${patient.id}"
+                                        onclick="myEventHandler(event);deletePatient(this.getAttribute('urlPatientToDelete'));">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
 
-            </table>
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item"><a class="page-link"
-                            th:href=" @{/(page=0,size=${patientPages.size})}">&laquo;</a>
-                    </li>
-                    <li class="page-item"><a class="page-link"
-                            th:href="${patientPages.number>0}? @{/patients(page=${patientPages.number -1},size=${patientPages.size})}:''">Previous</a>
-                    </li>
+                    </tbody>
 
-                    <th:block id="page-number-list" th:if="${#lists.size(pageNumbers) <= 10 }"
-                        th:each="pageNumber : ${pageNumbers}">
-                        <li class="page-item">
-                            <a class="page-link" th:href="@{/patients(page=${pageNumber -1},size=${patientPages.size})}"
-                                th:text="${pageNumber}"
-                                th:classAppend="${pageNumber==patientPages.number+ 1} ? active"></a>
+                </table>
+                <nav class="pt-3" aria-label="Page navigation example">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item"><a class="page-link"
+                                th:href=" @{/(page=0,size=${patientPages.size})}">&laquo;</a>
                         </li>
-                    </th:block>
+                        <li class="page-item"><a class="page-link"
+                                th:href="${patientPages.number>0}? @{/patients(page=${patientPages.number -1},size=${patientPages.size})}:''">Previous</a>
+                        </li>
 
-                    <th:block th:if="${#lists.size(pageNumbers) >10 }"
-                        th:with="totalOfPages =${#lists.size(pageNumbers)},currentPage = ${patientPages.number}">
-
-                        <th:block th:if="${currentPage <5 || currentPage> totalOfPages-6 }">
-                            <p id="page-number-list" th:each="index: ${#numbers.sequence(1,5)}">
-                                <li class="page-item">
-                                    <a class="page-link" th:href="@{/patients(page=${index-1},size=${patientPages.size})}"
-                                        th:text="${index}" th:classAppend="${index == currentPage +1} ? active"></a>
-                                </li>
-                            </p>
+                        <th:block id="page-number-list" th:if="${#lists.size(pageNumbers) <= 10 }"
+                            th:each="pageNumber : ${pageNumbers}">
                             <li class="page-item">
-                                <a class="page-link">...</a>
-                            </li>
-                            <p id="page-number-list" th:each="index: ${#numbers.sequence(totalOfPages-4,totalOfPages)}">
-
-                                <li class="page-item">
-                                    <a class="page-link" th:href="@{/patients(page=${index-1},size=${patientPages.size})}"
-                                        th:text="${index}" th:classAppend="${index==currentPage+1} ? active"></a>
-                                </li>
-                            </p>
-                        </th:block>
-
-                        <th:block th:if="${currentPage >=5 && currentPage <= totalOfPages-6 }">
-                            <li class="page-item">
-                                <a class="page-link">...</a>
-                            </li>
-                            <p id="page-number-list" th:each="index: ${#numbers.sequence(currentPage-2,currentPage+4)}">
-                                <li class="page-item">
-                                    <a class="page-link" th:href="@{/patients(page=${index-1},size=${patientPages.size})}"
-                                        th:text="${index}" th:classAppend="${index == currentPage+ 1} ? active"></a>
-                                </li>
-                            </p>
-                            <li class="page-item">
-                                <a class="page-link">...</a>
+                                <a class="page-link"
+                                    th:href="@{/patients(page=${pageNumber -1},size=${patientPages.size})}"
+                                    th:text="${pageNumber}"
+                                    th:classAppend="${pageNumber==patientPages.number+ 1} ? active"></a>
                             </li>
                         </th:block>
 
-                    </th:block>
+                        <th:block th:if="${#lists.size(pageNumbers) >10 }"
+                            th:with="totalOfPages =${#lists.size(pageNumbers)},currentPage = ${patientPages.number}">
 
-                    <li class="page-item"><a class="page-link"
-                            th:href="${patientPages.number < patientPages.totalPages-1}? @{/patients(page=${patientPages.number+1 },size=${patientPages.size})}:''">Next</a>
-                    </li>
-                    <li class="page-item"><a class="page-link"
-                            th:href=" @{/patients(page=${patientPages.totalPages -1},size=${patientPages.size})}">&raquo;</a>
-                    </li>
-                </ul>
-            </nav>
+                            <th:block th:if="${currentPage <5 || currentPage> totalOfPages-6 }">
+                                <p id="page-number-list" th:each="index: ${#numbers.sequence(1,5)}">
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                            th:href="@{/patients(page=${index-1},size=${patientPages.size})}"
+                                            th:text="${index}" th:classAppend="${index == currentPage +1} ? active"></a>
+                                    </li>
+                                </p>
+                                <li class="page-item">
+                                    <a class="page-link">...</a>
+                                </li>
+                                <p id="page-number-list"
+                                    th:each="index: ${#numbers.sequence(totalOfPages-4,totalOfPages)}">
 
-        </div>
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                            th:href="@{/patients(page=${index-1},size=${patientPages.size})}"
+                                            th:text="${index}" th:classAppend="${index==currentPage+1} ? active"></a>
+                                    </li>
+                                </p>
+                            </th:block>
+
+                            <th:block th:if="${currentPage >=5 && currentPage <= totalOfPages-6 }">
+                                <li class="page-item">
+                                    <a class="page-link">...</a>
+                                </li>
+                                <p id="page-number-list"
+                                    th:each="index: ${#numbers.sequence(currentPage-2,currentPage+4)}">
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                            th:href="@{/patients(page=${index-1},size=${patientPages.size})}"
+                                            th:text="${index}" th:classAppend="${index == currentPage+ 1} ? active"></a>
+                                    </li>
+                                </p>
+                                <li class="page-item">
+                                    <a class="page-link">...</a>
+                                </li>
+                            </th:block>
+
+                        </th:block>
+
+                        <li class="page-item"><a class="page-link"
+                                th:href="${patientPages.number < patientPages.totalPages-1}? @{/patients(page=${patientPages.number+1 },size=${patientPages.size})}:''">Next</a>
+                        </li>
+                        <li class="page-item"><a class="page-link"
+                                th:href=" @{/patients(page=${patientPages.totalPages -1},size=${patientPages.size})}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+
+            </div>
+        </fieldset>
 
         <!-- delete Modal -->
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -245,9 +254,9 @@
             </div>
         </div>
 
-       
+
     </th:block>
-   
+
     <th:block layout:fragment="page-script">
         <script type="text/javascript" th:src="@{/public/js/index.js}"></script>
     </th:block>
