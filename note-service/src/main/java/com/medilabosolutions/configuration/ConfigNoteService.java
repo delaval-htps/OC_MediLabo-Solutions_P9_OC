@@ -25,6 +25,7 @@ public class ConfigNoteService {
     public ModelMapper modelMapper() {
         ModelMapper mm = new ModelMapper();
         mm.addMappings(noteMap);
+        mm.addMappings(noteDtoMap);
         return mm;
     }
 
@@ -40,6 +41,21 @@ public class ConfigNoteService {
         }
 
     };
+
+    @Bean
+    public Converter<LocalDateTime, String> localDateTimeToString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return context -> context.getSource().format(formatter);
+    }
+
+    PropertyMap<Note, NoteDto> noteDtoMap = new PropertyMap<Note, NoteDto>() {
+        @Override
+        protected void configure() {
+            using(localDateTimeToString()).map(source.getDate(), destination.getDate());
+        }
+    };
+
+
 
     @Bean
     public ObjectMapper objectMapper() {

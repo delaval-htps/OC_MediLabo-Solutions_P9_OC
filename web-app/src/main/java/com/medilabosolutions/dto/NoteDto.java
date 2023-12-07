@@ -17,7 +17,7 @@ import lombok.ToString;
 public class NoteDto {
 
     private String id;
-    
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String date;
 

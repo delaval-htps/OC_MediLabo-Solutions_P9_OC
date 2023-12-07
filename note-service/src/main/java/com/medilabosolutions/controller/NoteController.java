@@ -34,9 +34,10 @@ public class NoteController {
 
     private static final String NOT_FOUND = "note.not.found";
 
+    // TODO retrieve all notes sorted by date and with pagination
     @GetMapping
-    public ResponseEntity<Flux<Note>> getAllNotes() {
-        return ResponseEntity.ok(noteService.getAllNotes());
+    public ResponseEntity<Flux<NoteDto>> getAllNotes() {
+        return ResponseEntity.ok(noteService.getAllNotes().map(note->modelMapper.map(note,NoteDto.class)));
     }
 
     @GetMapping("/{id}")
@@ -81,7 +82,12 @@ public class NoteController {
                 .map(note -> modelMapper.map(note, NoteDto.class)));
     }
 
-
+    /**
+     * Delete all notes related to patient with given id
+     * 
+     * @param patientId the given id of patient 
+     * @return Flux of all notes deleted
+     */
     @DeleteMapping("/patient_id/{id}")
     public ResponseEntity<Flux<NoteDto>> deleteNotesByPatientId(@PathVariable("id") Long patientId) {
         return ResponseEntity.ok(noteService.deleteNoteByPatientId(patientId)

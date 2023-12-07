@@ -120,12 +120,46 @@
 
             <fieldset class="pt-1 px-5 shadow mt-5 bg-white rounded-4 ">
 
-                <legend class="  pt-4 text-primary fs-5 mb-3"><ins>Patient's notes:</ins></legend>
+                <legend class=" d-flex justify-content-between pt-4 text-primary fs-5 mb-3">
+                    <ins class="col-6">Patient's notes:</ins>
+                    <button id="creation-note-btn" class="btn btn-primary col-3" type="button" onclick="toggleNoteCreationForm(this)">Create a
+                        note</button>
+                </legend>
 
-                <div class="   table-responsive mt-3">
-                    <table id="notes-table" class="table table-sm table-hover ">
+                <form class="col-12" id="note-creation-form" style="display: none;" th:object="${note}"
+                    th:action="@{/notes/create}" method="POST">
 
-                        <caption style="display:none;">List of all patient's notes</caption>
+                    <input hidden type="text" th:field="*{patient.id}" th:value="${note.patient.id}">
+                    <input hidden type="text" th:field="*{patient.name}" th:value="${note.patient.name}">
+
+                    <div class=" mb-3 row">
+                        <label class="col-1 col-form-label" for="date">Date:</label>
+                        <div class="col-sm-2">
+                            <input id="creation-note-date" type="text" readonly class="form-control text-center"
+                                th:field="*{date}" />
+                        </div>
+                    </div>
+                    <div class=" mb-3 ">
+                        <label class="form-label" for="content">Content:</label>
+                        <textarea class="form-control " th:field="*{content}" rows="10"
+                            th:classappend="${#maps.containsKey(fieldsOnError,'content')}?'is-invalid':''">
+                        </textarea>
+                        <ul>
+                            <li th:if="${#maps.containsKey(fieldsOnError,'content')} "
+                                th:text="${fieldsOnError['content']}" class="field-error"></li>
+                        </ul>
+                    </div>
+
+                    <div class=" row justify-content-center mb-3">
+                        <input type="submit" class=" col-2 btn btn-primary" value="Save note" />
+                    </div>
+
+                </form>
+
+                <div id="notes-table" class="col-12 table-responsive mt-3">
+                    <table class="table table-sm table-hover ">
+
+                        <caption hidden>List of all patient's notes</caption>
 
                         <thead>
                             <tr>
