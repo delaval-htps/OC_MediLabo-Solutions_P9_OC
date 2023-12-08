@@ -48,3 +48,7 @@ function toggleNoteCreationForm(element) {
     noteTable.style.display = noteTable.style.display === 'none' ? '' : 'none'
     noteForm.style.display = noteForm.style.display === 'none' ? '' : 'none'
 }
+
+function notesRowClicked(patientId,noteId) {
+    location.href = "/notes/" + noteId + "/patient/" + patientId 
+}

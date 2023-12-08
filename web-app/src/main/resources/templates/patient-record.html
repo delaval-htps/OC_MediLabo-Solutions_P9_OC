@@ -122,7 +122,8 @@
 
                 <legend class=" d-flex justify-content-between pt-4 text-primary fs-5 mb-3">
                     <ins class="col-6">Patient's notes:</ins>
-                    <button id="creation-note-btn" class="btn btn-primary col-3" type="button" onclick="toggleNoteCreationForm(this)">Create a
+                    <button id="creation-note-btn" class="btn btn-primary col-3" type="button"
+                        onclick="toggleNoteCreationForm(this)">Create a
                         note</button>
                 </legend>
 
@@ -171,8 +172,8 @@
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
-                            <tr th:each="note,iterator : ${notes}" style="cursor:pointer;" th:patientId="${note.id}"
-                                onclick="rowClicked(this.getAttribute('noteId'))">
+                            <tr th:each="note,iterator : ${notes}" style="cursor:pointer;" th:patientId="${patient.id}"
+                                th:noteId="${note.id}" onclick="notesRowClicked(this.getAttribute('patientId'),this.getAttribute('noteId'))">
                                 <td th:text="${note.id}" class="d-none"></td>
                                 <td th:text="${iterator.index }"></td>
                                 <td th:text="${note.date}"></td>
