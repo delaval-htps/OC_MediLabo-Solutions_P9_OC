@@ -79,12 +79,12 @@ public class UiController {
                          * ("/patients"))
                          */
                         return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
-                } else {
-                        /*
-                         * case user doesn't have a jwt then he must pass by GET "/login" to fill it his credentials
-                         */
-                        return redirectToLoginPage(model, false);
                 }
+                /*
+                 * case user doesn't have a jwt then he must pass by GET "/login" to fill it his credentials
+                 */
+                return redirectToLoginPage(model, false);
+
         }
 
         // TODO validation of credential with jakarta
@@ -97,9 +97,10 @@ public class UiController {
                                         if (response.statusCode().equals(HttpStatus.OK)) {
                                                 session.getAttributes().put(AUTHORIZATION, response.headers().header(AUTHORIZATION).get(0).replace("Bearer ", ""));
                                                 return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
-                                        } else {
-                                                return redirectToLoginPage(model, true);
                                         }
+
+                                        return redirectToLoginPage(model, true);
+
                                 });
         }
 
@@ -174,9 +175,7 @@ public class UiController {
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
 
                 if (jwtValue.isEmpty()) {
-
                         return redirectToLoginPage(model, true);
-
                 }
                 /*
                  * send request to patient API, return :Mono<Rendering> to specific endpoints in function of
@@ -217,6 +216,7 @@ public class UiController {
                                                                  * user to be able to display them
                                                                  */
                                                                 moveSessionAttributeIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR, "note");
+
                                                                 return Mono.just(Rendering.view("patient-record").build());
                                                         });
 
@@ -369,29 +369,47 @@ public class UiController {
          *         creation form for note
          */
         @GetMapping("/notes/{note_id}/patient/{patient_id}")
-        public Mono<Rendering> getNoteById(@PathVariable(value = "note_id") String noteId, @PathVariable(value = "patient_id") Long patientId, Model model, WebSession session) {
+        public Mono<Rendering> getNoteById(
+                        @PathVariable(value = "note_id") String noteId,
+                        @PathVariable(value = "patient_id") Long patientId,
+                        @RequestParam(value = "note_update") boolean noteUpdate,
+                        Model model, WebSession session) {
                 // check if jwt token is present
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
 
                 if (jwtValue.isEmpty()) {
                         return redirectToLoginPage(model, true);
                 }
-                return webclient.get().uri(pathNoteService + "/{id}", noteId)
-                                .headers(h -> h.setBearerAuth(jwtValue))
-                                .exchangeToMono(response -> {
-                                        if (response.statusCode().isError()) {
-                                                return response.bodyToMono(ProblemDetail.class)
-                                                                .flatMap(errorBody -> {
-                                                                        setSessionAttribute(errorBody, session, FIND, Optional.empty());
-                                                                        return Mono.just(Rendering.redirectTo("/patients/" + patientId).build());
-                                                                });
-                                        }
-                                        return response.bodyToMono(NoteDto.class).flatMap(body -> {
-                                                setSessionAttribute(body, session, FIND, Optional.of(body));
-                                                return Mono.just(Rendering.redirectTo("/patients/" + patientId).build());
-                                        });
-                                });
 
+                /* check if patient's note exists and retrieve its id */
+                return webclient.get().uri(pathPatientService + "/{id}", patientId)
+                                .headers(h -> h.setBearerAuth(jwtValue))
+                                .exchangeToMono(patientResponse -> {
+
+                                        if (patientResponse.statusCode().equals(HttpStatus.NOT_FOUND)) {
+                                                // case of patient with relatedPatientId is not Found
+                                                return patientResponse.bodyToMono(ProblemDetail.class).flatMap(body -> {
+                                                        setSessionAttribute(body, session, FIND, Optional.empty());
+                                                        return Mono.just(Rendering.redirectTo("/patients/" + patientId).build());
+                                                });
+                                        }
+
+                                        return webclient.get().uri(pathNoteService + "/{id}", noteId)
+                                                        .headers(h -> h.setBearerAuth(jwtValue))
+                                                        .exchangeToMono(response -> {
+                                                                if (response.statusCode().isError()) {
+                                                                        return response.bodyToMono(ProblemDetail.class)
+                                                                                        .flatMap(errorBody -> {
+                                                                                                setSessionAttribute(errorBody, session, FIND, Optional.empty());
+                                                                                                return Mono.just(Rendering.redirectTo("/patients/" + patientId).build());
+                                                                                        });
+                                                                }
+                                                                return response.bodyToMono(NoteDto.class).flatMap(body -> {
+                                                                        setSessionAttribute(body, session, FIND, Optional.of(body));
+                                                                        return Mono.just(Rendering.redirectTo("/patients/" + patientId + "?note_update=" + noteUpdate).build());
+                                                                });
+                                                        });
+                                });
         }
 
         /**
@@ -415,39 +433,30 @@ public class UiController {
                 /* retrieve the id of related patient for the new note to create */
                 Long relatedPatientId = noteToCreate.getPatient().getId();
 
-                /* check if patient's note exists and retrieve its id */
-                return webclient.get().uri(pathPatientService + "/{id}", relatedPatientId)
-                                .exchangeToMono(patientResponse -> {
+                /* creation of new note */
+                return webclient.post().uri(pathNoteService)
+                                .headers(h -> h.setBearerAuth(jwtValue))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(Mono.just(noteToCreate), NoteDto.class)
+                                .exchangeToMono(noteResponse -> {
 
-                                        if (patientResponse.statusCode().equals(HttpStatus.NOT_FOUND)) {
-                                                // case of patient with relatedPatientId is not Found
-                                                // TODO message error to display
-                                                return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId).build());
+                                        /* case of problem created note in REST API : example bindingResult , etc... */
+                                        if (noteResponse.statusCode().isError()) {
+                                                return noteResponse.bodyToMono(ProblemDetail.class)
+                                                                .flatMap(body -> {
+                                                                        setSessionAttribute(body, session, CREATION, Optional.empty());
+                                                                        return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId).build());
+                                                                });
                                         }
-                                        /* creation of new note */
-                                        return webclient.post().uri(pathNoteService)
-                                                        .headers(h -> h.setBearerAuth(jwtValue))
-                                                        .contentType(MediaType.APPLICATION_JSON)
-                                                        .body(Mono.just(noteToCreate), NoteDto.class)
-                                                        .exchangeToMono(noteResponse -> {
-
-                                                                /* case of problem created note in REST API : example bindingResult , etc... */
-                                                                if (noteResponse.statusCode().isError()) {
-                                                                        return noteResponse.bodyToMono(ProblemDetail.class)
-                                                                                        .flatMap(body -> {
-                                                                                                setSessionAttribute(body, session, CREATION, Optional.empty());
-                                                                                                return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId).build());
-                                                                                        });
-                                                                }
-                                                                /* case creation of note ok */
-                                                                return noteResponse.bodyToMono(NoteDto.class)
-                                                                                .flatMap(body -> {
-                                                                                        setSessionAttribute(body, session, CREATION, Optional.of(noteToCreate));
-                                                                                        log.info("request POST create note for patient {}", relatedPatientId);
-                                                                                        return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId).build());
-                                                                                });
+                                        /* case creation of note ok */
+                                        return noteResponse.bodyToMono(NoteDto.class)
+                                                        .flatMap(body -> {
+                                                                setSessionAttribute(body, session, CREATION, Optional.of(noteToCreate));
+                                                                log.info("request POST create note for patient {}", relatedPatientId);
+                                                                return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId).build());
                                                         });
                                 });
+
 
         }
 
@@ -460,38 +469,74 @@ public class UiController {
          * @param session websession to add Attribute like bindingResult or error in message
          * @return Mono <Rendering> with redirection to patient record with message of success or error
          */
-        @PostMapping("/notes/update/{id}")
-        public Mono<Rendering> updateNote(@PathVariable(value = "id") String noteId, @ModelAttribute(value = "note") NoteDto updatedNote, Model model, WebSession session) {
+        @PostMapping("/notes/update/{note_id}")
+        public Mono<Rendering> updateNote(@PathVariable(value = "note_id") String noteId, @ModelAttribute(value = "note") NoteDto updatedNote, Model model, WebSession session) {
                 // check if jwt token is present
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
 
                 if (jwtValue.isEmpty()) {
                         return redirectToLoginPage(model, true);
-                } else {
-                        /* retrieve the id of related patient for the new note to create */
-                        Long relatedPatientId = updatedNote.getPatient().getId();
-                        return webclient.put().uri(pathNoteService + "/{id}", updatedNote.getId())
-                                        .exchangeToMono(response -> {
-
-                                                /* case of not found or bindigResult error */
-                                                if (response.statusCode().isError()) {
-                                                        return response.bodyToMono(ProblemDetail.class)
-                                                                        .flatMap(body -> {
-                                                                                setSessionAttribute(body, session, UPDATE, Optional.empty());
-                                                                                return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId).build());
-                                                                        });
-                                                }
-                                                /* case of no problem for updating existing note */
-                                                return response.bodyToMono(NoteDto.class)
-                                                                .flatMap(body -> {
-                                                                        setSessionAttribute(body, session, UPDATE, Optional.of(updatedNote));
-                                                                        log.info("request POST update note for patient {}", relatedPatientId);
-                                                                        return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId).build());
-                                                                });
-                                        });
                 }
+                /* retrieve the id of related patient for the new note to create */
+                Long relatedPatientId = updatedNote.getPatient().getId();
+
+                return webclient.put().uri(pathNoteService + "/{id}", noteId)
+                                .headers(h -> h.setBearerAuth(jwtValue))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(Mono.just(updatedNote), NoteDto.class)
+                                .exchangeToMono(response -> {
+
+                                        /* case of not found or bindigResult error */
+                                        if (response.statusCode().isError()) {
+                                                return response.bodyToMono(ProblemDetail.class)
+                                                                .flatMap(body -> {
+                                                                        /*
+                                                                         * need to add id of note to updated note given in form by user before sending it in session cause
+                                                                         * NtoDto has validation @Null to its id's field. Send updated note to session is use, to be able to
+                                                                         * retrieve it in model after redirection
+                                                                         */
+                                                                        updatedNote.setId(noteId);
+                                                                        setSessionAttribute(body, session, UPDATE, Optional.of(updatedNote));
+
+                                                                        return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId + "?note_update=true").build());
+                                                                });
+                                        }
+                                        /* case of no problem for updating existing note (result is saving in session for redirection) */
+                                        return response.bodyToMono(NoteDto.class)
+                                                        .flatMap(body -> {
+                                                                setSessionAttribute(body, session, UPDATE, Optional.of(updatedNote));
+                                                                log.info("request POST update note for patient {}", relatedPatientId);
+                                                                return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId).build());
+                                                        });
+                                });
+
         }
 
+        @GetMapping("/notes/delete/{note_id}")
+
+        public Mono<Rendering> deleteNote(@PathVariable(value = "note_id") String noteId, Model model, WebSession session) {
+                // check if jwt token is present
+                String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
+
+                if (jwtValue.isEmpty()) {
+                        return redirectToLoginPage(model, true);
+                }
+                return webclient.delete().uri(pathNoteService + "/{id}", noteId)
+                                .headers(h -> h.setBearerAuth(jwtValue))
+                                .exchangeToMono(response -> {
+                                        if (response.statusCode().isError()) {
+                                                return response.bodyToMono(ProblemDetail.class)
+                                                                .flatMap(errorBody -> {
+                                                                        setSessionAttribute(errorBody, session, DELETE, Optional.empty());
+                                                                        return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
+                                                                });
+                                        }
+                                        return response.bodyToMono(NoteDto.class).flatMap(body -> {
+                                                setSessionAttribute(body, session, DELETE, Optional.empty());
+                                                return Mono.just(Rendering.redirectTo("/patients/" + body.getPatient().getId()).build());
+                                        });
+                                });
+        }
 
 
         private Mono<Rendering> redirectToLoginPage(Model model, boolean loginError) {
@@ -524,20 +569,25 @@ public class UiController {
 
                         Map<String, Object> properties = pb.getProperties();
 
-                        // in case of existence of bindingResult in problemDetail , we have to add
-                        // it to session to be retrieve in redirection and add fieldsOnError in model
+                        /*
+                         * In case of existence of bindingResult in problemDetail , we have to add it to session to be
+                         * retrieve in redirection and add fieldsOnError in model
+                         */
                         if (properties != null && properties.containsKey("bindingResult")) {
                                 session.getAttributes().put(FIELDS_ON_ERROR,
                                                 properties.get("bindingResult"));
                         }
 
-                        // add into session , the fields that user filled in that represents patientDto or NoteDto
+                        /*
+                         * Add into session , the fields that user filled in form that represents patientDto or NoteDto to
+                         * retrieve it after redirection for thymeleaf
+                         */
                         if (userProvidedModelAttribute.isPresent()) {
 
                                 if (userProvidedModelAttribute.get() instanceof PatientDto) {
-                                        session.getAttributes().put("patient", userProvidedModelAttribute);
+                                        session.getAttributes().put("patient", userProvidedModelAttribute.get());
                                 } else {
-                                        session.getAttributes().put("note", userProvidedModelAttribute);
+                                        session.getAttributes().put("note", userProvidedModelAttribute.get());
                                 }
                         }
 
@@ -550,6 +600,8 @@ public class UiController {
                         return ERROR_MESSAGE;
 
                 }
+
+                /* Case of success operation for a patient or a note */
 
                 if (body instanceof PatientDto) {
                         PatientDto patient = (PatientDto) body;
