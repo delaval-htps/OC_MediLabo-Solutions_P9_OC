@@ -151,7 +151,7 @@
                             <td th:text="${patient.phoneNumber}?:'-'"></td>
                             <td class="text-end">
                                 <div class="d-flex flewx-nowrap justify-content-end m-1">
-                                    <a th:href="@{/patients/}+${patient.id}+'?update=true'" type="button"
+                                    <a th:href="@{/patients/}+${patient.id}+'?patient_update=true'" type="button"
                                         class="btn btn-sm btn-outline-success me-3">Update</a>
                                     <button type="button" class="btn btn-sm btn-outline-danger"
                                         th:urlPatientToDelete="'/patients/delete/' +${patient.id}"

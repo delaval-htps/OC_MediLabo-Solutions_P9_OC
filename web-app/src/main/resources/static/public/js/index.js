@@ -6,7 +6,7 @@ let formPatient = document.getElementById("form-patient")
 
 function rowClicked(patientId) {
 
-    location.href = "/patients/" + patientId + "?update=false"
+    location.href = "/patients/" + patientId + "?patient_update=false"
 }
 
 // toggle form to create new patient
