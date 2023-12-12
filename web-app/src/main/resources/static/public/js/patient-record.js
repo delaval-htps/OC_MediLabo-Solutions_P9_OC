@@ -1,15 +1,23 @@
 const urlParams = new URLSearchParams(window.location.search)
-var patientUpdate = urlParams.get('patient_update')
-var noteStage = urlParams.get('note_update')
+/**
+ * patient_update has two state one for edition only (value= false) and one for update (value= true)
+ */
+let patientUpdate = urlParams.get('patient_update')
+
 /**
  * noteStage represents stage of notes:
  * - first one : 'all' , we have the list of all notes for the patient 
  * - second one : 'edition', we have just edit one note without be able to modify it
  * - third one : 'update' , we have one note for update it 
  */
+let noteState = urlParams.get('note_state')
+
+
 console.log('patientUpdate :' + patientUpdate)
-console.log('noteUpdate :' + noteStage)
+console.log('noteState :' + noteState)
 console.log('note: ' + JSON.stringify(note))
+
+let formUpdatePatient=document.querySelector('#form-update-patient')
 
 /* part for patient*/
 
@@ -27,6 +35,7 @@ function disablePersonalInformation() {
     document.querySelector('.bi-pencil-square').style.display = 'block'
     document.querySelector('.bi-x-square').style.display = 'none'
     patientUpdate = false
+    // TODO reset binding field in red
 }
 
 function enablePersonalInformation() {
@@ -40,96 +49,74 @@ function enablePersonalInformation() {
 }
 
 /* part for note creation */
-var noteForm = document.querySelector('#note-creation-form')
-var noteTable = document.querySelector('#notes-table')
-var noteDate = document.querySelector('#creation-note-date')
-var creationNoteBtn = document.querySelector('#creation-note-btn')
-var saveNoteBtn = document.querySelector('#save-note-btn')
-var noteContent = document.querySelector('#creation-note-content')
+let formNoteCreation = document.querySelector('#note-creation-form')
+let noteTable = document.querySelector('#notes-table')
+let noteDate = document.querySelector('#creation-note-date')
+let creationNoteBtn = document.querySelector('#creation-note-btn')
+let saveNoteBtn = document.querySelector('#save-note-btn')
+let noteContent = document.querySelector('#creation-note-content')
 
-console.log("noteDate.value: " + noteDate.value);
+if (noteState === 'all') {
+    formNoteCreation.style.display = 'none'
+    noteTable.style.display = 'block'
+}
 
+if(noteState === 'creation'){
+    formNoteCreation.style.display = 'block'
+    noteTable.style.display = 'none' 
+    noteDate.value =new Date(Date.now()).toISOString().replace('T', ' ').split('.')[0] 
+    formNoteCreation.action = "/notes/create?patient_update=" + patientUpdate
+}
 
-/**
- * case of bindingResult only for note we have to keep form open with new date
- * case of note not null (row clicked to view note selected) display information of note
- */
-if ((Object.keys(fieldsOnError).length != 0 && patientUpdate == undefined) || note.id != null) {
-    noteForm.style.display = ''
+if (noteState === 'edition') {
+    saveNoteBtn.style.display = 'none'
+    noteContent.setAttribute('readonly', true)
+    formNoteCreation.style.display = ''
     noteTable.style.display = 'none'
     creationNoteBtn.innerText = 'Cancel'
     noteDate.value = noteDate.value.length === 0 ? new Date(Date.now()).toISOString().replace('T', ' ').split('.')[0] : noteDate.value
-    /**
-     * case of just display a note 
-     */
-    if (noteStage === 'false') {
-        saveNoteBtn.style.display = 'none'
-        noteContent.setAttribute('readonly', true)
-    }
-    /**
-     * case of update note
-     */
-    if (noteStage === 'true') {
-        saveNoteBtn.innerText = 'Update note'
-        noteForm.action = "/notes/update/" + note.id + "?patient_update=" + patientUpdate
-    }
 }
 
-// if (noteStage === 'all') {
-//     noteForm.style.display = 'none'
-//     noteTable.style.display = 'block'
-// }
+if (noteState === 'update') {
+    saveNoteBtn.innerText = 'Update note'
+    formNoteCreation.action = "/notes/update/" + note.id + "?patient_update=" + patientUpdate
+    saveNoteBtn.style.display = 'block'
+    noteContent.removeAttribute('readonly')
+    formNoteCreation.style.display = ''
+    noteTable.style.display = 'none'
+    creationNoteBtn.innerText = 'Cancel'
+    // noteDate.value = noteDate.value
+}
 
-// if (noteStage === 'edition') {
-//     saveNoteBtn.style.display = 'none'
-//     noteContent.setAttribute('readonly', true)
-//     noteForm.style.display = ''
-//     noteTable.style.display = 'none'
-//     creationNoteBtn.innerText = 'Cancel'
-//     noteDate.value = noteDate.value.length === 0 ? new Date(Date.now()).toISOString().replace('T', ' ').split('.')[0] : noteDate.value
-// }
-
-// if (noteStage === 'update'){
-//     saveNoteBtn.innerText = 'Update note' 
-//     noteForm.action = "/notes/update/" + note.id + "?patient_update=" + patientUpdate
-//     saveNoteBtn.style.display = 'block'
-//     noteContent.removeAttribute('readonly')
-//     noteForm.style.display = ''
-//     noteTable.style.display = 'none'
-//     creationNoteBtn.innerText = 'Cancel'
-//     noteDate.value =  noteDate.value
-// }
-
+console.log("formNoteCreation_Action= "+formNoteCreation.action)
+console.log("formUpdatePatient_Action= "+formUpdatePatient.action)
 
 /**
  * function to display form to create a note 
  * @param {*} btn btn of creation of note that was clicked 
  */
-function toggleNoteCreationForm(btn) {
+function toggleNoteCreationForm(btn,patient_id) {
     // when click to cancel creation or update : reset form field
-    if (btn.innerText === 'Cancel' || successMessage != undefined) {
+    
+    if (btn.innerText === 'Cancel'|| noteState === 'all') {
         resetFieldNoteForm()
     }
+
+    noteState = noteState === 'all' ? 'creation' : 'all'
+    formUpdatePatient.action ="/patients/update/"+patient_id+"?note_state="+noteState 
+    
     btn.innerText = btn.innerText === 'Create a note' ? 'Cancel' : 'Create a note'
     noteDate.value = noteDate.value.length === 0 ? new Date(Date.now()).toISOString().replace('T', ' ').split('.')[0] : noteDate.value
     noteTable.style.display = noteTable.style.display === 'none' ? '' : 'none'
-    noteForm.style.display = noteForm.style.display === 'none' ? '' : 'none'
-    noteForm.action = "/notes/create?patient_update=" + patientUpdate
-}
-
-/**
- * function to display selected note when its row was clicked using fields of creation form 
- * @param {*} patientId id of related patient of note
- * @param {*} noteId id of note selected
- */
-function notesRowClicked(patientId, noteId) {
-    location.href = "/notes/" + noteId + "/patient/" + patientId + "?note_update=false&patient_update=" + patientUpdate
+    formNoteCreation.style.display = formNoteCreation.style.display === 'none' ? '' : 'none'
+    formNoteCreation.action = "/notes/create?patient_update=" + patientUpdate
+   
 }
 
 /**
  * reset all value of form for creation or update note
  */
-function resetFieldNoteForm() {
+function resetFieldNoteForm(patient_id) {
     document.querySelectorAll("#note-creation-form .field-note").forEach(element => {
         element.value = ''
         console.log(element)
@@ -138,6 +125,16 @@ function resetFieldNoteForm() {
     saveNoteBtn.style.display = 'block'
     saveNoteBtn.innerText = 'Save note'
 }
+
+/**
+ * function to display selected note when its row was clicked using fields of creation form 
+ * @param {*} patientId id of related patient of note
+ * @param {*} noteId id of note selected
+ */
+function notesRowClicked(patientId, noteId) {
+    location.href = "/notes/" + noteId + "/patient/" + patientId + "?note_state=edition&patient_update=" + patientUpdate
+}
+
 
 function updateNote(urlNoteToUpdate) {
     location.href = urlNoteToUpdate + patientUpdate
