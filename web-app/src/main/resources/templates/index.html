@@ -31,7 +31,7 @@
         </div>
 
         <div id="patient-creation-div" class="col-8 p-0" th:style="${#maps.isEmpty(fieldsOnError)}?'display: none':''">
-            <form id="form-patient" th:action="@{/patients/create}" method="post" th:object="${patientToCreate}">
+            <form id="form-patient" th:action="@{/patients/create}" method="post" th:object="${patient}">
 
                 <fieldset class="pt-4 px-4 shadow  mb-3 mt-3 bg-white rounded-4">
 

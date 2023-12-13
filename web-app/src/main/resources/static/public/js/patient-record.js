@@ -17,7 +17,7 @@ console.log('patientUpdate :' + patientUpdate)
 console.log('noteState :' + noteState)
 console.log('note: ' + JSON.stringify(note))
 
-let formUpdatePatient=document.querySelector('#form-update-patient')
+let formUpdatePatient = document.querySelector('#form-update-patient')
 
 /* part for patient*/
 
@@ -61,11 +61,12 @@ if (noteState === 'all') {
     noteTable.style.display = 'block'
 }
 
-if(noteState === 'creation'){
+if (noteState === 'creation') {
     formNoteCreation.style.display = 'block'
-    noteTable.style.display = 'none' 
-    noteDate.value =new Date(Date.now()).toISOString().replace('T', ' ').split('.')[0] 
+    noteTable.style.display = 'none'
+    noteDate.value = new Date(Date.now()).toISOString().replace('T', ' ').split('.')[0]
     formNoteCreation.action = "/notes/create?patient_update=" + patientUpdate
+    creationNoteBtn.innerText = 'Cancel'
 }
 
 if (noteState === 'edition') {
@@ -88,29 +89,29 @@ if (noteState === 'update') {
     // noteDate.value = noteDate.value
 }
 
-console.log("formNoteCreation_Action= "+formNoteCreation.action)
-console.log("formUpdatePatient_Action= "+formUpdatePatient.action)
+console.log("formNoteCreation_Action= " + formNoteCreation.action)
+console.log("formUpdatePatient_Action= " + formUpdatePatient.action)
 
 /**
  * function to display form to create a note 
  * @param {*} btn btn of creation of note that was clicked 
  */
-function toggleNoteCreationForm(btn,patient_id) {
+function toggleNoteCreationForm(btn, patient_id) {
     // when click to cancel creation or update : reset form field
-    
-    if (btn.innerText === 'Cancel'|| noteState === 'all') {
+
+    if (btn.innerText === 'Cancel' || noteState === 'all') {
         resetFieldNoteForm()
     }
 
     noteState = noteState === 'all' ? 'creation' : 'all'
-    formUpdatePatient.action ="/patients/update/"+patient_id+"?note_state="+noteState 
-    
+    formUpdatePatient.action = "/patients/update/" + patient_id + "?note_state=" + noteState
+
     btn.innerText = btn.innerText === 'Create a note' ? 'Cancel' : 'Create a note'
     noteDate.value = noteDate.value.length === 0 ? new Date(Date.now()).toISOString().replace('T', ' ').split('.')[0] : noteDate.value
     noteTable.style.display = noteTable.style.display === 'none' ? '' : 'none'
     formNoteCreation.style.display = formNoteCreation.style.display === 'none' ? '' : 'none'
     formNoteCreation.action = "/notes/create?patient_update=" + patientUpdate
-   
+
 }
 
 /**
@@ -128,11 +129,10 @@ function resetFieldNoteForm(patient_id) {
 
 /**
  * function to display selected note when its row was clicked using fields of creation form 
- * @param {*} patientId id of related patient of note
  * @param {*} noteId id of note selected
  */
-function notesRowClicked(patientId, noteId) {
-    location.href = "/notes/" + noteId + "/patient/" + patientId + "?note_state=edition&patient_update=" + patientUpdate
+function notesRowClicked(noteId) {
+    location.href = "/notes/" + noteId + "?note_state=edition&patient_update=" + patientUpdate
 }
 
 

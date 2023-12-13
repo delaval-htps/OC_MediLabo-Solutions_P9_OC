@@ -124,7 +124,7 @@
                 <legend class=" d-flex justify-content-between pt-4 text-primary fs-5 mb-3">
                     <ins class="col-6">Patient's notes:</ins>
                     <button id="creation-note-btn" class="btn btn-primary col-3" type="button"
-                    th:patientId="${patient.id}"
+                        th:patientId="${patient.id}"
                         onclick="toggleNoteCreationForm(this,this.getAttribute('patientId'))">Create a
                         note</button>
                 </legend>
@@ -174,9 +174,8 @@
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
-                            <tr th:each="note,iterator : ${notes}" style="cursor:pointer;" th:patientId="${patient.id}"
-                                th:noteId="${note.id}"
-                                onclick="notesRowClicked(this.getAttribute('patientId'),this.getAttribute('noteId'))">
+                            <tr th:each="note,iterator : ${notes}" style="cursor:pointer;" th:noteId="${note.id}"
+                                onclick="notesRowClicked(this.getAttribute('noteId'))">
                                 <td th:text="${note.id}" class="d-none"></td>
                                 <td th:text="${iterator.index }"></td>
                                 <td th:text="${note.date}"></td>
@@ -184,7 +183,7 @@
                                 <td class="text-end">
                                     <div class="d-flex flewx-nowrap justify-content-end m-1">
                                         <button type="button" class="btn btn-sm btn-outline-success me-3"
-                                            th:urlNoteToUpdate="'/notes/__${note.id}__/patient/__${patient.id}__?note_state=update&patient_update='"
+                                            th:urlNoteToUpdate="'/notes/__${note.id}__?note_state=update&patient_update='"
                                             onclick="myEventHandler(event);updateNote(this.getAttribute('urlNoteToUpdate'));">Update</button>
                                         <button type="button" class="btn btn-sm btn-outline-danger"
                                             th:urlNoteToDelete="'/notes/delete/__${note.id}__?patient_update='"

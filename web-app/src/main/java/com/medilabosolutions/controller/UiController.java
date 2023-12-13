@@ -1,6 +1,5 @@
 package com.medilabosolutions.controller;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,9 +111,13 @@ public class UiController {
 
         /**
          * Endpoint to display the index page of medilabo-solution with the list of all registred
-         * PatientDtos (never get error , just only a avoid list of patients)
+         * PatientDtos.
          * 
-         * @param model model to add PatientDtos to the view
+         * @param page page for pagination.
+         * @param size number of patients in a page by default 10
+         * @param session websession to add attribute for redirection because of no redirectAttribute in
+         *        spring webflux
+         * @param model model to add Patients to the view for thymeleaf
          * @return the view "index.html" //
          */
         @GetMapping("/patients")
@@ -137,6 +140,7 @@ public class UiController {
 
                                         return response.bodyToMono(RestPage.class)
                                                         .flatMap(restPage -> {
+
                                                                 restPage.getContent().stream().map(p -> modelMapper.map(p, PatientDto.class));
 
                                                                 if (restPage.getTotalPages() > 0) {
@@ -146,21 +150,14 @@ public class UiController {
                                                                 }
 
                                                                 model.addAttribute(FIELDS_ON_ERROR, new HashMap<String, String>());
-                                                               
-                                                                model.addAttribute("patientToCreate", new PatientDto());
-
-                                                                 if (session.getAttributes().containsKey("patient")){
-                                                                        model.addAttribute("patientToCreate",session.getAttribute("patient"));
-                                                                        session.getAttributes().remove("patient"); 
-                                                                }
+                                                                model.addAttribute("patient", new PatientDto());
                                                                 model.addAttribute("patientPages", restPage);
 
                                                                 // in case of bindingResult , we have to add to model fieldsOnError and to override patientwith
-                                                                // fields filled
-                                                                // in by user to be able to display his errors
-                                                                moveSessionAttributeIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR);
-                                                               
+                                                                // fields fille in by user to be able to display his errors
+                                                                transfertSessionAttributesIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR, "patient");
 
+                                                                // if request from patient record page, we have to delete note in session to not propagate it
                                                                 session.getAttributes().remove("note");
 
                                                                 log.info("request GET all patients");
@@ -173,17 +170,21 @@ public class UiController {
 
         /**
          * Endpoint to display record of Patient with his all medical notes (existed errors are display only
-         * in a toast)
+         * in a toast).
          * 
          * @param patientId the id of Patient
-         * @param model model to return to the view
-         * @return view of the record of Patient (personnal informations and his notes). If no jwt Token
-         *         retrieved then redirection to login page. If no patient with given id is found then
-         *         redirection to "/patients" with message of error "not found".
+         * @param session websession to add attribute for redirection because of no redirectAttribute in
+         *        spring webflux
+         * @param model model to return attributes to the view for thymeleaf
+         * @return view of the record of Patient (personnal informations and his notes).
+         *         <ul>
+         *         <li>If no jwt Token retrieved then redirection to login page.</li>
+         *         <li>If no patient with given id is found then redirection to "/patients" with message of
+         *         error "not found".</li>
+         *         </ul>
          */
         @GetMapping("/patients/{id}")
-        public Mono<Rendering> getPatientRecordAndNotes(@PathVariable(value = "id") Long patientId,
-                        WebSession session, Model model) {
+        public Mono<Rendering> getPatientRecordAndNotes(@PathVariable(value = "id") Long patientId, WebSession session, Model model) {
 
                 /* check if jwt token is present */
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
@@ -203,7 +204,9 @@ public class UiController {
                                                 /* only in case of patient not found */
                                                 return response.bodyToMono(ProblemDetail.class)
                                                                 .flatMap(body -> {
+                                                                        // add in session only errorMessage for redirection to index
                                                                         setSessionAttributes(body, session, FIND, Optional.empty());
+
                                                                         return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
                                                                 });
                                         }
@@ -217,21 +220,22 @@ public class UiController {
                                                                         .collectList())
 
                                                         .flatMap(t -> {
-                                                                log.info("GET patient-record with id {} = {}", patientId, t.getT1());
-                                                                model.addAttribute(FIELDS_ON_ERROR, new HashMap<String, String>());
                                                                 model.addAttribute("patient", t.getT1());
                                                                 model.addAttribute("notes", t.getT2());
 
+                                                                model.addAttribute(FIELDS_ON_ERROR, new HashMap<String, String>());
                                                                 NoteDto noteToCreate = new NoteDto();
                                                                 noteToCreate.setPatient(new PatientDataDto());
                                                                 noteToCreate.getPatient().setId(t.getT1().getId());
                                                                 noteToCreate.getPatient().setName(t.getT1().getLastName());
                                                                 model.addAttribute("note", noteToCreate);
 
-                                                                // Add from session to model fieldsOnError or override patient and/or note with fields filled in by
-                                                                // user to be able to display them
-                                                                moveSessionAttributeIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR, "note");
+                                                                // Override model (using existing attributes of session) with fieldsOnError,messages or note with
+                                                                // fields filled in by
+                                                                // user to be able to display after redirection
+                                                                transfertSessionAttributesIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR, "note");
 
+                                                                log.info("GET patient-record with id {} = {}", patientId, t.getT1());
                                                                 return Mono.just(Rendering.view("patient-record").build());
                                                         });
 
@@ -239,15 +243,17 @@ public class UiController {
         }
 
         /**
-         * Endpoint to create a new patient
+         * Endpoint to create a new patient.
          * 
          * @param patientToCreate the patient to create from form of index.html
-         * @param model model to add attributes
-         * @param session session to add attribute to model when redirect to index.html
-         * @return rendering with redirection to index.html
+         * @param model model to add attributes for thymeleaf
+         * @param session session to add attribute to model when redirection because of no redirectAttribute
+         *        in spring webflux
+         * @return rendering with redirection to index.html with either errorMessage with patient's fields
+         *         filled in by user in form either succesMessage with patient created
          */
         @PostMapping("/patients/create")
-        public Mono<Rendering> createPatient(@ModelAttribute(value = "patientToCreate") PatientDto patientToCreate,
+        public Mono<Rendering> createPatient(@ModelAttribute(value = "patient") PatientDto patientToCreate,
                         Model model, WebSession session) {
 
                 // check if jwt token is present
@@ -268,14 +274,18 @@ public class UiController {
                                         if (response.statusCode().isError()) {
                                                 return response.bodyToMono(ProblemDetail.class)
                                                                 .flatMap(body -> {
+                                                                        // put fields of patient filled in by user and errorMessage to session before redirection
                                                                         setSessionAttributes(body, session, CREATION, Optional.of(patientToCreate));
+
                                                                         return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
                                                                 });
                                         }
 
                                         return response.bodyToMono(PatientDto.class)
                                                         .flatMap(body -> {
+                                                                // put created patient and success message in session before redirection to index
                                                                 setSessionAttributes(body, session, CREATION, Optional.empty());
+
                                                                 log.info("request POST createPatient");
                                                                 return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
                                                         });
@@ -284,14 +294,17 @@ public class UiController {
         }
 
         /**
-         * endpoint to update a existed patient
+         * endpoint to update a existed patient.
          * 
          * @param patientId id of patient to be updated
-         * @param updatedPatient the patient with updated fields
-         * @param session websession to add attribute if problem and redirect to the form
-         * @param model model to add sucess attribute when patient correctly updated
-         * @return Mono<Rendering> with view to index if success or redirection to the same page (form) if
-         *         error
+         * @param updatedPatient the patient with updated fields filled in by user
+         * @param noteState state of note's form (= all || creation ||edition ||update) to specify after
+         *        redirection to patient-recored in which type of state note's form was and display it in
+         *        this state
+         * @param session websession to add attribute for redirection because of no redirectAttribute in
+         *        spring webflux
+         * @param model model to pass attribute to thymeleaf
+         * @return Mono<Rendering> with view to patient-record page (patient with his note)
          */
         @PostMapping("/patients/update/{id}")
         public Mono<Rendering> updatePatient(@PathVariable(value = "id") Long patientId,
@@ -304,8 +317,6 @@ public class UiController {
 
                 // delete id of patientDto to have a id null (must to have a correct validation in patient-service)
                 updatedPatient.setId(null);
-
-                // log.info("********************" + session.getAttribute("note").toString());
 
                 return webclient.put().uri(pathPatientService + "/{id}", patientId)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -322,22 +333,20 @@ public class UiController {
                                                 return response.bodyToMono(ProblemDetail.class)
                                                                 .flatMap(body -> {
                                                                         // in case of bindignResult we don't send information of patient filled in by user =>
-                                                                        // Optional.empty()
+                                                                        // Optional.empty(). Fields of form after redirection are filled in with information of registred
+                                                                        // patient. Only errorMessage is sended.
                                                                         setSessionAttributes(body, session, UPDATE, Optional.empty());
+
                                                                         return Mono.just(Rendering.redirectTo("/patients/" + patientId
-                                                                                        + "?note_state=" + noteState
-                                                                                        + "&patient_update=true")
+                                                                                        + "?note_state=" + noteState + "&patient_update=true")
                                                                                         .build());
 
                                                                 });
                                         }
                                         return response.bodyToMono(PatientDto.class)
                                                         .flatMap(body -> {
-                                                                log.info("request POST updatePatient with id {}", patientId);
-
                                                                 // add to session selectednote displayed when updating patient to not lost note and review it on
                                                                 // page if there isn't a note then null is effected to note
-
                                                                 if (!noteState.equals("creation") && session.getAttributes().containsKey("note")) {
                                                                         session.getAttributes().put("note", session.getAttribute("note"));
                                                                 } else {
@@ -347,9 +356,9 @@ public class UiController {
                                                                 // Add patient updated (=body) to session with a success message
                                                                 setSessionAttributes(body, session, UPDATE, Optional.empty());
 
+                                                                log.info("request POST updatePatient with id {}", patientId);
                                                                 return Mono.just(Rendering.redirectTo("/patients/" + patientId
-                                                                                + "?note_state=" + noteState
-                                                                                + "&patient_update=false")
+                                                                                + "?note_state=" + noteState + "&patient_update=false")
                                                                                 .build());
                                                         });
                                 });
@@ -360,12 +369,13 @@ public class UiController {
          * endpoint to delete a patient with given id in request and his related notes too.
          * 
          * @param patientId the given id of patient to delete
-         * @param session the websession to redirect to same view "/"
-         * @return Mono<Renderring> for redirection
+         * @param session the websession to add attribute for redirection because of no redirectAttribute in
+         *        spring webflux
+         * @param model model to pass attribute to thymeleaf
+         * @return Mono<Renderring> to index page. If deleted patient had notes, all notes was deleted too.
          */
         @GetMapping("/patients/delete/{id}")
-        public Mono<Rendering> deletePatientWithNotes(@PathVariable(value = "id") Long patientId,
-                        Model model, WebSession session) {
+        public Mono<Rendering> deletePatientWithNotes(@PathVariable(value = "id") Long patientId, Model model, WebSession session) {
 
                 // check if jwt token is present
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
@@ -373,23 +383,28 @@ public class UiController {
                 return webclient.delete().uri(pathPatientService + "/{id}", patientId)
                                 .headers(h -> h.setBearerAuth(jwtValue))
                                 .exchangeToMono(response -> {
-
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
                                                 return redirectToLoginPage(model, true);
                                         }
-                                        // case of problem finding patient in REST API : example not find exception , etc...
+
                                         if (response.statusCode().isError()) {
+                                                // case of problem finding patient in REST API : example not find exception , etc...
                                                 return response.bodyToMono(ProblemDetail.class)
                                                                 .flatMap(body -> {
+                                                                        // send a error message for redirection
                                                                         setSessionAttributes(body, session, UPDATE, Optional.empty());
+
                                                                         return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
                                                                 });
                                         }
                                         return response.bodyToMono(PatientDto.class)
                                                         .flatMap(body -> {
-                                                                log.info("request GET deletePatient");
+                                                                // add to session successMessage & patient for redirection
                                                                 setSessionAttributes(body, session, DELETE, Optional.empty());
-                                                                /* delete all notes of deleted patient */
+
+                                                                log.info("request GET deletePatient");
+
+                                                                // delete all notes of deleted patient before redirection
                                                                 return webclient.delete().uri(pathNoteService + "/patient_id/{id}", patientId)
                                                                                 .headers(h -> h.setBearerAuth(jwtValue))
                                                                                 .exchangeToMono(result -> Mono.just(Rendering.redirectTo(PATIENT_URL).build()));
@@ -400,21 +415,25 @@ public class UiController {
         }
 
         /**
-         * Endpoint to display note selected of patient from list of his notes in the patient-record view.
+         * Endpoint to display note selected of a patient from list of his notes in the patient-record view.
          * 
          * @param noteId id of note selected in table of patient notes in patient record view by cliking the
          *        row
-         * @param patientId id of patient for the note
+         * @param patientUpdate state of form of patient ( true : form is operational ; false form is in
+         *        readonly state)
+         * @param noteState state of note's form (= all || creation ||edition ||update) to specify after
+         *        redirection to patient-record in which type of state note's form was and display it again
+         *        in this state
          * @param model model to add attribut for thymeleaf
-         * @param session web session to add attribute in case of redirection
+         * @param session web session to add attribute in case of redirection because of no
+         *        redirectAttribute in spring webflux
          * @return redirection to the patient record view with information of note selected displayed in the
-         *         creation form for note
+         *         form for note
          */
-        @GetMapping("/notes/{note_id}/patient/{patient_id}")
+        @GetMapping("/notes/{note_id}")
         public Mono<Rendering> getNoteById(@PathVariable(value = "note_id") String noteId,
-                        @PathVariable(value = "patient_id") Long patientId,
-                        @RequestParam(value = "patient_update", required = false) Optional<String> patientUpdate,
-                        @RequestParam(value = "note_state", required = false) Optional<String> noteState,
+                        @RequestParam(value = "patient_update", required = false) String patientUpdate,
+                        @RequestParam(value = "note_state", required = false) String noteState,
                         Model model, WebSession session) {
                 // check if jwt token is present
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
@@ -423,53 +442,47 @@ public class UiController {
                         return redirectToLoginPage(model, true);
                 }
 
-                /* check if patient's note exists and retrieve its id */
-                return webclient.get().uri(pathPatientService + "/{id}", patientId)
+                return webclient.get().uri(pathNoteService + "/{id}", noteId)
                                 .headers(h -> h.setBearerAuth(jwtValue))
-                                .exchangeToMono(patientResponse -> {
+                                .exchangeToMono(response -> {
 
-                                        if (patientResponse.statusCode().equals(HttpStatus.NOT_FOUND)) {
-                                                // case of patient with relatedPatientId is not Found
-                                                return patientResponse.bodyToMono(ProblemDetail.class).flatMap(body -> {
-                                                        setSessionAttributes(body, session, FIND, Optional.empty());
-                                                        return Mono.just(Rendering.redirectTo("/patients/" + patientId).build());
-                                                });
-                                        }
-
-                                        return webclient.get().uri(pathNoteService + "/{id}", noteId)
-                                                        .headers(h -> h.setBearerAuth(jwtValue))
-                                                        .exchangeToMono(response -> {
-                                                                if (response.statusCode().isError()) {
-                                                                        return response.bodyToMono(ProblemDetail.class)
-                                                                                        .flatMap(errorBody -> {
-                                                                                                setSessionAttributes(errorBody, session, FIND, Optional.empty());
-                                                                                                return Mono.just(Rendering.redirectTo("/patients/" + patientId).build());
-                                                                                        });
-                                                                }
-                                                                return response.bodyToMono(NoteDto.class).flatMap(body -> {
-                                                                        setSessionAttributes(body, session, FIND, Optional.empty());
-                                                                        return Mono.just(Rendering.redirectTo("/patients/" + patientId
-                                                                                        + "?note_state=" + noteState.orElse("edition")
-                                                                                        + "&patient_update=" + patientUpdate.orElse(""))
-                                                                                        .build());
+                                        if (response.statusCode().isError()) {
+                                                // case of note not found then redirection to index page cause it is not normal to have a
+                                                // note not found in list of all patient's note in patient-record
+                                                return response.bodyToMono(ProblemDetail.class)
+                                                                .flatMap(errorBody -> {
+                                                                        // send errorMessage and redirect to index page
+                                                                        setSessionAttributes(errorBody, session, FIND, Optional.empty());
+                                                                        return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
                                                                 });
-                                                        });
+                                        }
+                                        return response.bodyToMono(NoteDto.class).flatMap(body -> {
+                                                // send note and successMessage with session for redirection
+                                                setSessionAttributes(body, session, FIND, Optional.empty());
+
+                                                return Mono.just(Rendering.redirectTo("/patients/" + body.getPatient().getId()
+                                                                + "?note_state=" + noteState + "&patient_update=" + patientUpdate)
+                                                                .build());
+                                        });
                                 });
+
         }
 
         /**
          * Endpoint to create a note for a patient
          * 
          * @param noteToCreate the note to create fill in by user from form in patient-record view
+         * @param patientUpdate state of form of patient ( true : form is operational ; false form is in
+         *        readonly state)
          * @param model model to add attribute for thymeleaf
-         * @param session session to pass attribute for redirection because of non management in spring
-         *        webflux
+         * @param session session to pass attribute for redirection because of no redirectAttribute in
+         *        spring webflux
          * @return Mono<Rendering> with redirection to patient-record view with message of success or error
          *         if failed to create the new note
          */
         @PostMapping("/notes/create")
         public Mono<Rendering> createNote(@ModelAttribute(value = "note") NoteDto noteToCreate,
-                        @RequestParam(value = "patient_update", required = false) Optional<String> patientUpdate,
+                        @RequestParam(value = "patient_update", required = false) String patientUpdate,
                         Model model, WebSession session) {
 
                 // check if jwt token is present
@@ -478,10 +491,11 @@ public class UiController {
                 if (jwtValue.isEmpty()) {
                         return redirectToLoginPage(model, true);
                 }
-                /* retrieve the id of related patient for the new note to create */
+
+                // retrieve the id of related patient for the new note to create
                 Long relatedPatientId = noteToCreate.getPatient().getId();
 
-                /* creation of new note */
+                // creation of new note
                 return webclient.post().uri(pathNoteService)
                                 .headers(h -> h.setBearerAuth(jwtValue))
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -492,19 +506,23 @@ public class UiController {
                                         if (noteResponse.statusCode().isError()) {
                                                 return noteResponse.bodyToMono(ProblemDetail.class)
                                                                 .flatMap(body -> {
+                                                                        // send errorMessage & note in form filled in by user to session for redirection
                                                                         setSessionAttributes(body, session, CREATION, Optional.of(noteToCreate));
+
                                                                         return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId
-                                                                                        + "?patient_update=" + patientUpdate.orElse(""))
+                                                                                        + "?patient_update=" + patientUpdate)
                                                                                         .build());
                                                                 });
                                         }
-                                        /* case creation of note ok */
+
                                         return noteResponse.bodyToMono(NoteDto.class)
                                                         .flatMap(body -> {
+                                                                // send success message & updated note in session for redirection
                                                                 setSessionAttributes(body, session, CREATION, Optional.empty());
+
                                                                 log.info("request POST create note for patient {}", relatedPatientId);
                                                                 return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId
-                                                                                + "?note_state=all&patient_update=" + patientUpdate.orElse(""))
+                                                                                + "?note_state=all&patient_update=" + patientUpdate)
                                                                                 .build());
                                                         });
                                 });
@@ -517,14 +535,17 @@ public class UiController {
          * 
          * @param noteId the given id of note to update
          * @param updatedNote the updated note filled in by user
+         * @param patientUpdate state of form of patient ( true : form is operational ; false form is in
+         *        readonly state)
          * @param model model to add Attribute for thymeleaf
-         * @param session websession to add Attribute like bindingResult or error in message
+         * @param session websession to add Attribute for redirection because of no redirectAttribute in
+         *        spring webflux
          * @return Mono <Rendering> with redirection to patient record with message of success or error
          */
         @PostMapping("/notes/update/{note_id}")
         public Mono<Rendering> updateNote(@PathVariable(value = "note_id") String noteId,
                         @ModelAttribute(value = "note") NoteDto updatedNote,
-                        @RequestParam(value = "patient_update", required = false) Optional<String> patientUpdate,
+                        @RequestParam(value = "patient_update", required = false) String patientUpdate,
                         Model model, WebSession session) {
                 // check if jwt token is present
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
@@ -554,17 +575,19 @@ public class UiController {
                                                                         setSessionAttributes(body, session, UPDATE, Optional.of(updatedNote));
 
                                                                         return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId
-                                                                                        + "?note_state=update&patient_update=" + patientUpdate.orElse(""))
+                                                                                        + "?note_state=update&patient_update=" + patientUpdate)
                                                                                         .build());
                                                                 });
                                         }
-                                        /* case of no problem for updating existing note (result is saving in session for redirection) */
+
                                         return response.bodyToMono(NoteDto.class)
                                                         .flatMap(body -> {
+                                                                // send sucessMessage and updated note (body) in session for redirection
                                                                 setSessionAttributes(body, session, UPDATE, Optional.empty());
+
                                                                 log.info("request POST update note for patient {}", relatedPatientId);
                                                                 return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId
-                                                                                + "?note_state=all&patient_update=" + patientUpdate.orElse(""))
+                                                                                + "?note_state=all&patient_update=" + patientUpdate)
                                                                                 .build());
                                                         });
                                 });
@@ -575,14 +598,17 @@ public class UiController {
          * endpoint to delete a note by given its id
          * 
          * @param noteId Given id of note to delete
+         * @param patientUpdate state of form of patient ( true : form is operational ; false form is in
+         *        readonly state)
          * @param model model to add attribute for thymeleaf
          * @param session websession to add attribute in case of redirection and retrieve them after
          * @return Mono<Rendering> in case of success : patient record page & in case of error to index
          */
         @GetMapping("/notes/delete/{note_id}")
         public Mono<Rendering> deleteNote(@PathVariable(value = "note_id") String noteId,
-                        @RequestParam(value = "patient_update", required = false) Optional<String> patientUpdate,
+                        @RequestParam(value = "patient_update", required = false) String patientUpdate,
                         Model model, WebSession session) {
+
                 // check if jwt token is present
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
 
@@ -592,19 +618,26 @@ public class UiController {
                 return webclient.delete().uri(pathNoteService + "/{id}", noteId)
                                 .headers(h -> h.setBearerAuth(jwtValue))
                                 .exchangeToMono(response -> {
+                                        // case of error redirection to index page
                                         if (response.statusCode().isError()) {
                                                 return response.bodyToMono(ProblemDetail.class)
                                                                 .flatMap(errorBody -> {
+                                                                        // send error message
                                                                         setSessionAttributes(errorBody, session, DELETE, Optional.empty());
+
                                                                         return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
                                                                 });
                                         }
-                                        return response.bodyToMono(NoteDto.class).flatMap(body -> {
-                                                setSessionAttributes(body, session, DELETE, Optional.empty());
-                                                return Mono.just(Rendering.redirectTo("/patients/" + body.getPatient().getId()
-                                                                + "?note_state=all&patient_update=" + patientUpdate.orElse(""))
-                                                                .build());
-                                        });
+                                        return response.bodyToMono(NoteDto.class)
+                                                        .flatMap(body -> {
+                                                                // send success message and note deleted in session before redirection
+                                                                setSessionAttributes(body, session, DELETE, Optional.empty());
+
+                                                                log.info("request DELETE note with id {} of patient {}", body.getId(), body.getPatient().getId());
+                                                                return Mono.just(Rendering.redirectTo("/patients/" + body.getPatient().getId()
+                                                                                + "?note_state=all&patient_update=" + patientUpdate)
+                                                                                .build());
+                                                        });
                                 });
         }
 
@@ -621,19 +654,19 @@ public class UiController {
          * method to add an error message (when invalid fields or errors are detected in result of webclient
          * request) or success message to websession for a futur redirection (cause spring webflux not
          * supports redirectAttributes). Using websession attribut allow us to retrieve them in another
-         * request and add them to the model for thymeleaf
+         * request and add them to the model for thymeleaf with method
+         * transfertSessionAttributesIntoModel().
          * 
          * @param body body content of a response from webclient request to add to message (problemDetail or
          *        Patient or Note)
-         * @param session the websession of the request of endpoint
+         * @param session the websession of the request 
          * @param typeOfOperation String to modify message in toast in case of success message according to
          *        type of operation: create/update or delete a patient
          * @param formObjectFilledInByUser optional parameter of patient or note filled in by user in form
          *        to create one or update a existing one
          * @return void
          */
-        private void setSessionAttributes(Object body, WebSession session, String typeOfOperation,
-                        Optional<Object> formObjectFilledInByUser) {
+        private void setSessionAttributes(Object body, WebSession session, String typeOfOperation, Optional<Object> formObjectFilledInByUser) {
 
                 if (body instanceof ProblemDetail) {
 
@@ -683,11 +716,10 @@ public class UiController {
                 if (body instanceof NoteDto) {
                         NoteDto note = (NoteDto) body;
                         session.getAttributes().put("note", note);
-                        if (!typeOfOperation.equals(FIND)) {
-                                session.getAttributes().put(SUCCESS_MESSAGE, "<h6><ins>Sucessful action!</ins></h6>" +
-                                                "Note of patient " + note.getPatient().getName() + " was correctly "
-                                                + typeOfOperation);
-                        }
+                        session.getAttributes().put(SUCCESS_MESSAGE, "<h6><ins>Sucessful action!</ins></h6>" +
+                                        "Note of patient " + note.getPatient().getName() + " was correctly "
+                                        + typeOfOperation);
+
                 }
         }
 
@@ -700,7 +732,7 @@ public class UiController {
          * @param messages list of (String)messages (name of attribute in session)to remove from websession
          *        and add them to model
          */
-        private void moveSessionAttributeIntoModel(Model model, WebSession session, String... messages) {
+        private void transfertSessionAttributesIntoModel(Model model, WebSession session, String... messages) {
 
                 for (String message : messages) {
                         if (session.getAttribute(message) != null) {
