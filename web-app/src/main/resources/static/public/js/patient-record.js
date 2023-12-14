@@ -12,14 +12,18 @@ let patientUpdate = urlParams.get('patient_update')
  */
 let noteState = urlParams.get('note_state')
 
-
 console.log('patientUpdate :' + patientUpdate)
 console.log('noteState :' + noteState)
 console.log('note: ' + JSON.stringify(note))
 
-let formUpdatePatient = document.querySelector('#form-update-patient')
-
 /* part for patient*/
+
+let formUpdatePatient = document.querySelector('#form-update-patient')
+let pencilIcon = document.querySelector('.bi-pencil-square')
+let btnUpdatePatient = document.querySelector('#div-submit-btn')
+let genrePatient = document.getElementById('genre')
+let dateOfBirthPatient = document.getElementById('dateOfBirth')
+let cancelIcon = document.querySelector('.bi-x-square')
 
 if (patientUpdate === "true") {
     enablePersonalInformation()
@@ -27,28 +31,35 @@ if (patientUpdate === "true") {
 if (patientUpdate === "false") {
     disablePersonalInformation()
 }
+
 function disablePersonalInformation() {
-    document.querySelector('#div-submit-btn').style.display = "none"
+    btnUpdatePatient.style.display = "none"
     document.querySelector('#form-update-patient fieldset').setAttribute("disabled", "true")
-    document.getElementById('genre').classList.replace('form-select', 'form-control')
-    document.getElementById('dateOfBirth').disabled = true
-    document.querySelector('.bi-pencil-square').style.display = 'block'
-    document.querySelector('.bi-x-square').style.display = 'none'
+    genrePatient.classList.replace('form-select', 'form-control')
+    dateOfBirthPatient.disabled = true
+    pencilIcon.style.display = 'block'
+    cancelIcon.style.display = 'none'
     patientUpdate = false
-    // TODO reset binding field in red
+    // reset binding field in red
+    document.querySelectorAll('#form-update-patient .field-patient').forEach(element => {
+        element.querySelector('ul').innerHTML = ''
+        console.log(element.querySelector('.form-control'))
+        element.querySelector('.form-control').classList.remove('is-invalid')
+    });
 }
 
 function enablePersonalInformation() {
-    document.querySelector('#div-submit-btn').style.display = 'flex'
+    btnUpdatePatient.style.display = 'flex'
     document.querySelector('#form-update-patient fieldset').removeAttribute("disabled")
-    document.getElementById('genre').classList.replace('form-control', 'form-select')
-    document.getElementById('dateOfBirth').disabled = false
-    document.querySelector('.bi-pencil-square').style.display = 'none'
-    document.querySelector('.bi-x-square').style.display = 'block'
+    genrePatient.classList.replace('form-control', 'form-select')
+    dateOfBirthPatient.disabled = false
+    pencilIcon.style.display = 'none'
+    cancelIcon.style.display = 'block'
     patientUpdate = true
 }
 
 /* part for note creation */
+
 let formNoteCreation = document.querySelector('#note-creation-form')
 let noteTable = document.querySelector('#notes-table')
 let noteDate = document.querySelector('#creation-note-date')

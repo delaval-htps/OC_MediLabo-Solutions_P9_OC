@@ -318,6 +318,14 @@ public class UiController {
                 // delete id of patientDto to have a id null (must to have a correct validation in patient-service)
                 updatedPatient.setId(null);
 
+                // add to session selectednote displayed when updating patient to not lost note and review it on
+                // page. If State of note is creation , remove note in session
+                if (!noteState.equals("creation") && session.getAttributes().containsKey("note")) {
+                        session.getAttributes().put("note", session.getAttribute("note"));
+                } else {
+                        session.getAttributes().remove("note");
+                }
+
                 return webclient.put().uri(pathPatientService + "/{id}", patientId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .headers(h -> h.setBearerAuth(jwtValue))
@@ -345,14 +353,6 @@ public class UiController {
                                         }
                                         return response.bodyToMono(PatientDto.class)
                                                         .flatMap(body -> {
-                                                                // add to session selectednote displayed when updating patient to not lost note and review it on
-                                                                // page if there isn't a note then null is effected to note
-                                                                if (!noteState.equals("creation") && session.getAttributes().containsKey("note")) {
-                                                                        session.getAttributes().put("note", session.getAttribute("note"));
-                                                                } else {
-                                                                        session.getAttributes().remove("note");
-                                                                }
-
                                                                 // Add patient updated (=body) to session with a success message
                                                                 setSessionAttributes(body, session, UPDATE, Optional.empty());
 
@@ -659,7 +659,7 @@ public class UiController {
          * 
          * @param body body content of a response from webclient request to add to message (problemDetail or
          *        Patient or Note)
-         * @param session the websession of the request 
+         * @param session the websession of the request
          * @param typeOfOperation String to modify message in toast in case of success message according to
          *        type of operation: create/update or delete a patient
          * @param formObjectFilledInByUser optional parameter of patient or note filled in by user in form

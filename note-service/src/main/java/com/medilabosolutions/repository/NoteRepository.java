@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface NoteRepository extends ReactiveMongoRepository<Note, String> {
 
+    //TODO sort and pagination for notes
     @Query("{'patient.id': ?0}")
     Flux<Note> findByPatientId(Long patientId);
 
