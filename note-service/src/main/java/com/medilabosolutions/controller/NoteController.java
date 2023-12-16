@@ -3,6 +3,8 @@ package com.medilabosolutions.controller;
 import java.util.Locale;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/notes")
@@ -34,10 +37,9 @@ public class NoteController {
 
     private static final String NOT_FOUND = "note.not.found";
 
-    // TODO retrieve all notes sorted by date and with pagination
     @GetMapping
     public ResponseEntity<Flux<NoteDto>> getAllNotes() {
-        return ResponseEntity.ok(noteService.getAllNotes().map(note->modelMapper.map(note,NoteDto.class)));
+        return ResponseEntity.ok(noteService.getAllNotes().map(note -> modelMapper.map(note, NoteDto.class)));
     }
 
     @GetMapping("/{id}")
@@ -46,7 +48,6 @@ public class NoteController {
                 .map(note -> new ResponseEntity<NoteDto>(modelMapper.map(note, NoteDto.class), HttpStatus.OK))
                 .switchIfEmpty(Mono.error(new NoteNotFoundException(messageSource.getMessage(NOT_FOUND, new Object[] {id}, Locale.ENGLISH))));
     }
-
 
     @PostMapping
     public Mono<ResponseEntity<NoteDto>> createNote(@Valid @RequestBody NoteDto noteToCreate) {
@@ -82,10 +83,18 @@ public class NoteController {
                 .map(note -> modelMapper.map(note, NoteDto.class)));
     }
 
+    @GetMapping("/patient_id/{id}/{page}/{size}")
+    public ResponseEntity<Mono<Page<NoteDto>>> getAllNotesPageableByPatientId(@PathVariable("id") Long patientId,
+            @PathVariable(value = "page") int pageNumber,
+            @PathVariable(value = "size") int pageSize) {
+                
+        return ResponseEntity.ok(noteService.findByPatientIdPageable(patientId, PageRequest.of(pageNumber, pageSize)));
+    }
+
     /**
      * Delete all notes related to patient with given id
      * 
-     * @param patientId the given id of patient 
+     * @param patientId the given id of patient
      * @return Flux of all notes deleted
      */
     @DeleteMapping("/patient_id/{id}")

@@ -140,7 +140,7 @@ public class UiController {
 
                                         return response.bodyToMono(RestPage.class)
                                                         .flatMap(restPage -> {
-
+                                                                // TODO after change return patient Dto in pagination delete this row
                                                                 restPage.getContent().stream().map(p -> modelMapper.map(p, PatientDto.class));
 
                                                                 if (restPage.getTotalPages() > 0) {
@@ -184,7 +184,10 @@ public class UiController {
          *         </ul>
          */
         @GetMapping("/patients/{id}")
-        public Mono<Rendering> getPatientRecordAndNotes(@PathVariable(value = "id") Long patientId, WebSession session, Model model) {
+        public Mono<Rendering> getPatientRecordAndNotes(@PathVariable(value = "id") Long patientId,
+                        @RequestParam(value = "notePage") Optional<Integer> notePageNumber,
+                        @RequestParam(value = "noteSize") Optional<Integer> noteSize,
+                        WebSession session, Model model) {
 
                 /* check if jwt token is present */
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
@@ -192,6 +195,10 @@ public class UiController {
                 if (jwtValue.isEmpty()) {
                         return redirectToLoginPage(model, true);
                 }
+
+                int currentPage = notePageNumber.orElse(0);
+                int pageSize = noteSize.orElse(5);
+
                 /*
                  * send request to patient API, return :Mono<Rendering> to specific endpoints in function of
                  * response
@@ -213,12 +220,21 @@ public class UiController {
 
                                         return response.bodyToMono(PatientDto.class)
 
-                                                        // zip with request to notes API that return all notes for patient
-                                                        .zipWith(webclient.get().uri(pathNoteService + "/patient_id/{id}", patientId)
+                                                        // zip with request to notes API that return all notes for patient with pagination
+                                                        .zipWith(webclient.get()
+                                                                        .uri(pathNoteService + "/patient_id/{id}/{page}/{size}", patientId, currentPage, pageSize)
                                                                         .headers(h -> h.setBearerAuth(jwtValue))
-                                                                        .exchangeToFlux(r -> r.bodyToFlux(NoteDto.class))
-                                                                        .collectList())
-
+                                                                        .exchangeToMono(r -> r.bodyToMono(RestPage.class)
+                                                                                        .flatMap(restPage -> {
+                                                                                                if (restPage.getTotalPages() > 0) {
+                                                                                                        List<Integer> pageNumbers =
+                                                                                                                        IntStream.rangeClosed(1, restPage.getTotalPages())
+                                                                                                                                        .boxed()
+                                                                                                                                        .collect(Collectors.toList());
+                                                                                                        model.addAttribute("pageNumbers", pageNumbers);
+                                                                                                }
+                                                                                                return Mono.just(restPage.getContent());
+                                                                                        })))
                                                         .flatMap(t -> {
                                                                 model.addAttribute("patient", t.getT1());
                                                                 model.addAttribute("notes", t.getT2());

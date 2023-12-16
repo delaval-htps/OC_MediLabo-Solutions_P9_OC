@@ -1,6 +1,12 @@
 package com.medilabosolutions.service;
 
+import java.util.stream.Collectors;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.medilabosolutions.dto.NoteDto;
 import com.medilabosolutions.model.Note;
 import com.medilabosolutions.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +19,7 @@ import reactor.core.publisher.Mono;
 public class NoteService {
 
     private final NoteRepository noteRepository;
+    private final ModelMapper modelMapper;
 
     public Flux<Note> getAllNotes() {
         return noteRepository.findAll();
@@ -46,6 +53,19 @@ public class NoteService {
     }
 
     public Flux<Note> deleteNoteByPatientId(Long patientId) {
-     return noteRepository.deleteNoteByPatientId(patientId);
+        return noteRepository.deleteNoteByPatientId(patientId);
+    }
+
+    public Mono<Page<NoteDto>> findByPatientIdPageable(Long patientId, Pageable pageable) {
+        return noteRepository.findByPatientId(patientId, pageable)
+                .collectList()
+                .zipWith(noteRepository.count())
+                .map(n -> new PageImpl<>(
+                        n.getT1()
+                                .stream()
+                                .map(note -> modelMapper.map(note, NoteDto.class))
+                                .collect(Collectors.toList()),
+                        pageable,
+                        n.getT2()));
     }
 }
