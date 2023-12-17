@@ -122,7 +122,6 @@ function toggleNoteCreationForm(btn, patient_id) {
     noteTable.style.display = noteTable.style.display === 'none' ? '' : 'none'
     formNoteCreation.style.display = formNoteCreation.style.display === 'none' ? '' : 'none'
     formNoteCreation.action = "/notes/create?patient_update=" + patientUpdate
-
 }
 
 /**

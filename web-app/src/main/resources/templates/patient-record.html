@@ -31,7 +31,9 @@
                 <fieldset class="pt-1 px-5 shadow mt-3 bg-white rounded-4 ">
 
                     <div class="d-flex inline-flex align-items-baseline mb-3">
-                        <legend class=" pt-4  text-primary fs-5 mb-3"><ins>Personal Informations:</ins></legend>
+                        <legend class=" pt-4  text-primary fs-5 mb-3">
+                            <ins>Personal Informations:</ins>
+                        </legend>
                         <i class="bi bi-pencil-square text-primary" style="font-size: 2rem; cursor:pointer;"
                             data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip"
                             data-bs-title="Click to update personal information of patient."
@@ -118,12 +120,19 @@
 
                 </fieldset>
             </form>
+            <div class=" alert alert-info d-flex col-7 mt-4 shadow-sm" role="alert">
 
-            <fieldset class="pt-1 px-5 shadow mt-5 bg-white rounded-4 ">
+                <i class="bi bi-info-circle"></i>
+
+                <div class="ms-3">
+                    To create a new note, click on button "Create a note". To display content of a note, just click on his row.
+                </div>
+            </div>
+            <fieldset class="pt-1 px-5 shadow mt-4 bg-white rounded-4 ">
 
                 <legend class=" d-flex justify-content-between pt-4 text-primary fs-5 mb-3">
                     <ins class="col-6">Patient's notes:</ins>
-                    <button id="creation-note-btn" class="btn btn-primary col-3" type="button"
+                    <button id="creation-note-btn" class="btn btn-primary col-2" type="button"
                         th:patientId="${patient.id}"
                         onclick="toggleNoteCreationForm(this,this.getAttribute('patientId'))">Create a
                         note</button>
@@ -159,8 +168,7 @@
 
                 </form>
 
-                <!-- TODO add pagination to note's table like in index page for patient -->
-                <div id="notes-table" class="col-12 table-responsive mt-3">
+                <div id="notes-table" class="col-12 table-responsive mt-3" th:if="${notePages.numberOfElements !=0}">
                     <table class="table table-sm table-hover ">
 
                         <caption hidden>List of all patient's notes</caption>
@@ -175,12 +183,13 @@
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
-                            <tr th:each="note,iterator : ${notes}" style="cursor:pointer;" th:noteId="${note.id}"
-                                onclick="notesRowClicked(this.getAttribute('noteId'))">
+                            <tr th:each="note,iterator : ${notePages.content}" style="cursor:pointer;"
+                                th:noteId="${note.id}" onclick="notesRowClicked(this.getAttribute('noteId'))">
                                 <td th:text="${note.id}" class="d-none"></td>
-                                <td th:text="${iterator.index }"></td>
+                                <td th:text="${iterator.index + (notePages.number * notePages.size) +1 }">
+                                </td>
                                 <td th:text="${note.date}"></td>
-                                <td th:text="${note.content}"></td>
+                                <td th:text="${#strings.abbreviate(note.content,100)}"></td>
                                 <td class="text-end">
                                     <div class="d-flex flewx-nowrap justify-content-end m-1">
                                         <button type="button" class="btn btn-sm btn-outline-success me-3"
@@ -196,6 +205,83 @@
                         </tbody>
 
                     </table>
+
+                    <nav class="pt-3" aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item"><a class="page-link"
+                                    th:href=" @{/patients/__${patient.id}__(notePage=0,noteSize=${notePages.size})}">&laquo;</a>
+                            </li>
+                            <li class="page-item"><a class="page-link"
+                                    th:href="${notePages.number>0}? @{/patients/__${patient.id}__(notePage=${notePages.number -1},noteSize=${notePages.size})}:''">Previous</a>
+                            </li>
+
+                            <th:block id="page-number-list" th:if="${#lists.size(pageNumbers) <= 10 }"
+                                th:each="pageNumber : ${pageNumbers}">
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        th:href="@{/patients/__${patient.id}__(notePage=${pageNumber -1},noteSize=${notePages.size})}"
+                                        th:text="${pageNumber}"
+                                        th:classAppend="${pageNumber==notePages.number+ 1} ? active"></a>
+                                </li>
+                            </th:block>
+
+                            <th:block th:if="${#lists.size(pageNumbers) >10 }"
+                                th:with="totalOfPages =${#lists.size(pageNumbers)},currentPage = ${notePages.number}">
+
+                                <th:block th:if="${currentPage <5 || currentPage> totalOfPages-6 }">
+                                    <p id="page-number-list" th:each="index: ${#numbers.sequence(1,5)}">
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                th:href="@{/patients/__${patient.id}__(notePage=${index-1},noteSize=${notePages.size})}"
+                                                th:text="${index}"
+                                                th:classAppend="${index == currentPage +1} ? active"></a>
+                                        </li>
+                                    </p>
+                                    <li class="page-item">
+                                        <a class="page-link">...</a>
+                                    </li>
+                                    <p id="page-number-list"
+                                        th:each="index: ${#numbers.sequence(totalOfPages-4,totalOfPages)}">
+
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                th:href="@{/patients/__${patient.id}__(notePage=${index-1},noteSize=${notePages.size})}"
+                                                th:text="${index}"
+                                                th:classAppend="${index==currentPage+1} ? active"></a>
+                                        </li>
+                                    </p>
+                                </th:block>
+
+                                <th:block th:if="${currentPage >=5 && currentPage <= totalOfPages-6 }">
+                                    <li class="page-item">
+                                        <a class="page-link">...</a>
+                                    </li>
+                                    <p id="page-number-list"
+                                        th:each="index: ${#numbers.sequence(currentPage-2,currentPage+4)}">
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                th:href="@{/patients/__${patient.id}__(notePage=${index-1},noteSize=${notePages.size})}"
+                                                th:text="${index}"
+                                                th:classAppend="${index == currentPage+ 1} ? active"></a>
+                                        </li>
+                                    </p>
+                                    <li class="page-item">
+                                        <a class="page-link">...</a>
+                                    </li>
+                                </th:block>
+
+                            </th:block>
+
+                            <li class="page-item"><a class="page-link"
+                                    th:href="${notePages.number < notePages.totalPages-1}? @{/patients/__${patient.id}__(notePage=${notePages.number+1 },noteSize=${notePages.size})}:''">Next</a>
+                            </li>
+                            <li class="page-item"><a class="page-link"
+                                    th:href=" @{/patients/__${patient.id}__(notePage=${notePages.totalPages -1},noteSize=${notePages.size})}">&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-12 text-center my-3 lead" th:if="${notePages.numberOfElements == 0}"> There are no notes yet associated with this patient...</div>
             </fieldset>
         </div>
 

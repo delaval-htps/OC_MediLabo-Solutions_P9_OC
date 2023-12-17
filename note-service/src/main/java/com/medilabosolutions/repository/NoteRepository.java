@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 import com.medilabosolutions.model.Note;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 
 @Repository
@@ -19,4 +20,9 @@ public interface NoteRepository extends ReactiveMongoRepository<Note, String> {
 
     @Query(value = "{'patient.id': ?0}", delete = true)
     Flux<Note> deleteNoteByPatientId(Long patientId);
+
+    Mono<Long> countByPatientId(Long patientId);
+
+   
+   
 }

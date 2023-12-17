@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 public class NoteService {
 
     private final NoteRepository noteRepository;
+
     private final ModelMapper modelMapper;
 
     public Flux<Note> getAllNotes() {
@@ -59,7 +60,7 @@ public class NoteService {
     public Mono<Page<NoteDto>> findByPatientIdPageable(Long patientId, Pageable pageable) {
         return noteRepository.findByPatientId(patientId, pageable)
                 .collectList()
-                .zipWith(noteRepository.count())
+                .zipWith(noteRepository.countByPatientId(patientId))
                 .map(n -> new PageImpl<>(
                         n.getT1()
                                 .stream()

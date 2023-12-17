@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -54,11 +55,10 @@ public class UiController {
         private String pathNoteService;
 
         private final WebClient webclient;
-        private final ModelMapper modelMapper;
 
-        public UiController(WebClient webclient, ModelMapper modelMapper) {
+        @Autowired
+        public UiController(WebClient webclient) {
                 this.webclient = webclient;
-                this.modelMapper = modelMapper;
         }
 
         /**
@@ -140,8 +140,6 @@ public class UiController {
 
                                         return response.bodyToMono(RestPage.class)
                                                         .flatMap(restPage -> {
-                                                                // TODO after change return patient Dto in pagination delete this row
-                                                                restPage.getContent().stream().map(p -> modelMapper.map(p, PatientDto.class));
 
                                                                 if (restPage.getTotalPages() > 0) {
                                                                         List<Integer> pageNumbers = IntStream.rangeClosed(1, restPage.getTotalPages())
@@ -196,8 +194,7 @@ public class UiController {
                         return redirectToLoginPage(model, true);
                 }
 
-                int currentPage = notePageNumber.orElse(0);
-                int pageSize = noteSize.orElse(5);
+
 
                 /*
                  * send request to patient API, return :Mono<Rendering> to specific endpoints in function of
@@ -222,22 +219,22 @@ public class UiController {
 
                                                         // zip with request to notes API that return all notes for patient with pagination
                                                         .zipWith(webclient.get()
-                                                                        .uri(pathNoteService + "/patient_id/{id}/{page}/{size}", patientId, currentPage, pageSize)
+                                                                        .uri(pathNoteService + "/patient_id/{id}/{page}/{size}", patientId,
+                                                                                        notePageNumber.orElse(0),
+                                                                                        noteSize.orElse(5))
                                                                         .headers(h -> h.setBearerAuth(jwtValue))
-                                                                        .exchangeToMono(r -> r.bodyToMono(RestPage.class)
-                                                                                        .flatMap(restPage -> {
-                                                                                                if (restPage.getTotalPages() > 0) {
-                                                                                                        List<Integer> pageNumbers =
-                                                                                                                        IntStream.rangeClosed(1, restPage.getTotalPages())
-                                                                                                                                        .boxed()
-                                                                                                                                        .collect(Collectors.toList());
-                                                                                                        model.addAttribute("pageNumbers", pageNumbers);
-                                                                                                }
-                                                                                                return Mono.just(restPage.getContent());
-                                                                                        })))
+                                                                        .exchangeToMono(r -> r.bodyToMono(RestPage.class)))
                                                         .flatMap(t -> {
                                                                 model.addAttribute("patient", t.getT1());
-                                                                model.addAttribute("notes", t.getT2());
+                                                                model.addAttribute("notePages", t.getT2());
+
+                                                                if (t.getT2().getTotalPages() > 0) {
+                                                                        List<Integer> pageNumbers =
+                                                                                        IntStream.rangeClosed(1, t.getT2().getTotalPages())
+                                                                                                        .boxed()
+                                                                                                        .collect(Collectors.toList());
+                                                                        model.addAttribute("pageNumbers", pageNumbers);
+                                                                }
 
                                                                 model.addAttribute(FIELDS_ON_ERROR, new HashMap<String, String>());
                                                                 NoteDto noteToCreate = new NoteDto();
@@ -256,6 +253,7 @@ public class UiController {
                                                         });
 
                                 });
+
         }
 
         /**
