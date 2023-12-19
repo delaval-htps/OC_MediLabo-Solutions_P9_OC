@@ -28,7 +28,7 @@ let cancelIcon = document.querySelector('.bi-x-square')
 if (patientUpdate === "true") {
     enablePersonalInformation()
 }
-if (patientUpdate === "false") {
+if (patientUpdate === "false" || patientUpdate == undefined) {
     disablePersonalInformation()
 }
 
@@ -39,7 +39,7 @@ function disablePersonalInformation() {
     dateOfBirthPatient.disabled = true
     pencilIcon.style.display = 'block'
     cancelIcon.style.display = 'none'
-    patientUpdate = false
+    //  patientUpdate = false
     // reset binding field in red
     document.querySelectorAll('#form-update-patient .field-patient').forEach(element => {
         element.querySelector('ul').innerHTML = ''
@@ -55,7 +55,7 @@ function enablePersonalInformation() {
     dateOfBirthPatient.disabled = false
     pencilIcon.style.display = 'none'
     cancelIcon.style.display = 'block'
-    patientUpdate = true
+    // patientUpdate = true
 }
 
 /* part for note creation */
@@ -109,7 +109,6 @@ console.log("formUpdatePatient_Action= " + formUpdatePatient.action)
  */
 function toggleNoteCreationForm(btn, patient_id) {
     // when click to cancel creation or update : reset form field
-debugger
     if (btn.innerText === 'Cancel' || noteState === 'all') {
         resetFieldNoteForm()
     }

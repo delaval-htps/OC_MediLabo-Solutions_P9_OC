@@ -7,8 +7,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -56,7 +54,6 @@ public class UiController {
 
         private final WebClient webclient;
 
-        @Autowired
         public UiController(WebClient webclient) {
                 this.webclient = webclient;
         }
@@ -185,7 +182,6 @@ public class UiController {
         public Mono<Rendering> getPatientRecordAndNotes(@PathVariable(value = "id") Long patientId,
                         @RequestParam(value = "notePage") Optional<Integer> notePageNumber,
                         @RequestParam(value = "noteSize") Optional<Integer> noteSize,
-                        @PathVariable(value ="note_state",required =false) Optional<String> noteState,
                         WebSession session, Model model) {
 
                 /* check if jwt token is present */
@@ -247,8 +243,6 @@ public class UiController {
                                                                 // fields filled in by
                                                                 // user to be able to display after redirection
                                                                 transfertSessionAttributesIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR, "note");                                             
-
-                                                                model.addAttribute("noteState",noteState.orElse("all"));
 
                                                                 log.info("GET patient-record with id {} = {}", patientId, t.getT1());
                                                                 return Mono.just(Rendering.view("patient-record").build());
