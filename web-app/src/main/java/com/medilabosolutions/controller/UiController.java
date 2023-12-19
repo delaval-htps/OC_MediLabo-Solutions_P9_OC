@@ -185,6 +185,7 @@ public class UiController {
         public Mono<Rendering> getPatientRecordAndNotes(@PathVariable(value = "id") Long patientId,
                         @RequestParam(value = "notePage") Optional<Integer> notePageNumber,
                         @RequestParam(value = "noteSize") Optional<Integer> noteSize,
+                        @PathVariable(value ="note_state",required =false) Optional<String> noteState,
                         WebSession session, Model model) {
 
                 /* check if jwt token is present */
@@ -193,8 +194,6 @@ public class UiController {
                 if (jwtValue.isEmpty()) {
                         return redirectToLoginPage(model, true);
                 }
-
-
 
                 /*
                  * send request to patient API, return :Mono<Rendering> to specific endpoints in function of
@@ -237,6 +236,7 @@ public class UiController {
                                                                 }
 
                                                                 model.addAttribute(FIELDS_ON_ERROR, new HashMap<String, String>());
+
                                                                 NoteDto noteToCreate = new NoteDto();
                                                                 noteToCreate.setPatient(new PatientDataDto());
                                                                 noteToCreate.getPatient().setId(t.getT1().getId());
@@ -246,7 +246,9 @@ public class UiController {
                                                                 // Override model (using existing attributes of session) with fieldsOnError,messages or note with
                                                                 // fields filled in by
                                                                 // user to be able to display after redirection
-                                                                transfertSessionAttributesIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR, "note");
+                                                                transfertSessionAttributesIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR, "note");                                             
+
+                                                                model.addAttribute("noteState",noteState.orElse("all"));
 
                                                                 log.info("GET patient-record with id {} = {}", patientId, t.getT1());
                                                                 return Mono.just(Rendering.view("patient-record").build());
@@ -524,7 +526,7 @@ public class UiController {
                                                                         setSessionAttributes(body, session, CREATION, Optional.of(noteToCreate));
 
                                                                         return Mono.just(Rendering.redirectTo("/patients/" + relatedPatientId
-                                                                                        + "?patient_update=" + patientUpdate)
+                                                                                        + "?note_state=creation&patient_update=" + patientUpdate)
                                                                                         .build());
                                                                 });
                                         }

@@ -109,7 +109,7 @@ console.log("formUpdatePatient_Action= " + formUpdatePatient.action)
  */
 function toggleNoteCreationForm(btn, patient_id) {
     // when click to cancel creation or update : reset form field
-
+debugger
     if (btn.innerText === 'Cancel' || noteState === 'all') {
         resetFieldNoteForm()
     }
