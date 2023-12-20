@@ -1,5 +1,6 @@
 package com.medilabosolutions.configuration;
 
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;

@@ -37,7 +37,7 @@ public class PatientDto {
 
     @DateTimeFormat(iso = ISO.DATE) // TODO create a custom Date validator to throw a validException instead BAdRequest
     @NotNull(message = "Date must not be null")
-    @Past(message = "Date input is invalid for date of birth, must be before today")
+    @Past(message = "Date input is invalid, must be before today")
     private LocalDate dateOfBirth;
 
     @NotBlank(message = "genre of patient must be not null or blank")

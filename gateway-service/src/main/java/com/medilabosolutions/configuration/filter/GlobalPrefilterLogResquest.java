@@ -27,6 +27,7 @@ public class GlobalPrefilterLogResquest implements GlobalFilter, Ordered {
             String headerValue = headers.getFirst(headerName);
             log.info("\t * {} : {}", headerName, headerValue);
         });
+
         log.info("\t ********PREFILTER IS FINISHED************\n");
         return chain.filter(exchange);
 

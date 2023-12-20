@@ -1,5 +1,6 @@
 package com.medilabosolutions.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,23 +12,16 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @ToString
-public class PatientDto {
+@Builder
+public class NoteDto {
 
- 
-    private Long id;
+    private String id;
 
-    private String lastName;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String date;
 
-    private String firstName;
+    private String content;
 
-    private String dateOfBirth;
-
-    private String genre;
-
-    private String address;
-
-    private String phoneNumber;
-
+    private PatientDataDto patient;
 }

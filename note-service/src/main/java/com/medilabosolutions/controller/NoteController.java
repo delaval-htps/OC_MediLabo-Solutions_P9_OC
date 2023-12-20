@@ -3,6 +3,8 @@ package com.medilabosolutions.controller;
 import java.util.Locale;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = "/notes")
@@ -33,9 +36,10 @@ public class NoteController {
     private final MessageSource messageSource;
 
     private static final String NOT_FOUND = "note.not.found";
+
     @GetMapping
-    public ResponseEntity<Flux<Note>> getAllNotes() {
-        return ResponseEntity.ok(noteService.getAllNotes());
+    public ResponseEntity<Flux<NoteDto>> getAllNotes() {
+        return ResponseEntity.ok(noteService.getAllNotes().map(note -> modelMapper.map(note, NoteDto.class)));
     }
 
     @GetMapping("/{id}")
@@ -64,5 +68,38 @@ public class NoteController {
         return noteService.deleteNote(id)
                 .map(note -> ResponseEntity.ok(modelMapper.map(note, NoteDto.class)))
                 .switchIfEmpty(Mono.error(new NoteNotFoundException(messageSource.getMessage(NOT_FOUND, new Object[] {id}, Locale.ENGLISH))));
+    }
+
+    /**
+     * Return all notes for a given id of patient. If id of patient doesn't exist or is not in the
+     * collections, return a empty Flux.
+     * 
+     * @param patientId th egiven id of patient
+     * @return ResponseEntity with Flux of all notes that patient with id ownes
+     */
+    @GetMapping("/patient_id/{id}")
+    public ResponseEntity<Flux<NoteDto>> getNoteByPatientId(@PathVariable("id") Long patientId) {
+        return ResponseEntity.ok(noteService.findByPatientId(patientId)
+                .map(note -> modelMapper.map(note, NoteDto.class)));
+    }
+
+    @GetMapping("/patient_id/{id}/{page}/{size}")
+    public ResponseEntity<Mono<Page<NoteDto>>> getAllNotesPageableByPatientId(@PathVariable("id") Long patientId,
+            @PathVariable(value = "page") int pageNumber,
+            @PathVariable(value = "size") int pageSize) {
+                
+        return ResponseEntity.ok(noteService.findByPatientIdPageable(patientId, PageRequest.of(pageNumber, pageSize)));
+    }
+
+    /**
+     * Delete all notes related to patient with given id
+     * 
+     * @param patientId the given id of patient
+     * @return Flux of all notes deleted
+     */
+    @DeleteMapping("/patient_id/{id}")
+    public ResponseEntity<Flux<NoteDto>> deleteNotesByPatientId(@PathVariable("id") Long patientId) {
+        return ResponseEntity.ok(noteService.deleteNoteByPatientId(patientId)
+                .map(note -> modelMapper.map(note, NoteDto.class)));
     }
 }

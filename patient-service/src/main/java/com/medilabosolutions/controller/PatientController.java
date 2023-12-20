@@ -52,8 +52,9 @@ public class PatientController {
                 return ResponseEntity.ok(patientService.findAll().map(p -> modelMapper.map(p, PatientDto.class)));
         }
 
+        //TODO return directly a patientDto instead of patient see noteService for example
         @GetMapping("/{page}/{size}")
-        public ResponseEntity<Mono<Page<Patient>>> getPagePatients(
+        public ResponseEntity<Mono<Page<PatientDto>>> getPagePatients(
                         @PathVariable(value = "page") int pageNumber,
                         @PathVariable(value = "size") int pageSize) {
 

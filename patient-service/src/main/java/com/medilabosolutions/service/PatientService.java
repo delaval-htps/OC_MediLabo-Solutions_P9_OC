@@ -1,12 +1,14 @@
 package com.medilabosolutions.service;
 
+import java.util.stream.Collectors;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.medilabosolutions.dto.PatientDto;
 import com.medilabosolutions.model.Patient;
 import com.medilabosolutions.repository.PatientRepository;
-import com.medilabosolutions.repository.PatientSortRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,7 +18,7 @@ import reactor.core.publisher.Mono;
 public class PatientService {
 
     private final PatientRepository patientRepository;
-    private final PatientSortRepository patientSortRepository;
+    private final ModelMapper modelMapper;
 
     /*
      * method to retrieve all patients in db
@@ -32,11 +34,16 @@ public class PatientService {
      * @param pageable abstract interface for pagination
      * @return a Mono of Page of patients
      */
-    public Mono<Page<Patient>> findAllByPage(Pageable pageable) {
-        return patientSortRepository.findAllBy(pageable)
+    public Mono<Page<PatientDto>> findAllByPage(Pageable pageable) {
+        return patientRepository.findAllBy(pageable)
                 .collectList()
                 .zipWith(patientRepository.count())
-                .map(p -> new PageImpl<>(p.getT1(), pageable, p.getT2()));
+                .map(p -> new PageImpl<>(
+                        p.getT1().stream()
+                                .map(patient -> modelMapper.map(patient, PatientDto.class))
+                                .collect(Collectors.toList()),
+                        pageable,
+                        p.getT2()));
     }
 
     /**
