@@ -1,11 +1,13 @@
 package com.medilabosolutions.service;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import com.medilabosolutions.dto.NoteDto;
 import com.medilabosolutions.model.Note;
 import com.medilabosolutions.repository.NoteRepository;
@@ -68,5 +70,10 @@ public class NoteService {
                                 .collect(Collectors.toList()),
                         pageable,
                         n.getT2()));
+    }
+
+    public Long countTriggers(List<String> triggers, Long patientId) {
+        String regexString = StringUtils.collectionToDelimitedString(triggers, "|");
+        return noteRepository.countTriggersIntoPatientNotes(regexString,patientId);
     }
 }

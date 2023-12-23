@@ -1,5 +1,6 @@
 package com.medilabosolutions.controller;
 
+import java.util.List;
 import java.util.Locale;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.MessageSource;
@@ -102,4 +103,10 @@ public class NoteController {
         return ResponseEntity.ok(noteService.deleteNoteByPatientId(patientId)
                 .map(note -> modelMapper.map(note, NoteDto.class)));
     }
+
+    @PostMapping("/triggers/patient_id/{id}")
+    public ResponseEntity<Long> countTriggersIntoPatientNotes(@RequestBody List<String> triggers,@PathVariable(value="id") Long patientId) {
+       return ResponseEntity.ok(noteService.countTriggers(triggers,patientId));
+    }
+    
 }
