@@ -1,4 +1,4 @@
-package com.medilabosolutions.dto;
+package com.medilabosolutions.model;
 
 public enum ExpectedRisk {
     NONE("None"), BORDERLINE("Bordeline"), INDANGER("InDanger"), EARLYONSET("EarlyOnset");

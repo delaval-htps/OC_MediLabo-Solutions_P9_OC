@@ -1,9 +1,6 @@
 package com.medilabosolutions.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +11,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.medilabosolutions.dto.AssessmentDto;
 import com.medilabosolutions.dto.PatientDto;
+import com.medilabosolutions.dto.SumTermTriggersDto;
 import com.medilabosolutions.service.DiabetesRiskService;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -28,9 +26,9 @@ public class RiskController {
     private final DiabetesRiskService riskService;
 
     @GetMapping("/diabetes_assessment/patient_id/{patient_id}")
-    public ResponseEntity<Mono<AssessmentDto>> getPatientAssessment(@PathVariable(value = "patient_id") Long patientId) throws IOException {
-
-        InputStream termTriggersStream = new FileSystemResource(riskService.getTriggerSource()).getInputStream();
+    public ResponseEntity<Mono<AssessmentDto>> getPatientAssessment(@PathVariable(value = "patient_id") Long patientId)  {
+        
+        ClassPathResource classPathResource = new ClassPathResource(riskService.getTriggerSource());
 
         Mono<AssessmentDto> assessmentDto = lbWebClientBuilder.baseUrl("lb://PATIENT-SERVICE").build()
                 .get().uri("/patients/{id}", patientId)
@@ -43,15 +41,15 @@ public class RiskController {
 
                                 lbWebClientBuilder.baseUrl("lb://NOTE-SERVICE").build()
                                         .post().uri("/notes/triggers/patient_id/{id}", patientId)
-                                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                                        .body(BodyInserters.fromResource(new InputStreamResource(termTriggersStream)))
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .body(BodyInserters.fromResource(classPathResource))
                                         .exchangeToMono(response ->
 
-                                        response.bodyToMono(Integer.class)
-                                                .flatMap(countOfDiabetesTermTriggers ->
+                                        response.bodyToMono(SumTermTriggersDto.class)
+                                                .flatMap(countDiabetesTermTriggers ->
 
                                                 Mono.just(riskService.riskAssessment(patient,
-                                                        countOfDiabetesTermTriggers))))
+                                                        countDiabetesTermTriggers.getSumTermTriggers()))))
 
 
                                 );

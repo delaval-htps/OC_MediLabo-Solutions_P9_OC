@@ -21,7 +21,6 @@ import com.medilabosolutions.dto.SumTermTriggersDto;
 import com.medilabosolutions.exception.NoteCreationException;
 import com.medilabosolutions.exception.NoteNotFoundException;
 import com.medilabosolutions.model.Note;
-import com.medilabosolutions.model.SumTermTriggers;
 import com.medilabosolutions.service.NoteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -5,8 +5,8 @@ import java.time.Period;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.medilabosolutions.dto.AssessmentDto;
-import com.medilabosolutions.dto.ExpectedRisk;
 import com.medilabosolutions.dto.PatientDto;
+import com.medilabosolutions.model.ExpectedRisk;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -16,7 +16,11 @@ import lombok.RequiredArgsConstructor;
 public class DiabetesRiskService implements RiskAssessmentService {
 
     @Value("${risk.term.triggers}")
-    public final String triggerSource;
+    public String triggerSource;
+
+    public String getTriggerSource(){
+        return this.triggerSource;
+    }
 
     @Override
     public AssessmentDto riskAssessment(PatientDto patient, int countTermTriggers) {

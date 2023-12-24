@@ -1,8 +1,8 @@
 package com.medilabosolutions.service;
 
 import com.medilabosolutions.dto.AssessmentDto;
-import com.medilabosolutions.dto.ExpectedRisk;
 import com.medilabosolutions.dto.PatientDto;
+import com.medilabosolutions.model.ExpectedRisk;
 
 
 public interface RiskAssessmentService {
