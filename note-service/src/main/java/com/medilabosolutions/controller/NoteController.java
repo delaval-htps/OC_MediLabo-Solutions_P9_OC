@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.medilabosolutions.dto.NoteDto;
+import com.medilabosolutions.dto.SumTermTriggersDto;
 import com.medilabosolutions.exception.NoteCreationException;
 import com.medilabosolutions.exception.NoteNotFoundException;
 import com.medilabosolutions.model.Note;
+import com.medilabosolutions.model.SumTermTriggers;
 import com.medilabosolutions.service.NoteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -88,7 +90,7 @@ public class NoteController {
     public ResponseEntity<Mono<Page<NoteDto>>> getAllNotesPageableByPatientId(@PathVariable("id") Long patientId,
             @PathVariable(value = "page") int pageNumber,
             @PathVariable(value = "size") int pageSize) {
-                
+
         return ResponseEntity.ok(noteService.findByPatientIdPageable(patientId, PageRequest.of(pageNumber, pageSize)));
     }
 
@@ -105,8 +107,9 @@ public class NoteController {
     }
 
     @PostMapping("/triggers/patient_id/{id}")
-    public ResponseEntity<Long> countTriggersIntoPatientNotes(@RequestBody List<String> triggers,@PathVariable(value="id") Long patientId) {
-       return ResponseEntity.ok(noteService.countTriggers(triggers,patientId));
+    public ResponseEntity<Mono<SumTermTriggersDto>> countTriggersIntoPatientNotes(@PathVariable(value = "id") Long patientId,
+            @RequestBody List<String> triggers) {
+        return ResponseEntity.ok(noteService.countTriggers(patientId, triggers).map(sum -> modelMapper.map(sum,SumTermTriggersDto.class)));
     }
-    
+
 }

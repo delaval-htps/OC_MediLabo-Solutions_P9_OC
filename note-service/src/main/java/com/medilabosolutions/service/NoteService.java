@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import com.medilabosolutions.dto.NoteDto;
 import com.medilabosolutions.model.Note;
+import com.medilabosolutions.model.SumTermTriggers;
 import com.medilabosolutions.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -72,8 +73,8 @@ public class NoteService {
                         n.getT2()));
     }
 
-    public Long countTriggers(List<String> triggers, Long patientId) {
+    public Mono<SumTermTriggers> countTriggers( Long patientId,List<String> triggers) {
         String regexString = StringUtils.collectionToDelimitedString(triggers, "|");
-        return noteRepository.countTriggersIntoPatientNotes(regexString,patientId);
+        return noteRepository.countTriggersIntoPatientNotes(patientId,regexString);
     }
 }
