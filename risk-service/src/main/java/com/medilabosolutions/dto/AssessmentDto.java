@@ -17,5 +17,6 @@ public class AssessmentDto {
 
     private Long patientId;
     private String expectedRisk;
+    private Integer countTriggers;
 
 }

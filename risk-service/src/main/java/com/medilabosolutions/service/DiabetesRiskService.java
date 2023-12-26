@@ -25,7 +25,7 @@ public class DiabetesRiskService implements RiskAssessmentService {
     @Override
     public AssessmentDto riskAssessment(PatientDto patient, int countTermTriggers) {
         return new AssessmentDto(patient.getId(), expectedRiskAccordingToGenderAndAge(patient.getGenre(),
-                patientAge(patient.getDateOfBirth()), countTermTriggers).getAbreviation());
+                patientAge(patient.getDateOfBirth()), countTermTriggers).getAbreviation(), countTermTriggers);
     }
 
     @Override

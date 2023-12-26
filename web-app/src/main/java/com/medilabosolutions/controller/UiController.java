@@ -30,6 +30,7 @@ import com.medilabosolutions.model.RestPage;
 import com.medilabosolutions.model.UserCredential;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 @Controller
 @Slf4j
@@ -215,26 +216,31 @@ public class UiController {
                                         }
 
                                         Mono<PatientDto> patientDtoMono = response.bodyToMono(PatientDto.class);
-
-                                        Mono<RestPage<NoteDto>> notePageMono = webclient.get().uri(pathNoteService + "/patient_id/{id}/{page}/{size}", patientId,
+                                        // TODO return of restPAge if no notes is empty and not defined , create a empty list please... to be
+                                        // able to create a note !!!
+                                        Mono<Tuple2<RestPage, AssessmentDto>> notePageDtoWithAssessmentMono = webclient.get().uri(pathNoteService + "/patient_id/{id}/{page}/{size}", patientId,
                                                         notePageNumber.orElse(0), noteSize.orElse(5))
                                                         .headers(h -> h.setBearerAuth(jwtValue))
-                                                        .exchangeToMono(r -> r.bodyToMono(RestPage.class));
-                                        // TODO implementation of case of no notes because error for assessment
-                                        Mono<AssessmentDto> patientAssessmentMono = webclient.get().uri(pathRiskService + "/diabetes_assessment/patient_id/{id}", patientId)
-                                                        .headers(h -> h.setBearerAuth(jwtValue))
-                                                        .exchangeToMono(r -> r.bodyToMono(AssessmentDto.class));
+                                                        .exchangeToMono(r -> r.bodyToMono(RestPage.class))
+                                                        .zipWith(
+                                                                        webclient.get().uri(pathRiskService + "/diabetes_assessment/patient_id/{id}", patientId)
+                                                                                        .headers(h -> h.setBearerAuth(jwtValue))
+                                                                                        .exchangeToMono(r -> r.bodyToMono(AssessmentDto.class))
+                                                                                     //   TODO add switchIfEmpty in note-service instead of in web-app
+                                                                                        .switchIfEmpty(Mono.just(new AssessmentDto(patientId, "None", 0))));
 
 
-                                        return Mono.zip(patientDtoMono, notePageMono, patientAssessmentMono)
+                                        return Mono.zip(patientDtoMono, notePageDtoWithAssessmentMono)
                                                         .flatMap(t -> {
                                                                 model.addAttribute("patient", t.getT1());
-                                                                model.addAttribute("notePages", t.getT2());
-                                                                model.addAttribute("assessment", t.getT3());
 
-                                                                if (t.getT2().getTotalPages() > 0) {
+                                                                model.addAttribute("notePages", t.getT2().getT1());
+
+                                                                model.addAttribute("assessment", t.getT2().getT2());
+
+                                                                if (t.getT2().getT1().getTotalPages() > 0) {
                                                                         List<Integer> pageNumbers =
-                                                                                        IntStream.rangeClosed(1, t.getT2().getTotalPages())
+                                                                                        IntStream.rangeClosed(1, t.getT2().getT1().getTotalPages())
                                                                                                         .boxed()
                                                                                                         .collect(Collectors.toList());
                                                                         model.addAttribute("pageNumbers", pageNumbers);

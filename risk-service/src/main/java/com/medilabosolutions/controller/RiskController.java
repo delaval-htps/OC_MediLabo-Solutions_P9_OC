@@ -59,7 +59,7 @@ public class RiskController {
                                             }
 
                                             return response.bodyToMono(SumTermTriggersDto.class)
-                                                    .flatMap(countDiabetesTermTriggers -> Mono.just(riskService.riskAssessment(patient, countDiabetesTermTriggers.getSumTermTriggers())));
+                                                    .flatMap(sumTermTriggersDto -> Mono.just(riskService.riskAssessment(patient, sumTermTriggersDto.getSumTermTriggers())));
                                         }));
                     }
 

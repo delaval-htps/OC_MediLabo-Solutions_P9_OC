@@ -119,7 +119,7 @@
                                 class=" form-control rounded-pill bg-primary text-light ">
                                 <span th:text="${assessment.expectedRisk}" style="vertical-align: middle;"> </span>
                                 <span class=" ms-3 badge rounded-pill bg-light text-dark"
-                                    style="vertical-align: baseline;">4</span>
+                                    style="vertical-align: baseline;" th:text="${assessment.countTriggers}"></span>
                             </button>
                         </div>
                     </div>
