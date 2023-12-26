@@ -50,13 +50,11 @@ public class RiskController {
 
                                                 Mono.just(riskService.riskAssessment(patient,
                                                         countDiabetesTermTriggers.getSumTermTriggers()))))
-
-
-                                );
+                        // TODO check conditions if no entry file or no notes
+                        );
                     }
-                    // error the patient is not found or internal error
+                    // TODO error the patient is not found or internal error: add controllerAdvice
                     return null;
-
                 });
 
         return ResponseEntity.ok(assessmentDto);
