@@ -1,6 +1,5 @@
 package com.medilabosolutions.controller;
 
-import java.util.List;
 import java.util.Locale;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.MessageSource;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.medilabosolutions.dto.NoteDto;
 import com.medilabosolutions.dto.SumTermTriggersDto;
+import com.medilabosolutions.dto.TermTriggersDto;
 import com.medilabosolutions.exception.NoteCreationException;
 import com.medilabosolutions.exception.NoteNotFoundException;
 import com.medilabosolutions.model.Note;
@@ -105,10 +105,19 @@ public class NoteController {
                 .map(note -> modelMapper.map(note, NoteDto.class)));
     }
 
+    /**
+     * Count the sum of term triggers for a risk in all notes of a patient
+     * 
+     * @param patientId patient id
+     * @param triggers list of term triggers to search not null or blank represented by TermTriggersDto
+     *        class
+     * @return ResponseEntity with sum of term triggers and patient id
+     */
     @PostMapping("/triggers/patient_id/{id}")
     public ResponseEntity<Mono<SumTermTriggersDto>> countTriggersIntoPatientNotes(@PathVariable(value = "id") Long patientId,
-            @RequestBody List<String> triggers) {
-        return ResponseEntity.ok(noteService.countTriggers(patientId, triggers).map(sum -> modelMapper.map(sum,SumTermTriggersDto.class)));
+            @Valid @RequestBody TermTriggersDto triggers) {
+        return ResponseEntity.ok(noteService.countTriggers(patientId, triggers.getTermTriggers())
+                .map(sum -> modelMapper.map(sum, SumTermTriggersDto.class)));
     }
 
 }
