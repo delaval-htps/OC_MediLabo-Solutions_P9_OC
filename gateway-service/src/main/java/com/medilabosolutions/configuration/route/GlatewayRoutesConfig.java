@@ -27,6 +27,12 @@ public class GlatewayRoutesConfig {
                                                                 .filter(authorizationHeaderFilter.apply(new Config()), 1))
                                                 .uri("lb://NOTE-SERVICE"))
 
+                                // route for risk-service                
+                                .route("risk-service", r -> r.path("/api/v1/risks/**")
+                                                .filters(f -> f.stripPrefix(2)
+                                                                .filter(authorizationHeaderFilter.apply(new Config()), 1))
+                                                .uri("lb://RISK-SERVICE"))
+                                                
                                 // route for auth-service
                                 .route("authentication", r -> r.method("POST")
                                                 .and()

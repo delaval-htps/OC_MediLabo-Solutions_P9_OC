@@ -30,11 +30,12 @@
 
                 <fieldset class="pt-1 px-5 shadow mt-3 bg-white rounded-4 ">
 
-                    <div class="d-flex inline-flex align-items-baseline mb-3">
-                        <legend class=" pt-4  text-primary fs-5 mb-3">
+                    <div class="d-flex inline-flex justify-content-between align-items-baseline mb-3">
+                        <legend class=" col-auto pt-4  text-primary fs-5 mb-3">
                             <ins>Personal Informations:</ins>
                         </legend>
-                        <i class="bi bi-pencil-square text-primary" style="font-size: 2rem; cursor:pointer;"
+
+                        <i class="col-auto bi bi-pencil-square text-primary" style="font-size: 2rem; cursor:pointer;"
                             data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip"
                             data-bs-title="Click to update personal information of patient."
                             onclick="enablePersonalInformation()"></i>
@@ -90,7 +91,7 @@
                         </div>
                     </div>
                     <div class="row g-3">
-                        <div class="col-xl-8 col-md-8 col-sm-12 col-xsm-12 mb-3 field-patient">
+                        <div class="col-xl-7 col-md-7 col-sm-12 col-xsm-12 mb-3 field-patient">
                             <label for="address" class="form-label">Address</label>
                             <input type="text" class="form-control" name="address" id="address"
                                 th:value="*{address != ''}?*{address}:'-- no informations --'" th:field="*{address}"
@@ -101,9 +102,9 @@
                                     th:text="${fieldsOnError['address']}" class="field-error"></li>
                             </ul>
                         </div>
-                        <div class="col-xl-4 col-md-4 col-sm-12 mb-3 field-patient">
+                        <div class="col-xl-3 col-md-3 col-sm-12 mb-3 field-patient">
                             <label for="phoneNumber" class="form-label">phoneNumber</label>
-                            <input type="text" class="form-control" name="phoneNumber" id="phoneNumber"
+                            <input type="text" class="form-control text-center" name="phoneNumber" id="phoneNumber"
                                 th:value="*{phoneNumber != ''}?*{phoneNumber}:'-- no informations --'"
                                 th:field="*{phoneNumber}" style="background-color: white;"
                                 th:classappend="${#maps.containsKey(fieldsOnError,'phoneNumber')}?'is-invalid':''">
@@ -111,6 +112,15 @@
                                 <li th:if="${#maps.containsKey(fieldsOnError,'phoneNumber')} "
                                     th:text="${fieldsOnError['phoneNumber']}" class="field-error"></li>
                             </ul>
+                        </div>
+                        <div class="col-2 text-center mb-3">
+                            <label for="Assessment" class="form-label">Assessment</label>
+                            <button id="assessment-btn"
+                                class=" form-control rounded-pill bg-primary text-light ">
+                                <span th:text="${assessment.expectedRisk}" style="vertical-align: middle;"> </span>
+                                <span class=" ms-3 badge rounded-pill bg-light text-dark"
+                                    style="vertical-align: baseline;">4</span>
+                            </button>
                         </div>
                     </div>
                     <div id="div-submit-btn" class="row p-3 justify-content-center">
@@ -125,7 +135,8 @@
                 <i class="bi bi-info-circle"></i>
 
                 <div class="ms-3">
-                    To create a new note, click on button "Create a note". To display content of a note, just click on his row.
+                    To create a new note, click on button "Create a note". To display content of a note, just click on
+                    his row.
                 </div>
             </div>
             <fieldset class="pt-1 px-5 shadow mt-4 bg-white rounded-4 ">
@@ -281,7 +292,8 @@
                         </ul>
                     </nav>
                 </div>
-                <div class="col-12 text-center my-3 lead" th:if="${notePages.numberOfElements == 0}"> There are no notes yet associated with this patient...</div>
+                <div class="col-12 text-center my-3 lead" th:if="${notePages.numberOfElements == 0}"> There are no notes
+                    yet associated with this patient...</div>
             </fieldset>
         </div>
 
