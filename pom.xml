@@ -20,9 +20,9 @@
 
     <maven.compiler.target>17</maven.compiler.target>
 
-    <spring.boot.dependencies.version>3.2.1</spring.boot.dependencies.version>
+    <spring.boot.dependencies.version>3.1.7</spring.boot.dependencies.version>
 
-    <spring.cloud.dependencies.version>2023.0.0</spring.cloud.dependencies.version>
+    <spring.cloud.dependencies.version>2022.0.4</spring.cloud.dependencies.version>
 
     <spring.boot.maven.plugin.version>3.1.2</spring.boot.maven.plugin.version>
 
