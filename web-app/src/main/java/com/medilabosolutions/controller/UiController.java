@@ -216,18 +216,19 @@ public class UiController {
                                         }
 
                                         Mono<PatientDto> patientDtoMono = response.bodyToMono(PatientDto.class);
-                                        // TODO return of restPAge if no notes is empty and not defined , create a empty list please... to be
-                                        // able to create a note !!!
+
                                         Mono<Tuple2<RestPage, AssessmentDto>> notePageDtoWithAssessmentMono = webclient.get().uri(pathNoteService + "/patient_id/{id}/{page}/{size}", patientId,
                                                         notePageNumber.orElse(0), noteSize.orElse(5))
                                                         .headers(h -> h.setBearerAuth(jwtValue))
-                                                        .exchangeToMono(r -> r.bodyToMono(RestPage.class))
-                                                        .zipWith(
-                                                                        webclient.get().uri(pathRiskService + "/diabetes_assessment/patient_id/{id}", patientId)
-                                                                                        .headers(h -> h.setBearerAuth(jwtValue))
-                                                                                        .exchangeToMono(r -> r.bodyToMono(AssessmentDto.class))
-                                                                                     //   TODO add switchIfEmpty in note-service instead of in web-app
-                                                                                        .switchIfEmpty(Mono.just(new AssessmentDto(patientId, "None", 0))));
+                                                        .exchangeToMono(noteResponse -> noteResponse.bodyToMono(RestPage.class)
+                                                                        .zipWhen(notePage -> {
+                                                                                if (notePage.getTotalElements() == 0) {
+                                                                                        return Mono.just(new AssessmentDto(patientId, "None", 0));
+                                                                                }
+                                                                                return webclient.get().uri(pathRiskService + "/diabetes_assessment/patient_id/{id}", patientId)
+                                                                                                .headers(h -> h.setBearerAuth(jwtValue))
+                                                                                                .exchangeToMono(r -> r.bodyToMono(AssessmentDto.class));
+                                                                        }));
 
 
                                         return Mono.zip(patientDtoMono, notePageDtoWithAssessmentMono)
@@ -255,14 +256,14 @@ public class UiController {
                                                                 model.addAttribute("note", noteToCreate);
 
                                                                 // Override model (using existing attributes of session) with fieldsOnError,messages or note with
-                                                                // fields filled in by
-                                                                // user to be able to display after redirection
+                                                                // fields filled in by user to be able to display after redirection
                                                                 transfertSessionAttributesIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR, "note");
 
                                                                 log.info("GET patient-record with id {} = {}", patientId, t.getT1());
                                                                 return Mono.just(Rendering.view("patient-record").build());
                                                         });
                                 });
+
         }
 
         /**
