@@ -112,13 +112,16 @@ function toggleNoteCreationForm(btn, patient_id) {
     if (btn.innerText === 'Cancel' || noteState === 'all') {
         resetFieldNoteForm()
     }
-
+    
     noteState = noteState === 'all' ? 'creation' : 'all'
     formUpdatePatient.action = "/patients/update/" + patient_id + "?note_state=" + noteState
 
     btn.innerText = btn.innerText === 'Create a note' ? 'Cancel' : 'Create a note'
     noteDate.value = noteDate.value.length === 0 ? new Date(Date.now()).toISOString().replace('T', ' ').split('.')[0] : noteDate.value
-    noteTable.style.display = noteTable.style.display === 'none' ? '' : 'none'
+
+    if (noteTable != null) { // case when there is no notes for patient => no table exists
+        noteTable.style.display = noteTable.style.display === 'none' ? '' : 'none'
+    }
     formNoteCreation.style.display = formNoteCreation.style.display === 'none' ? '' : 'none'
     formNoteCreation.action = "/notes/create?patient_update=" + patientUpdate
 }
