@@ -116,8 +116,8 @@
                         <div class="col-2 text-center mb-3">
                             <label for="Assessment" class="form-label">Assessment</label>
                             <button id="assessment-btn"
-                                class=" form-control rounded-pill bg-primary text-light ">
-                                <span th:text="${assessment.expectedRisk}" style="vertical-align: middle;"> </span>
+                                class="form-control rounded-pill ass-bg-none">
+                                <span id="assessment-value" class="fw-bold" th:text="${assessment.expectedRisk}" style="vertical-align: middle;"> </span>
                                 <span class=" ms-3 badge rounded-pill bg-light text-dark"
                                     style="vertical-align: baseline;" th:text="${assessment.countTriggers}"></span>
                             </button>

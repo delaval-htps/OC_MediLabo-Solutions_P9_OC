@@ -16,6 +16,15 @@ console.log('patientUpdate :' + patientUpdate)
 console.log('noteState :' + noteState)
 console.log('note: ' + JSON.stringify(note))
 
+let assessmentBtn = document.getElementById('assessment-btn');
+let assessmentValue = document.getElementById('assessment-value');
+
+
+console.log('assessment bgcolorBefore:' + assessmentBtn.style.backgroundColor)
+assessmentBgColor(assessmentValue.textContent, assessmentBtn)
+
+console.log('assessment bgcolorAfter:' + assessmentBtn.style.backgroundColor)
+
 /* part for patient*/
 
 let formUpdatePatient = document.querySelector('#form-update-patient')
@@ -112,7 +121,7 @@ function toggleNoteCreationForm(btn, patient_id) {
     if (btn.innerText === 'Cancel' || noteState === 'all') {
         resetFieldNoteForm()
     }
-    
+
     noteState = noteState === 'all' ? 'creation' : 'all'
     formUpdatePatient.action = "/patients/update/" + patient_id + "?note_state=" + noteState
 
@@ -158,6 +167,23 @@ function deleteNote(urlNoteToDelete) {
     deleteModal.show()
 }
 
+function assessmentBgColor(assessmentValue, assessmentBtn) {
+    assessmentBtn.classList.remove(assessmentBtn.classList.item(2))
+    switch (assessmentValue) {
+        case 'Early onset':
+            assessmentBtn.classList.add('ass-bg-red')
+            break;
+        case 'In Danger':
+            assessmentBtn.classList.add('ass-bg-orange')
+            break;
+        case 'Borderline':
+            assessmentBtn.classList.add('ass-bg-yellow')
+            break;
+        default:
+            assessmentBtn.classList.add('ass-bg-none')
+            break;
+    }
+}
 /**
  * function for btn delete for note that is on the same row that update button.
  * allow us to stop propagation of function on rowclick() 

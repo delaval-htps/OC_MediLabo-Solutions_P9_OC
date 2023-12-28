@@ -13,5 +13,20 @@ fieldset {
     font-size: 0.8rem;
 }
 
+.ass-bg-red{
+    background-color: red !important;
+    color: white !important;
+}
 
-  
+.ass-bg-orange{
+    background-color: orange !important;
+    color: white !important;
+}
+.ass-bg-yellow{
+    background-color: rgb(255, 238, 0) !important;
+    color: white !important;
+} 
+.ass-bg-none{
+    background-color: green !important;
+    color: white !important;
+}

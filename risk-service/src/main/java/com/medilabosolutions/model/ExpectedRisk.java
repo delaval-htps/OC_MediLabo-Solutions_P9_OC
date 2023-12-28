@@ -1,7 +1,7 @@
 package com.medilabosolutions.model;
 
 public enum ExpectedRisk {
-    NONE("None"), BORDERLINE("Bordeline"), INDANGER("InDanger"), EARLYONSET("EarlyOnset");
+    NONE("None"), BORDERLINE("Borderline"), INDANGER("In Danger"), EARLYONSET("Early onset");
 
     private String abreviation;
 
