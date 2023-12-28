@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DiabetesRiskService implements RiskAssessmentService {
 
+    // source for list of term trigger for diabetes
     @Value("${risk.term.triggers}")
     public String triggerSource;
 
