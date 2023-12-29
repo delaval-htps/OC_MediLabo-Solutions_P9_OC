@@ -52,7 +52,12 @@ public class PatientController {
                 return ResponseEntity.ok(patientService.findAll().map(p -> modelMapper.map(p, PatientDto.class)));
         }
 
-        //TODO return directly a patientDto instead of patient see noteService for example
+        /**
+         * endpoint to return a page of patients
+         * @param pageNumber number of page to return
+         * @param pageSize size of page (number of patients in a page)
+         * @return ResponseEntity with reactive stream of patients pageable 
+         */
         @GetMapping("/{page}/{size}")
         public ResponseEntity<Mono<Page<PatientDto>>> getPagePatients(
                         @PathVariable(value = "page") int pageNumber,

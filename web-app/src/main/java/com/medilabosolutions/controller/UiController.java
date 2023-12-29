@@ -22,6 +22,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.server.WebSession;
+import com.medilabosolutions.dto.AssessmentDto;
 import com.medilabosolutions.dto.NoteDto;
 import com.medilabosolutions.dto.PatientDataDto;
 import com.medilabosolutions.dto.PatientDto;
@@ -29,6 +30,7 @@ import com.medilabosolutions.model.RestPage;
 import com.medilabosolutions.model.UserCredential;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 @Controller
 @Slf4j
@@ -51,6 +53,9 @@ public class UiController {
 
         @Value("${path.note.service}")
         private String pathNoteService;
+
+        @Value("${path.risk.service}")
+        private String pathRiskService;
 
         private final WebClient webclient;
 
@@ -210,22 +215,33 @@ public class UiController {
                                                                 });
                                         }
 
-                                        return response.bodyToMono(PatientDto.class)
+                                        Mono<PatientDto> patientDtoMono = response.bodyToMono(PatientDto.class);
 
-                                                        // zip with request to notes API that return all notes for patient with pagination
-                                                        .zipWith(webclient.get()
-                                                                        .uri(pathNoteService + "/patient_id/{id}/{page}/{size}", patientId,
-                                                                                        notePageNumber.orElse(0),
-                                                                                        noteSize.orElse(5))
-                                                                        .headers(h -> h.setBearerAuth(jwtValue))
-                                                                        .exchangeToMono(r -> r.bodyToMono(RestPage.class)))
+                                        Mono<Tuple2<RestPage, AssessmentDto>> notePageDtoWithAssessmentMono = webclient.get().uri(pathNoteService + "/patient_id/{id}/{page}/{size}", patientId,
+                                                        notePageNumber.orElse(0), noteSize.orElse(5))
+                                                        .headers(h -> h.setBearerAuth(jwtValue))
+                                                        .exchangeToMono(noteResponse -> noteResponse.bodyToMono(RestPage.class)
+                                                                        .zipWhen(notePage -> {
+                                                                                if (notePage.getTotalElements() == 0) {
+                                                                                        return Mono.just(new AssessmentDto(patientId, "None", 0));
+                                                                                }
+                                                                                return webclient.get().uri(pathRiskService + "/diabetes_assessment/patient_id/{id}", patientId)
+                                                                                                .headers(h -> h.setBearerAuth(jwtValue))
+                                                                                                .exchangeToMono(r -> r.bodyToMono(AssessmentDto.class));
+                                                                        }));
+
+
+                                        return Mono.zip(patientDtoMono, notePageDtoWithAssessmentMono)
                                                         .flatMap(t -> {
                                                                 model.addAttribute("patient", t.getT1());
-                                                                model.addAttribute("notePages", t.getT2());
 
-                                                                if (t.getT2().getTotalPages() > 0) {
+                                                                model.addAttribute("notePages", t.getT2().getT1());
+
+                                                                model.addAttribute("assessment", t.getT2().getT2());
+
+                                                                if (t.getT2().getT1().getTotalPages() > 0) {
                                                                         List<Integer> pageNumbers =
-                                                                                        IntStream.rangeClosed(1, t.getT2().getTotalPages())
+                                                                                        IntStream.rangeClosed(1, t.getT2().getT1().getTotalPages())
                                                                                                         .boxed()
                                                                                                         .collect(Collectors.toList());
                                                                         model.addAttribute("pageNumbers", pageNumbers);
@@ -240,14 +256,12 @@ public class UiController {
                                                                 model.addAttribute("note", noteToCreate);
 
                                                                 // Override model (using existing attributes of session) with fieldsOnError,messages or note with
-                                                                // fields filled in by
-                                                                // user to be able to display after redirection
-                                                                transfertSessionAttributesIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR, "note");                                             
+                                                                // fields filled in by user to be able to display after redirection
+                                                                transfertSessionAttributesIntoModel(model, session, ERROR_MESSAGE, SUCCESS_MESSAGE, FIELDS_ON_ERROR, "note");
 
                                                                 log.info("GET patient-record with id {} = {}", patientId, t.getT1());
                                                                 return Mono.just(Rendering.view("patient-record").build());
                                                         });
-
                                 });
 
         }

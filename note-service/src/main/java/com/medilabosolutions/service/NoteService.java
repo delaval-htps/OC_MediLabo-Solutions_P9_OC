@@ -1,13 +1,16 @@
 package com.medilabosolutions.service;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import com.medilabosolutions.dto.NoteDto;
 import com.medilabosolutions.model.Note;
+import com.medilabosolutions.model.SumTermTriggers;
 import com.medilabosolutions.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -68,5 +71,10 @@ public class NoteService {
                                 .collect(Collectors.toList()),
                         pageable,
                         n.getT2()));
+    }
+
+    public Mono<SumTermTriggers> countTriggers( Long patientId,List<String> triggers) {
+        String regexString = StringUtils.collectionToDelimitedString(triggers, "|");
+        return noteRepository.countTriggersIntoPatientNotes(patientId,regexString);
     }
 }

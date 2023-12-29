@@ -101,7 +101,7 @@ class NoteControllerTest {
                 webTestClient.post().uri("/notes").bodyValue(noteToSave).exchange()
                                 .expectStatus().isCreated()
                                 .expectBody(NoteDto.class)
-                                .value(n -> n.getDate(), Matchers.equalTo("2023-11-27T12:00"))
+                                .value(n -> n.getDate(), Matchers.equalTo("2023-11-27 12:00:00"))
                                 .value(n -> n.getContent(), Matchers.equalTo(noteToSave.getContent()))
                                 .value(n -> n.getPatient().getName(), Matchers.equalTo(noteToSave.getPatient().getName()))
                                 .value(n -> n.getPatient().getId(), Matchers.equalTo(1L));
@@ -148,7 +148,7 @@ class NoteControllerTest {
                 webTestClient.put().uri("/notes/{id}", MOCK_NOTE_ID).bodyValue(updatedNote).exchange()
                                 .expectStatus().isOk()
                                 .expectBody(NoteDto.class)
-                                .value(n -> n.getDate(), Matchers.equalTo("2023-11-27T12:00"))
+                                .value(n -> n.getDate(), Matchers.equalTo("2023-11-27 12:00:00"))
                                 .value(n -> n.getContent(), Matchers.equalTo(updatedNote.getContent()))
                                 .value(n -> n.getPatient().getName(), Matchers.equalTo(updatedNote.getPatient().getName()))
                                 .value(n -> n.getPatient().getId(), Matchers.equalTo(1L));
@@ -186,7 +186,7 @@ class NoteControllerTest {
                                 .expectStatus().isOk()
                                 .expectBody(NoteDto.class)
                                 .value(n -> n.getId(), Matchers.equalTo(MOCK_NOTE_ID))
-                                .value(n -> n.getDate(), Matchers.equalTo("2023-11-27T12:00"))
+                                .value(n -> n.getDate(), Matchers.equalTo("2023-11-27 12:00:00"))
                                 .value(n -> n.getContent(), Matchers.equalTo("updated content"))
                                 .value(n -> n.getPatient().getName(), Matchers.equalTo("updatedName"))
                                 .value(n -> n.getPatient().getId(), Matchers.equalTo(1L));

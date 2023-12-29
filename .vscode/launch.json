@@ -52,7 +52,8 @@
             "mainClass": "com.medilabosolutions.AuthServerApplication",
             "projectName": "auth-server",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=43843 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=auth-server"
         },
         {
             "type": "java",
@@ -72,7 +73,8 @@
             "mainClass": "com.medilabosolutions.WebApplication",
             "projectName": "web-app",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=33561 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=web-app"
         },
         {
             "type": "java",
@@ -81,6 +83,17 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "com.medilabosolutions.NoteServiceApplication",
             "projectName": "note-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=43111 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=note-service"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-RiskServiceApplication<risk-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.medilabosolutions.RiskServiceApplication",
+            "projectName": "risk-service",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }
