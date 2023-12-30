@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.medilabosolutions.dto.AssessmentDto;
@@ -15,6 +16,7 @@ import com.medilabosolutions.model.ExpectedRisk;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {DiabetesRiskService.class})
+@ActiveProfiles("test")
 class DiabetesRiskServiceTest {
 
     @Autowired
