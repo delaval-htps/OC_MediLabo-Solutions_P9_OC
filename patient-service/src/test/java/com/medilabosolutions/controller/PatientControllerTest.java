@@ -20,9 +20,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import com.medilabosolutions.dto.PatientDto;
 import com.medilabosolutions.model.Patient;
 
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class PatientControllerTest {
 
