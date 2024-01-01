@@ -4,5 +4,5 @@ LABEL maintainer="delaval.htps@gmail.com"
 LABEL version="V0.0.1-SNAPSHOT"
 VOLUME [ "/main-app" ]
 ADD target/risk-service-0.0.1-SNAPSHOT.jar risk-service.jar
-EXPOSE 8085
+EXPOSE 8086
 ENTRYPOINT [ "java","-jar","/risk-service.jar" ]
