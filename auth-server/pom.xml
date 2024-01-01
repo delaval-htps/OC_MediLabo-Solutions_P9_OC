@@ -11,7 +11,7 @@
 
 	<groupId>com.medilabosolutions</groupId>
 	<artifactId>auth-server</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>auth-server</name>
 	<packaging>jar</packaging>
 	<description>authentication-server</description>
