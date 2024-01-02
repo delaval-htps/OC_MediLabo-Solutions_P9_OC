@@ -56,7 +56,11 @@
 			<artifactId>modelmapper</artifactId>
 			<version>3.1.1</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			
+		</dependency>
 		<!-- add jackson datatype jsr310 for LocalDateTime -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
@@ -74,23 +78,18 @@
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- for mocking webclient  -->
-		<dependency>
-			<groupId>com.squareup.okhttp3</groupId>
-			<artifactId>okhttp</artifactId>
-			<version>4.12.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.squareup.okhttp3</groupId>
-			<artifactId>mockwebserver</artifactId>
-			<version>4.12.0</version>
-			<scope>test</scope>
-		</dependency>
+		
 	</dependencies>
 
 	<dependencyManagement>
 		<dependencies>
+
+			<dependency>
+				<groupId>com.fasterxml.woodstox</groupId>
+				<artifactId>woodstox-core</artifactId>
+				<version>6.2.1</version>
+			</dependency>
+
 
 			<dependency>
 				<groupId>com.fasterxml.jackson.datatype</groupId>
