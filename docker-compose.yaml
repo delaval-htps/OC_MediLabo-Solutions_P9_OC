@@ -1,0 +1,46 @@
+services:
+  config-server:
+    image: doriandelaval/config-server
+    build: ./config-server
+    ports:
+      - "9101:9101"
+    healthcheck:
+      test: curl --fail http://localhost:9101/actuator/health || exit 1
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 5
+    networks:
+      - backend
+  eureka-server:
+    image: doriandelaval/eureka-server
+    build: ./eureka-server
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: curl --fail http://localhost:8082/actuactor/health || exit 1
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 5
+    networks:
+      - backend
+  gateway-service:
+    image: doriandelaval/gateway-service
+    build: ./gateway-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
