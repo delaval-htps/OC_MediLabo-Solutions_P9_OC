@@ -5,29 +5,31 @@ services:
     ports:
       - "9101:9101"
     healthcheck:
-      test: curl --fail http://localhost:9101/actuator/health || exit 1
-      interval: 30s
+      test: "curl --fail --silent  http://localhost:9101/actuator/health | grep 'UP' || exit 1"
+      interval: 10s
       timeout: 10s
       start_period: 10s
-      retries: 5
-    networks:
-      - backend
+      retries: 5 
   eureka-server:
     image: doriandelaval/eureka-server
     build: ./eureka-server
     ports:
       - "8082:8082"
     healthcheck:
-      test: curl --fail http://localhost:8082/actuactor/health || exit 1
-      interval: 30s
+      test: "curl --fail --silent  http://localhost:8082/actuator/health | grep 'UP' || exit 1"
+      interval: 10s
       timeout: 10s
       start_period: 10s
       retries: 5
-    networks:
-      - backend
   gateway-service:
     image: doriandelaval/gateway-service
     build: ./gateway-service
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8081/actuator/health | grep 'UP' || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
     ports:
       - "8081:8081"
     environment:
@@ -38,9 +40,3 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
-    networks:
-      - backend
-
-networks:
-  backend:
-    driver: bridge

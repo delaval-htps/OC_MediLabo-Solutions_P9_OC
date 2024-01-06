@@ -1,5 +1,6 @@
 FROM openjdk:17-alpine
-LABEL application-name="gateway-server"
+RUN apk add --no-cache curl
+LABEL application-name="gateway-service"
 LABEL maintainer="delaval.htps@gmail.com"
 LABEL version="V0.0.1-SNAPSHOT"
 VOLUME [ "/main-app" ]
