@@ -1,4 +1,5 @@
 services:
+
   config-server:
     image: doriandelaval/config-server
     build: ./config-server
@@ -9,7 +10,8 @@ services:
       interval: 10s
       timeout: 10s
       start_period: 10s
-      retries: 5 
+      retries: 5
+
   eureka-server:
     image: doriandelaval/eureka-server
     build: ./eureka-server
@@ -21,6 +23,7 @@ services:
       timeout: 10s
       start_period: 10s
       retries: 5
+
   gateway-service:
     image: doriandelaval/gateway-service
     build: ./gateway-service
@@ -40,3 +43,110 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
+
+  auth-server:
+    image: doriandelaval/auth-server
+    build: ./auth-server
+    environment:
+    - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
+    - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
+    ports:
+      - "8084:8084"
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  mysql-db:
+    image: mysql
+    restart: always
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_DEBUG: true
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: patient_service
+      MYSQL_USER: admin_patient_service
+      MYSQL_PASSWORD: Jsa4Patient&lp4e
+    healthcheck:
+      test: " mysqladmin --user='root' --password='pass' ping | grep 'alive' || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  patient-service:
+    image: doriandelaval/patient-service
+    build: ./patient-service
+    environment:
+    - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
+    - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
+    - SPRING_R2DBC_URL=r2dbc:mysql://mysql-db:3306/patient_service?serverZoneId=UTC
+    - SPRING_R2DBC_USERNAME=admin_patient_service
+    - SPRING_R2DBC_PASSWORD=Jsa4Patient&lp4e
+    - SPRING_R2DBC_POOL_INITIAL-SIZE=100
+    - SPRING_R2DBC_POOL_MAX-SIZE=500
+    - SPRING_R2DBC_POOL_MAX-IDLE-TIME=30m
+    - SPRING_R2DBC_POOL_VALIDATION-QUERY=SELECT 1
+    ports:
+      - "8083:8083"
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      mysql-db:
+        condition: service_healthy
+      gateway-service:
+        condition: service_healthy
+  
+  # mongo-db:
+  #   image: mongodb
+  #   restart: always
+  #   ports:
+  #     - "27018:27017"
+  #   volumes:
+  #     - mogodb:/var/lib/mongodb
+  #   healthcheck:
+  #     test: "mongo --eval 'db.runCommand('ping').ok' localhost:27017 --quiet || exit 1"
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 5
+  #     start_period: 10s
+  
+  # note-service:
+  #   image: doriandelaval/note-service
+  #   build: ./note-service
+  #   ports:
+  #     - "8085:8085"
+  #   environment:
+  #     - SPRING_DATA_MONGODB_USERNAME=admin_mongodb
+  #     - SPRING_DATA_MONGODB_PASSWORD=Jsa4Mongodb&lp4e
+  #     - SPRING_DATA_MONGODB_HOST=localhost
+  #     - SPRING_DATA_MONGODB_PORT=27017
+  #     - SPRING_DATA_MONGODB_DATABASE=note
+  #     - SPRING_DATA_MONGODB_AUTHENTICATION-DATABASE=admin
+  #   depends_on:
+  #     - mongo-db: service_healthy
+
+  web-app:
+    image: doriandelaval/web-app
+    build: ./web-app
+    environment:
+    - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
+    - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
+    ports:
+      - "8080:8080"
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+        
+volumes:
+  mysql:
+  mongodb:      
