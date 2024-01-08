@@ -5,6 +5,7 @@ services:
     build: ./config-server
     ports:
       - "9101:9101"
+    
     healthcheck:
       test: "curl --fail --silent  http://localhost:9101/actuator/health | grep 'UP' || exit 1"
       interval: 10s
@@ -17,6 +18,7 @@ services:
     build: ./eureka-server
     ports:
       - "8082:8082"
+    
     healthcheck:
       test: "curl --fail --silent  http://localhost:8082/actuator/health | grep 'UP' || exit 1"
       interval: 10s
@@ -27,83 +29,101 @@ services:
   gateway-service:
     image: doriandelaval/gateway-service
     build: ./gateway-service
+    ports:
+      - "8081:8081"
+
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
+    
     healthcheck:
       test: "curl --fail --silent http://localhost:8081/actuator/health | grep 'UP' || exit 1"
       interval: 10s
       timeout: 10s
       retries: 5
       start_period: 10s
-    ports:
-      - "8081:8081"
-    environment:
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
-      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
+    
     depends_on:
       config-server:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
 
-  # auth-server:
-  #   image: doriandelaval/auth-server
-  #   build: ./auth-server
-  #   environment:
-  #   - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
-  #   - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
-  #   ports:
-  #     - "8084:8084"
-  #   depends_on:
-  #     config-server:
-  #       condition: service_healthy
-  #     eureka-server:
-  #       condition: service_healthy
+  auth-server:
+    image: doriandelaval/auth-server
+    build: ./auth-server
+    ports:
+      - "8084:8084"
+    
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
+    
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      gateway-service:
+        condition: service_healthy
 
-  # mysql-db:
-  #   image: mysql
-  #   restart: always
-  #   ports:
-  #     - "3307:3306"
-  #   volumes:
-  #     - mysql_patient:/var/lib/mysql
-  #   environment:
-  #     MYSQL_DEBUG: true
-  #     MYSQL_ROOT_HOST: '%'
-  #     MYSQL_ROOT_PASSWORD: pass
-  #     MYSQL_DATABASE: patient_service
-  #     MYSQL_USER: admin_patient_service
-  #     MYSQL_PASSWORD: Jsa4Patient&lp4e
-  #   healthcheck:
-  #     test: " mysqladmin --user='root' --password='pass' ping | grep 'alive' || exit 1"
-  #     interval: 10s
-  #     timeout: 10s
-  #     retries: 5
-  #     start_period: 10s
+  mysql-db:
+    image: mysql
+    restart: always
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_patient:/var/lib/mysql
+    
+    environment:
+      MYSQL_DEBUG: true
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: patient_service
+      MYSQL_USER: admin_patient_service
+      MYSQL_PASSWORD: Jsa4Patient&lp4e
+    
+    healthcheck:
+      test: " mysqladmin --user='root' --password='pass' ping | grep 'alive' || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
-  # patient-service:
-  #   image: doriandelaval/patient-service
-  #   build: ./patient-service
-  #   environment:
-  #   - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
-  #   - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
-  #   - SPRING_R2DBC_URL=r2dbc:mysql://mysql-db:3306/patient_service?serverZoneId=UTC
-  #   - SPRING_R2DBC_USERNAME=admin_patient_service
-  #   - SPRING_R2DBC_PASSWORD=Jsa4Patient&lp4e
-  #   - SPRING_R2DBC_POOL_INITIAL-SIZE=100
-  #   - SPRING_R2DBC_POOL_MAX-SIZE=500
-  #   - SPRING_R2DBC_POOL_MAX-IDLE-TIME=30m
-  #   - SPRING_R2DBC_POOL_VALIDATION-QUERY=SELECT 1
-  #   ports:
-  #     - "8083:8083"
-  #   depends_on:
-  #     config-server:
-  #       condition: service_healthy
-  #     eureka-server:
-  #       condition: service_healthy
-  #     mysql-db:
-  #       condition: service_healthy
-  #     gateway-service:
-  #       condition: service_healthy
-  
+  patient-service:
+    image: doriandelaval/patient-service
+    build: ./patient-service
+    ports:
+      - "8083:8083"
+
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
+      - SPRING_R2DBC_URL=r2dbc:mysql://mysql-db:3306/patient_service?serverZoneId=UTC
+      - SPRING_R2DBC_USERNAME=admin_patient_service
+      - SPRING_R2DBC_PASSWORD=Jsa4Patient&lp4e
+      - SPRING_R2DBC_POOL_INITIAL-SIZE=100
+      - SPRING_R2DBC_POOL_MAX-SIZE=500
+      - SPRING_R2DBC_POOL_MAX-IDLE-TIME=30m
+      - SPRING_R2DBC_POOL_VALIDATION-QUERY=SELECT 1
+    
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8083/actuator/health | grep 'UP' || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      gateway-service:
+        condition: service_healthy
+      mysql-db:
+        condition: service_healthy
+      
   mongo-db:
     image: mongo
     restart: always
@@ -111,22 +131,25 @@ services:
       - "27018:27017"
     volumes:
       - mongodb_note:/data/db
+    
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin_mongodb
+      MONGO_INITDB_ROOT_PASSWORD: Jsa4Mongodb&lp4e
+      MONGO_INITDB_DATABASE: note
+
     healthcheck:
       test: "mongosh --eval 'db.runCommand(\"ping\").ok' localhost:27017 --quiet || exit 1"
       interval: 10s
       timeout: 10s
       retries: 5
       start_period: 10s
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin_mongodb
-      MONGO_INITDB_ROOT_PASSWORD: Jsa4Mongodb&lp4e
-      MONGO_INITDB_DATABASE: note
   
   note-service:
     image: doriandelaval/note-service
     build: ./note-service
     ports:
       - "8085:8085"
+    
     environment:
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
       - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
@@ -136,6 +159,13 @@ services:
       - SPRING_DATA_MONGODB_PORT=27017
       - SPRING_DATA_MONGODB_DATABASE=note
       - SPRING_DATA_MONGODB_AUTHENTICATION-DATABASE=admin
+    
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8085/actuator/health | grep 'UP' || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
     depends_on:
       config-server:
         condition: service_healthy
@@ -146,20 +176,58 @@ services:
       mongo-db:
         condition: service_healthy
 
-  # web-app:
-  #   image: doriandelaval/web-app
-  #   build: ./web-app
-  #   environment:
-  #   - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
-  #   - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     config-server:
-  #       condition: service_healthy
-  #     eureka-server:
-  #       condition: service_healthy
+  risk-service:
+    image: doriandelaval/risk-service
+    build: ./risk-service
+    ports:
+      - "8086:8086"    
+
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
+    
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8086/actuator/health | grep 'UP' || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      gateway-service:
+        condition: service_healthy
+
+  web-app:
+    image: doriandelaval/web-app
+    build: ./web-app
+    ports:
+      - "8080:8080"
+
+    environment:
+      - BASE_URL_GATEWAY=http://gateway-service:8081
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
+      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
+
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      gateway-service:
+        condition: service_healthy
+      auth-server:
+        condition: service_started
+      patient-service:
+        condition: service_healthy
+      note-service:
+        condition: service_healthy
+      risk-service:
+        condition: service_healthy
 
 volumes:
-  # mysql_patient:
+  mysql_patient:
   mongodb_note:      

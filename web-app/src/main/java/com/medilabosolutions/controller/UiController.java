@@ -671,7 +671,7 @@ public class UiController {
                         model.addAttribute("loginError", true);
                 }
                 model.addAttribute("userCredential", new UserCredential());
-                return Mono.just(Rendering.view("/login").build());
+                return Mono.just(Rendering.view("login").build());
         }
 
         /**
