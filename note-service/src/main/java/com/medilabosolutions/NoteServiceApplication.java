@@ -1,7 +1,7 @@
 package com.medilabosolutions;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -12,6 +12,7 @@ import com.medilabosolutions.service.ImportJsonService;
 import com.medilabosolutions.service.ImportUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -31,8 +32,8 @@ public class NoteServiceApplication implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		try {
-			File jsonFile = ImportUtils.jsonFileFromResource(source);
-			String result = importJsonService.importTo(jsonFile);
+			InputStream jsonStream = ImportUtils.jsonStreamFromResource(source);
+			String result = importJsonService.importTo(jsonStream);
 			log.info("import {} - result:{}", source, result);
 		} catch (IOException e) {
 			e.printStackTrace();

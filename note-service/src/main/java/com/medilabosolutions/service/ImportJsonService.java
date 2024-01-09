@@ -1,7 +1,7 @@
 package com.medilabosolutions.service;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.modelmapper.ModelMapper;
@@ -20,11 +20,11 @@ public class ImportJsonService {
     private final ModelMapper modelMapper;
     private final ObjectMapper objectMapper;
 
-    private List<NoteDto> generateNotes(File jsonFile) {
+    private List<NoteDto> generateNotes(InputStream jsonStream) {
         List<NoteDto> notes = new ArrayList<>();
 
         try {
-            notes = objectMapper.readValue(jsonFile, new TypeReference<List<NoteDto>>() {});
+            notes = objectMapper.readValue(jsonStream, new TypeReference<List<NoteDto>>() {});
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -41,8 +41,8 @@ public class ImportJsonService {
         return inserts;
     }
 
-    public String importTo(File jsonFile) {
-        List<NoteDto> notes = generateNotes(jsonFile);
+    public String importTo(InputStream jsonStream) {
+        List<NoteDto> notes = generateNotes(jsonStream);
         int inserts = insertInto(notes);
         return inserts + "/" + notes.size();
     }

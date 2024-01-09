@@ -38,7 +38,6 @@ public class RiskController {
 
         ClassPathResource classPathResource = new ClassPathResource(riskService.getTriggerSource());
 
-        // TODO send this method to RiskService with arguments lb://PATIENT-SERVICE & NOTE-SERVICE to respect model MVC  
         Mono<AssessmentDto> assessmentDto = lbWebClientBuilder.baseUrl("lb://PATIENT-SERVICE").build()
                 .get().uri("/patients/{id}", patientId)
                 .exchangeToMono(patientResponse -> {
