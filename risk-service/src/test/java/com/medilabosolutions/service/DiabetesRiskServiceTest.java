@@ -61,14 +61,14 @@ class DiabetesRiskServiceTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 2})
     void expectedRiskAccordingToGenderAndAge_WhenMaleYoungerThan30AndCountTermTriggerBetweenOneAndTwo(int countTermTriggers) {
-        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("M", 30, countTermTriggers);
+        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("M", 29, countTermTriggers);
         assertEquals(ExpectedRisk.NONE, result);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {3, 4})
     void expectedRiskAccordingToGenderAndAge_WhenMaleYoungerThan30AndCountTermTriggerBetweenThreeAndFour(int countTermTriggers) {
-        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("M", 30, countTermTriggers);
+        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("M", 29, countTermTriggers);
         assertEquals(ExpectedRisk.INDANGER, result);
     }
 
@@ -76,21 +76,21 @@ class DiabetesRiskServiceTest {
     @Test
     void expectedRiskAccordingToGenderAndAge_WhenMaleYoungerThan30AndCountTermTriggerUpToFour() {
         int countTermTriggers = 5;
-        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("M", 30, countTermTriggers);
+        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("M", 29, countTermTriggers);
         assertEquals(ExpectedRisk.EARLYONSET, result);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3})
     void expectedRiskAccordingToGenderAndAge_WhenFemaleYoungerThan30AndCountTermTriggerBetweenOneAndThree(int countTermTriggers) {
-        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("F", 30, countTermTriggers);
+        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("F", 29, countTermTriggers);
         assertEquals(ExpectedRisk.NONE, result);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {4, 5, 6})
     void expectedRiskAccordingToGenderAndAge_WhenFemaleYoungerThan30AndCountTermTriggerBetweenFourAndSix(int countTermTriggers) {
-        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("F", 30, countTermTriggers);
+        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("F", 29, countTermTriggers);
         assertEquals(ExpectedRisk.INDANGER, result);
     }
 
@@ -98,7 +98,7 @@ class DiabetesRiskServiceTest {
     @Test
     void expectedRiskAccordingToGenderAndAge_WhenFemaleYoungerThan30AndCountTermTriggerUpToSix() {
         int countTermTriggers = 7;
-        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("F", 30, countTermTriggers);
+        ExpectedRisk result = cut.expectedRiskAccordingToGenderAndAge("F", 29, countTermTriggers);
         assertEquals(ExpectedRisk.EARLYONSET, result);
     }
 
