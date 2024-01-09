@@ -99,9 +99,9 @@ services:
     environment:
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
       - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
-      - SPRING_R2DBC_URL=r2dbc:mysql://mysql-db:3306/patient_service?serverZoneId=UTC
-      - SPRING_R2DBC_USERNAME=admin_patient_service
-      - SPRING_R2DBC_PASSWORD=Jsa4Patient&lp4e
+      - SPRING_R2DBC_URL=${SPRING_R2DBC_URL}
+      - SPRING_R2DBC_USERNAME=${SPRING_R2DBC_USERNAME}
+      - SPRING_R2DBC_PASSWORD=${SPRING_R2DBC_PASSWORD}
       - SPRING_R2DBC_POOL_INITIAL-SIZE=100
       - SPRING_R2DBC_POOL_MAX-SIZE=500
       - SPRING_R2DBC_POOL_MAX-IDLE-TIME=30m
@@ -153,12 +153,12 @@ services:
     environment:
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
       - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
-      - SPRING_DATA_MONGODB_USERNAME=admin_mongodb
-      - SPRING_DATA_MONGODB_PASSWORD=Jsa4Mongodb&lp4e
-      - SPRING_DATA_MONGODB_HOST=mongo-db
-      - SPRING_DATA_MONGODB_PORT=27017
-      - SPRING_DATA_MONGODB_DATABASE=note
-      - SPRING_DATA_MONGODB_AUTHENTICATION-DATABASE=admin
+      - SPRING_DATA_MONGODB_USERNAME=${SPRING_DATA_MONGODB_USERNAME}
+      - SPRING_DATA_MONGODB_PASSWORD=${SPRING_DATA_MONGODB_PASSWORD}
+      - SPRING_DATA_MONGODB_HOST=${SPRING_DATA_MONGODB_HOST}
+      - SPRING_DATA_MONGODB_PORT=${SPRING_DATA_MONGODB_PORT}
+      - SPRING_DATA_MONGODB_DATABASE=${SPRING_DATA_MONGODB_DATABASE}
+      - SPRING_DATA_MONGODB_AUTHENTICATION-DATABASE=${SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE}
     
     healthcheck:
       test: "curl --fail --silent http://localhost:8085/actuator/health | grep 'UP' || exit 1"
@@ -208,7 +208,7 @@ services:
       - "8080:8080"
 
     environment:
-      - BASE_URL_GATEWAY=http://gateway-service:8081
+      - BASE_URL_GATEWAY=${BASE_URL_GATEWAY}
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
       - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
 
