@@ -27,9 +27,9 @@ public interface NoteRepository extends ReactiveMongoRepository<Note, String> {
 
     @Aggregation(pipeline = {
             "{'$match': {'patient._id': ?0}}",
-            "{$addFields:{countTriggers:{$size:{$regexFindAll:{input:'$content',regex: ?1}}}}}",
+            "{$addFields:{countTriggers:{$size:{$regexFindAll:{input:'$content',regex: ?1 ,options:'i'}}}}}",
             "{$group:{_id:'$patient._id',sumTermTriggers:{$sum:'$countTriggers'}}}"
     })
-    Mono<SumTermTriggers> countTriggersIntoPatientNotes( Long patientId,String triggers);
+    Mono<SumTermTriggers> countTriggersIntoPatientNotes(Long patientId, String triggers);
 
 }

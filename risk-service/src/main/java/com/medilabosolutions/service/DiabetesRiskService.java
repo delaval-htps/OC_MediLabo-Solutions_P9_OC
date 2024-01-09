@@ -34,7 +34,7 @@ public class DiabetesRiskService implements RiskAssessmentService {
         if (countTermTriggers == 0) {
             return ExpectedRisk.NONE;
         } else {
-            if (age <= 30) {
+            if (age < 30) {
                 if (genre.equals("M")) {
                     return switch (countTermTriggers) {
                         case 1, 2 -> ExpectedRisk.NONE;
