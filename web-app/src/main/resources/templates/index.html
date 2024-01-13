@@ -10,7 +10,9 @@
 
 
     <th:block layout:fragment="content">
-
+        <form class="col-2" th:action="@{/logout}" method="post">
+            <button type="submit" class="btn btn-danger" value="Logout"></button>
+        </form>
         <div class="col-8 d-flex justify-content-center align-items-baseline">
 
             <div class="alert alert-info d-flex shadow-sm" role="alert">
