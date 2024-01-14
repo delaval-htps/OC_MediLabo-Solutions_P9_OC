@@ -679,6 +679,7 @@ public class UiController {
                 if (sucessLogout) {
                         model.addAttribute("sucessLogout", sucessLogout);
                 }
+                model.addAttribute("loginUrl", true);
                 model.addAttribute("userCredential", new UserCredential());
                 return Mono.just(Rendering.view("login").build());
         }
