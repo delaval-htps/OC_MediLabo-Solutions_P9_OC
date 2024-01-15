@@ -22,19 +22,23 @@ function toggleFormPatient() {
         btnToCreatePatient.classList.add('btn-primary')
         btnToCreatePatient.classList.remove('btn-outline-primary')
         btnToCreatePatient.innerText = 'Add new patient'
-
-        document.querySelectorAll('#form-patient .field-patient').forEach(element => {
-            element.querySelector('ul').innerHTML = ''
-            console.log(element.querySelector('.form-control'))
-            element.querySelector('.form-control').classList.remove('is-invalid')
-            element.querySelector('.form-control').value = ''
-        });
+        
     }
+    clearPatientForm()
+}
+
+function clearPatientForm() {
+    document.querySelectorAll('#form-patient .field-patient').forEach(element => {
+        element.querySelector('ul').innerHTML = ''
+        console.log(element.querySelector('.form-control'))
+        element.querySelector('.form-control').classList.remove('is-invalid')
+        element.querySelector('.form-control').value = ''
+    });
 }
 
 function deletePatient(urlPatientToDelete) {
     const deleteModal = new bootstrap.Modal('#deleteModal')
-    document.querySelector('.modal-footer a').setAttribute("href",urlPatientToDelete)
+    document.querySelector('.modal-footer a').setAttribute("href", urlPatientToDelete)
     deleteModal.show()
 }
 

@@ -85,8 +85,13 @@ public class UiController {
                 /*
                  * case user doesn't have a jwt then he must pass by GET "/login" to fill it his credentials
                  */
-                return redirectToLoginPage(model, false);
+                return redirectToLoginPage(model, false, false);
 
+        }
+
+        @GetMapping(value = "/logout")
+        public Mono<Rendering> getSuccessLogout(Model model) {
+                return redirectToLoginPage(model, false, true);
         }
 
         // TODO validation of credential with jakarta
@@ -106,10 +111,11 @@ public class UiController {
                                                 return Mono.just(Rendering.redirectTo(PATIENT_URL).build());
                                         }
 
-                                        return redirectToLoginPage(model, true);
+                                        return redirectToLoginPage(model, true, false);
 
                                 });
         }
+
 
         /**
          * Endpoint to display the index page of medilabo-solution with the list of all registred
@@ -137,7 +143,7 @@ public class UiController {
                                 .headers(h -> h.setBearerAuth(jwtValue))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                return redirectToLoginPage(model, true);
+                                                return redirectToLoginPage(model, true, false);
                                         }
 
                                         return response.bodyToMono(RestPage.class)
@@ -193,7 +199,7 @@ public class UiController {
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
 
                 if (jwtValue.isEmpty()) {
-                        return redirectToLoginPage(model, true);
+                        return redirectToLoginPage(model, true, false);
                 }
 
                 /*
@@ -291,7 +297,7 @@ public class UiController {
                                 .exchangeToMono(response -> {
 
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                return redirectToLoginPage(model, true);
+                                                return redirectToLoginPage(model, true, false);
                                         }
 
                                         // case of problem finding patient in REST API : example not find exception , etc...
@@ -358,7 +364,7 @@ public class UiController {
                                 .exchangeToMono(response -> {
 
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                return redirectToLoginPage(model, true);
+                                                return redirectToLoginPage(model, true, false);
                                         }
                                         // case of problem finding patient in REST API : example not find exception, bindingResult
                                         if (response.statusCode().isError()) {
@@ -408,7 +414,7 @@ public class UiController {
                                 .headers(h -> h.setBearerAuth(jwtValue))
                                 .exchangeToMono(response -> {
                                         if (response.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                                                return redirectToLoginPage(model, true);
+                                                return redirectToLoginPage(model, true, false);
                                         }
 
                                         if (response.statusCode().isError()) {
@@ -463,7 +469,7 @@ public class UiController {
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
 
                 if (jwtValue.isEmpty()) {
-                        return redirectToLoginPage(model, true);
+                        return redirectToLoginPage(model, true, false);
                 }
 
                 return webclient.get().uri(pathNoteService + "/{id}", noteId)
@@ -513,7 +519,7 @@ public class UiController {
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
 
                 if (jwtValue.isEmpty()) {
-                        return redirectToLoginPage(model, true);
+                        return redirectToLoginPage(model, true, false);
                 }
 
                 // retrieve the id of related patient for the new note to create
@@ -575,7 +581,7 @@ public class UiController {
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
 
                 if (jwtValue.isEmpty()) {
-                        return redirectToLoginPage(model, true);
+                        return redirectToLoginPage(model, true, false);
                 }
                 /* retrieve the id of related patient for the new note to create */
                 Long relatedPatientId = updatedNote.getPatient().getId();
@@ -637,7 +643,7 @@ public class UiController {
                 String jwtValue = session.getAttributeOrDefault(AUTHORIZATION, "");
 
                 if (jwtValue.isEmpty()) {
-                        return redirectToLoginPage(model, true);
+                        return redirectToLoginPage(model, true, false);
                 }
                 return webclient.delete().uri(pathNoteService + "/{id}", noteId)
                                 .headers(h -> h.setBearerAuth(jwtValue))
@@ -666,10 +672,14 @@ public class UiController {
         }
 
 
-        private Mono<Rendering> redirectToLoginPage(Model model, boolean loginError) {
+        private Mono<Rendering> redirectToLoginPage(Model model, boolean loginError, boolean sucessLogout) {
                 if (loginError) {
                         model.addAttribute("loginError", true);
                 }
+                if (sucessLogout) {
+                        model.addAttribute("sucessLogout", sucessLogout);
+                }
+                model.addAttribute("loginUrl", true);
                 model.addAttribute("userCredential", new UserCredential());
                 return Mono.just(Rendering.view("login").build());
         }

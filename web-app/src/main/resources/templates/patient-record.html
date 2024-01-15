@@ -8,18 +8,18 @@
 
 <body>
     <th:block layout:fragment="content">
-        <div class="col-8 ">
+        <div class="col-8 mt-3 ">
 
-            <div class="d-flex inline-flex align-items-baseline">
+            <div class="d-flex inline-flex flew-wrap justify-content-between align-items-baseline">
 
-                <div class="alert alert-info d-flex" role="alert">
+                <div class="col-8 alert alert-info d-flex  shadow-sm" role="alert">
                     <i class="bi bi-info-circle"></i>
                     <div class="ms-3">
                         You can edit informations by clicking the blue pencil displayed on right on each fielset.
                     </div>
                 </div>
 
-                <div class="ms-auto">
+                <div class="col-auto ">
                     <a th:href="@{/patients}"><button id="btn-return-index" type="button"
                             class="btn btn-primary">Return</button></a>
                 </div>
@@ -130,7 +130,7 @@
 
                 </fieldset>
             </form>
-            <div class=" alert alert-info d-flex col-7 mt-4 shadow-sm" role="alert">
+            <div class=" alert alert-info d-flex mt-4 shadow-sm" role="alert">
 
                 <i class="bi bi-info-circle"></i>
 

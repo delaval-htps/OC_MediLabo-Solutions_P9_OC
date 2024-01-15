@@ -8,14 +8,15 @@
 
 <body>
     <th:block layout:fragment="content">
-        <div class="col-lg-2">
+        <div class="col-lg-3 my-5">
 
             <div class="card my-3 pb-3 shadow rounded-4">
                 <div class="card-body ">
-                    <h5 class="card-title mb-3">Welcome !</h5>
-                    <h6 class="card-subtitle mb-3 text-muted" th:unless="${loginError}">Please fill in with your login & password</h6>
-                    <p class="card-subtitle mb-3 text-danger fs-4 text-center" th:if="${loginError}">Wrong user or password</p>
+                    <p class="card-subtitle mb-3 text-success fs-4 text-center" th:if="${sucessLogout}">You were correctly logout !</p>
+                    <p class="card-subtitle mb-3 text-danger fs-4 text-center" th:if="${loginError}">Wrong user or password !</p>
 
+                    <h5 class="card-title mb-3">Welcome !</h5>
+                    
                     <form th:action="@{/login}" method="post" th:object="${userCredential}">
                         <div class=" form-outline mb-3">
                             <label class="form-label" for="username">Username</label>:

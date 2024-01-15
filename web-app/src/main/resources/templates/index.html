@@ -11,23 +11,25 @@
 
     <th:block layout:fragment="content">
 
-        <div class="col-8 d-flex justify-content-center align-items-baseline">
+        <div class="col-8 p-0 mt-3">
 
-            <div class="alert alert-info d-flex shadow-sm" role="alert">
+            <div class=" d-flex flex-wrap justify-content-between align-items-baseline">
 
-                <i class="bi bi-info-circle"></i>
+                <div class="col-10 alert alert-info d-flex shadow-sm" role="alert">
 
-                <div class="ms-3">
-                    To create a new patient, click on right button "Add new patient". To display informations of a
-                    patient, you have
-                    just to click on his row.
+                    <i class="bi bi-info-circle"></i>
+
+                    <div class="ms-3">
+                        To create a new patient, click on right button "Add new patient". To display informations of a
+                        patient, you have just to click on his row.
+                    </div>
                 </div>
-            </div>
 
-            <div class="ms-auto py-2 ">
-                <button id="btn-creation-patient" type="button" class=" btn btn-primary shadow "
-                    onclick="toggleFormPatient()"
-                    th:text="${#maps.isEmpty(fieldsOnError)}?'Add new patient':'Cancel'"></button>
+                <div class="col-auto">
+                    <button id="btn-creation-patient" type="button" class=" btn btn-primary shadow "
+                        onclick="toggleFormPatient()"
+                        th:text="${#maps.isEmpty(fieldsOnError)}?'Add new patient':'Cancel'"></button>
+                </div>
             </div>
         </div>
 
