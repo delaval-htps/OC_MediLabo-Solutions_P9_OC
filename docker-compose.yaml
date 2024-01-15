@@ -58,6 +58,13 @@ services:
     environment:
       - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
       - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
+
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8084/actuator/health | grep 'UP' || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s 
     
     depends_on:
       config-server:
@@ -166,6 +173,7 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+
     depends_on:
       config-server:
         condition: service_healthy
@@ -209,18 +217,12 @@ services:
 
     environment:
       - BASE_URL_GATEWAY=${BASE_URL_GATEWAY}
-      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:9101/
-      - EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE=http://eureka-server:8082/eureka
-
+    
     depends_on:
-      config-server:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
       gateway-service:
         condition: service_healthy
       auth-server:
-        condition: service_started
+        condition: service_healthy
       patient-service:
         condition: service_healthy
       note-service:

@@ -39,6 +39,7 @@ public class AuthSecurityConfig {
 
         http.authorizeHttpRequests(httpRequest -> httpRequest
                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                .requestMatchers(HttpMethod.GET,"/actuator/health").permitAll()
                 .anyRequest().authenticated())
                 .formLogin(f -> f.disable())
                 .httpBasic(Customizer.withDefaults())
