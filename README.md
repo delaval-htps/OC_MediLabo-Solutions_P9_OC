@@ -15,6 +15,8 @@
     - [Locally](#locally)
     - [With docker](#with-docker)
   - [Tech Stacks](#tech-stacks)
+  - [Improvements](#improvements)
+  - [Versions](#versions)
   
 ---
 
@@ -22,9 +24,9 @@
 
 ![Alt text](Architecture.drawio.png)
 
-As we can see in architecture scheme belong,this Spring-boot application is a multi modules project. Each module is a micro-service and has one task with one dedicated port:
+As we can see in architectural diagram above,this Spring-boot application is a multi modules project. Each module is a micro-service and has one task with one dedicated port:
 
-**On BackEnd:**
+- **On BackEnd:**
 
 Name  | Port| Definition
 ------|------|---------
@@ -36,9 +38,9 @@ Name  | Port| Definition
  **Note-service** |8085|Rest API connected to MongoDb db to manage registred notes of patients provided by doctors
  **Risk-service** |8086|Rest API to provide disease risk assessment for a patient base on his notes
 
-**On Front-end:**
+- **On Front-end:**
 
-Finally, we have a web application , it could be a mobile application or Single Page Application, but for this project, we use a web application with Spring-boot and Thymeleaf to do the job. Of course, it is between the gateway and the user's browser and provides a IHM with html pages.
+Finally, we have a web application , it could be a mobile application or Single Page Application, but for this project, we use a web application with Spring-boot and Thymeleaf to do the job. Of course, it's place is between the gateway and the user's browser and provides a IHM with html pages.
 
 Name         | Port | Definition
 -------------|------|----------
@@ -74,6 +76,8 @@ So, you can run the project just by using the following command without worrying
 docker compose up -d
 ```
 
+---
+
 ## Tech Stacks
 
 - **Java 17**
@@ -93,3 +97,8 @@ docker compose up -d
 
 ---
 
+## Improvements
+
+---
+
+## Versions
