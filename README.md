@@ -10,13 +10,19 @@
 #### Table of content
 
 * [Architecture](#Architecture)
-* 
+* [Used ports] (#Used ports)
+* [Technical stack] (#Technical stack)
+* [Launch application] (#Launch application)
+* [Version] (#Version)
   
 
 ---
+
 ## Architecture
 
 ![Alt text](Architecture.drawio.png)
+
+As we can see in architecture scheme belong,this application is a spring boot  multi module app which contains 
 
 notes : create manually patient-service database cause use of r2dbc that don't have hibernate ORM
 
