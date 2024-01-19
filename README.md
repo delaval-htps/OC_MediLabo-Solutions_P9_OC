@@ -4,7 +4,7 @@
 
   <div style="height:30px;text-align:center;">
 
-  ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=plastic&logo=spring&logoColor=white) ![Alt text](image-2.png){: height="30px"} ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=plastic&logo=openjdk&logoColor=white) ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-%23005C0F.svg?style=plastic&logo=Thymeleaf&logoColor=white) ![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=plastic&logo=mysql&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=plastic&logo=mongodb&logoColor=white) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=plastic&logo=docker&logoColor=white)
+  ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=plastic&logo=spring) ![Alt text](image-2.png){: height="30px"} ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=plastic&logo=openjdk) ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-%23005C0F.svg?style=plastic&logo=Thymeleaf) ![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=plastic&logo=mysql) ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=plastic&logo=mongodb) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=plastic&logo=docker)
 
 </div>
 
