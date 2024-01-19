@@ -4,7 +4,7 @@
 
   <div style="height:30px;text-align:center;">
 
-  ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=plastic&logo=spring) ![Alt text](image-2.png){: height="30px"} ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=plastic&logo=openjdk) ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-%23005C0F.svg?style=plastic&logo=Thymeleaf) ![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=plastic&logo=mysql) ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=plastic&logo=mongodb) ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=plastic&logo=docker)
+  ![Spring](https://img.shields.io/badge/spring?style=plastic&logo=spring) ![Alt text](image-2.png){: height="30px"} ![Java](https://img.shields.io/badge/java?style=plastic&logo=openjdk) ![Thymeleaf](https://img.shields.io/badge/Thymeleaf?style=plastic&logo=Thymeleaf) ![MySQL](https://img.shields.io/badge/mysql?style=plastic&logo=mysql) ![MongoDB](https://img.shields.io/badge/MongoDB?style=plastic&logo=mongodb) ![Docker](https://img.shields.io/badge/docker?style=plastic&logo=docker)
 
 </div>
 
