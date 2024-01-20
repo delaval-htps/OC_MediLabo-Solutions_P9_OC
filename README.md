@@ -1,23 +1,23 @@
 # <div align="center">Medilabo Solutions![Alt text](image-1.png)</div>
 
-<p style="text-align: center;">A Spring-boot application to help doctors to identify patients most at risk of type 2 diabetes.</p>
+<p style="text-align:center;">A Spring-boot demo application to help doctors to identify patients most at risk of type 2 diabetes.</p>
 
   <div style="text-align:center;">
 
-  ![Spring](https://img.shields.io/badge/spring--boot?style=plastic&logo=spring&label=spring) ![spring-webflux](https://img.shields.io/badge/spring--webflux?style=plastic&logo=spring&label=spring%20webflux) 
- ![Spring-security](https://img.shields.io/badge/spring--security?style=plastic&logo=spring%20security&label=spring-security) ![Java](https://img.shields.io/badge/java--jdk?style=plastic&logo=openjdk&label=java17) ![Thymeleaf](https://img.shields.io/badge/spring--Thymeleaf?style=plastic&logo=Thymeleaf&label=Thymeleaf) ![MySQL](https://img.shields.io/badge/mysql--db?style=plastic&logo=mysql&label=Mysql) ![MongoDB](https://img.shields.io/badge/Mongo--db?style=plastic&logo=mongodb&label=MongoDB) ![Docker](https://img.shields.io/badge/docker--container?style=plastic&logo=docker&label=Docker)
+  ![Java](https://img.shields.io/badge/17-%23437291?style=plastic&logo=Openjdk&logoColor=%23437291&label=OpenJdk&labelColor=grey) ![SpringBoot](https://img.shields.io/badge/3.1.7-grey?style=plastic&logo=Spring-Boot&logoColor=green&label=Spring-Boot&labelColor=grey&color=green) ![Spring Security](https://img.shields.io/badge/6.0.6-grey?style=plastic&logo=Spring-Security&logoColor=green&label=Spring-Security&labelColor=grey&color=green) ![Spring Webflux](https://img.shields.io/badge/6.0.15-grey?style=plastic&logo=react&logoColor=green&label=Spring_Webflux&labelColor=grey&color=green) </br> ![Thymeleaf](https://img.shields.io/badge/3.1.7-%23005F0F?style=plastic&logo=thymeleaf&logoColor=%23005F0F&label=Thymeleaf&labelColor=grey) ![MySql](https://img.shields.io/badge/8.2.0-%234479A1?style=plastic&logo=mysql&logoColor=%234479A1&label=MySql&labelColor=grey) ![MongoDB](https://img.shields.io/badge/6.0.13-%2347A248?style=plastic&logo=mongodb&logoColor=%2347A248&label=MongoDB&labelColor=grey) ![Docker](https://img.shields.io/badge/24.0.7-%232496ED?style=plastic&logo=docker&logoColor=%232496ED&label=Docker&labelColor=grey)
 
 </div>
-
-
 
 ---
 
 - **Table of content**
   - [Architecture](#architecture)
+  - [Security](#Security)
+  - [Tests](#Tests)
   - [Run application](#run-application)
-    - [Locally](#locally)
     - [With docker](#with-docker)
+    - [Locally](#locally)
+    - [Credential](#credential)
   - [Tech Stacks](#tech-stacks)
   - [Improvements](#improvements)
   - [Versions](#versions)
@@ -52,7 +52,34 @@ Name         | Port | Definition
 
 ---
 
+## Security
+
+We use Spring security to securize application.
+
+For this moment, as application is not a release version, we have just implented one registred user in memory (see chapter of [credential](#credential)) to log in it.
+
+The secure access to application follows the following principles:
+
+- First a classic authentication username-password with **credential in the web-app** through form in login page
+- Next a **Httpbasic authentication** to access to microservice through Gateway-service
+- Passing by a authentication and authorization delivered by Auth-server microservice
+
+---
+
 ## Run application
+
+### With docker
+
+We suppose that you have already install and configure Docker <img src="docker-color.svg" alt="docker-svg" width="30"> and it's compose plugin on your computer. If it's not the case, you can follow these documentations:
+
+- [Install Docker](https://docs.docker.com/get-docker/)
+- [Install Docker Compose](https://docs.docker.com/compose/install/)
+
+After a completed installation, as all microservices have their own ***DockerFile*** and there is a ***docker-compose.yaml*** at the root of project. You can run the project just by using the following command without worrying about the compilation order and dependencies:
+
+```bash
+docker compose up -d
+```
 
 ### Locally
 
@@ -71,13 +98,13 @@ Name         | Port | Definition
     7|Risk-service
     8|web-app
 
-### With docker
+### Credential
 
-All microservices have a ***DockerFile*** and we created a ***docker-compose.yaml*** at the root of project.
-So, you can run the project just by using the following command without worrying about the compilation order:
+We use Spring Security to secure application. As the application is not yet a release but a testing version, a predefined user was registred in Memory. So, you must use his basic credential, defined below, to login to application:
 
 ```bash
-docker compose up -d
+username:   user
+password:   password
 ```
 
 ---
@@ -86,6 +113,7 @@ docker compose up -d
 
 - **Java 17**
 - **Maven 3.1.2**
+- **Spring-Boot 3.1.7**
 - **Spring-webflux 6.0.15**
 - **Spring-security 6.1.6**
 - **Spring-cloud-config 4.0.4**
