@@ -1,19 +1,20 @@
 # <div align="center">Medilabo Solutions![Alt text](image-1.png)</div>
 
-<p style="text-align:center;">A Spring-boot demo application to help doctors to identify patients most at risk of type 2 diabetes.</p>
+**<p style="text-align:center;">A Spring-boot demo application to help doctors to identify patients most at risk of type 2 diabetes.</p>**
 
-  <div style="text-align:center;">
+  <div style="text-align:center;"> 
+  <br>
 
-  ![Java](https://img.shields.io/badge/17-%23437291?style=plastic&logo=Openjdk&logoColor=%23437291&label=OpenJdk&labelColor=grey) ![SpringBoot](https://img.shields.io/badge/3.1.7-grey?style=plastic&logo=Spring-Boot&logoColor=green&label=Spring-Boot&labelColor=grey&color=green) ![Spring Security](https://img.shields.io/badge/6.0.6-grey?style=plastic&logo=Spring-Security&logoColor=green&label=Spring-Security&labelColor=grey&color=green) ![Spring Webflux](https://img.shields.io/badge/6.0.15-grey?style=plastic&logo=react&logoColor=green&label=Spring_Webflux&labelColor=grey&color=green) </br> ![Thymeleaf](https://img.shields.io/badge/3.1.7-%23005F0F?style=plastic&logo=thymeleaf&logoColor=%23005F0F&label=Thymeleaf&labelColor=grey) ![MySql](https://img.shields.io/badge/8.2.0-%234479A1?style=plastic&logo=mysql&logoColor=%234479A1&label=MySql&labelColor=grey) ![MongoDB](https://img.shields.io/badge/6.0.13-%2347A248?style=plastic&logo=mongodb&logoColor=%2347A248&label=MongoDB&labelColor=grey) ![Docker](https://img.shields.io/badge/24.0.7-%232496ED?style=plastic&logo=docker&logoColor=%232496ED&label=Docker&labelColor=grey)
+  ![Java](https://img.shields.io/badge/17-%23437291?style=plastic&logo=Openjdk&logoColor=%23437291&label=OpenJdk&labelColor=grey) ![SpringBoot](https://img.shields.io/badge/3.1.7-grey?style=plastic&logo=Spring-Boot&logoColor=green&label=Spring-Boot&labelColor=grey&color=green) ![Spring Security](https://img.shields.io/badge/6.0.6-grey?style=plastic&logo=Spring-Security&logoColor=green&label=Spring-Security&labelColor=grey&color=green) ![Spring Webflux](https://img.shields.io/badge/6.0.15-grey?style=plastic&logo=react&logoColor=green&label=Spring_Webflux&labelColor=grey&color=green) </br> ![Thymeleaf](https://img.shields.io/badge/3.1.7-%23005F0F?style=plastic&logo=thymeleaf&logoColor=%23005F0F&label=Thymeleaf&labelColor=grey) ![MySql](https://img.shields.io/badge/8.2.0-%234479A1?style=plastic&logo=mysql&logoColor=%234479A1&label=MySql&labelColor=grey) ![MongoDB](https://img.shields.io/badge/6.0.13-%2347A248?style=plastic&logo=mongodb&logoColor=%2347A248&label=MongoDB&labelColor=grey) ![Docker](https://img.shields.io/badge/24.0.7-%232496ED?style=plastic&logo=docker&logoColor=%232496ED&label=Docker&labelColor=grey)</div>
 
-</div>
+<br>
+<details><summary><strong>Table of content</strong></summary>
+<br>
 
----
-
-- **Table of content**
+- [Medilabo Solutions](#medilabo-solutions)
   - [Architecture](#architecture)
-  - [Security](#Security)
-  - [Tests](#Tests)
+  - [Security](#security)
+  - [Tests](#tests)
   - [Run application](#run-application)
     - [With docker](#with-docker)
     - [Locally](#locally)
@@ -21,7 +22,9 @@
   - [Tech Stacks](#tech-stacks)
   - [Improvements](#improvements)
   - [Versions](#versions)
-  
+
+</details>  
+
 ---
 
 ## Architecture
@@ -76,16 +79,16 @@ The secure access to application follows the following principles:
 
 Microservices below was tested with unit tests for services and with integration tests for their controller (by clicking on them, you can see their jacoco report):
 
-<details><summary><strong>Patient-service:</strong></summary>
+<details><summary><strong>Patient-service</strong></summary>
 
   ![alt](jacoco-patient.png)
 </details>
-<details><summary><strong>note-service:</strong></summary>
+<details><summary><strong>note-service</strong></summary>
 
   ![alt](jacoco-note.png)
 </details>
 
-<details><summary><strong>risk-service:</strong></summary>
+<details><summary><strong>risk-service</strong></summary>
 
   ![alt](jacoco-risk.png)
 </details>
