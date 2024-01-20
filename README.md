@@ -60,9 +60,15 @@ For this moment, as application is not a release version, we have just implented
 
 The secure access to application follows the following principles:
 
-- First a classic authentication username-password with **credential in the web-app** through form in login page
-- Next a **Httpbasic authentication** to access to microservice through Gateway-service
-- Passing by a authentication and authorization delivered by Auth-server microservice
+![Sequence-security](security-flux.drawio.png)
+
+1. First in the web-app, a classic ***username-password authentication*** is needed through form in login page
+2. Next this credential is passed through Gateway-service to Auth-server by the way of ***Http-basic authentication***.
+3. The ***Auth-server microservice*** is responsible of authentication and authorization of registred users. As seen above,actually there is only one user registred for the demonstration.
+4. Once authentication is completed, then Auth-server return to the web-app via the GateWay-service a ***unique JWT token*** that identifies the registred user if it exists or a response with  bad request status if not.
+5. if the user is recognized then received JWT token is store in a ***cookie session of web-app*** to be used for every next requests to microservices.
+6. if the user isn't recognized then spring security of web-app ***redirect user to the login page*** with a message of error "wrong username or password".
+7. For each new requests, they all go through gateway-service that ***checks the existence and validation of the JWT token*** stored in bearer authentication header provided by web-app from its session cookie
 
 ---
 
