@@ -56,7 +56,7 @@ Name         | Port | Definition
 
 We use Spring security to securize application.
 
-For this moment, as application is not a release version, we have just implented one registred user in memory (see chapter of [credential](#credential)) to log in it.
+For this moment, as application is not a release version, we have just implemented one registred user in memory (see chapter of [credential](#credential)) to log in it.
 
 The secure access to application follows the following principles:
 
@@ -71,6 +71,24 @@ The secure access to application follows the following principles:
 7. For each new requests, they all go through gateway-service that ***checks the existence and validation of the JWT token*** stored in bearer authentication header provided by web-app from its session cookie
 
 ---
+
+## Tests
+
+Microservices below was tested with unit tests for services and with integration tests for their controller (by clicking on them, you can see their jacoco report):
+
+<details><summary><strong>Patient-service:</strong></summary>
+
+  ![alt](jacoco-patient.png)
+</details>
+<details><summary><strong>note-service:</strong></summary>
+
+  ![alt](jacoco-note.png)
+</details>
+
+<details><summary><strong>risk-service:</strong></summary>
+
+  ![alt](jacoco-risk.png)
+</details>
 
 ## Run application
 
@@ -117,21 +135,25 @@ password:   password
 
 ## Tech Stacks
 
-- **Java 17**
-- **Maven 3.1.2**
-- **Spring-Boot 3.1.7**
-- **Spring-webflux 6.0.15**
-- **Spring-security 6.1.6**
-- **Spring-cloud-config 4.0.4**
-- **Spring-cloud-gateway 4.0.7**
-- **Spring-cloud-netflix-eureaka 4.0.3**
-- **Spring-boot actuator 3.1.17**
-- **Mongodb reactive 3.1.7**
-- **R2dbc-Mysql 1.0.2**
-- **Thymeleaf 3.1.7**
-- **Jupiter 5.9.3**
-- **Jacoco 0.8.10**
-- **Lombok 1.18.30**
+Technical Stack|version
+---------------|:------:
+Java Openjdk| **17**
+Maven |**3.1.2**
+Spring-Boot| **3.1.7**
+Spring-webflux|**6.0.15**
+Spring-security |**6.1.6**
+Spring-cloud-config |**4.0.4**
+Spring-cloud-gateway |**4.0.7**
+Spring-cloud-netflix-eureaka |**4.0.3**
+Spring-boot actuator |**3.1.17**
+Mongodb|**6.0.13**
+Mongodb reactive |**3.1.7**
+Mysql | **8.2.0**
+R2dbc-Mysql |**1.0.2**
+Thymeleaf |**3.1.7**
+Jupiter |**5.9.3**
+Jacoco |**0.8.10**
+Lombok |**1.18.30**
 
 ---
 
