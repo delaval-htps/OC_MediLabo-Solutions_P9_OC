@@ -1,4 +1,4 @@
-# <div align="center">Medilabo Solutions![Alt text](image-1.png)</div>
+# <div align="center">Medilabo Solutions ![Alt text](image-1.png)</div>
 
 **<p align="center">A Spring-boot demo application to help doctors to identify patients most at risk of type 2 diabetes.</p>**
 
@@ -10,7 +10,7 @@
 <details>
 <summary><strong>Table of content</strong></summary>
 
-- [Medilabo Solutions](#medilabo-solutions)
+- [Medilabo Solutions ](#medilabo-solutions-)
   - [Architecture](#architecture)
   - [Security](#security)
   - [Tests](#tests)
@@ -23,8 +23,6 @@
   - [Versions](#versions)
 
 </details>  
-
----
 
 ## Architecture
 
@@ -52,8 +50,6 @@ Name         | Port | Definition
 -------------|------|----------
  **web-app** | 8080 | provide a GUI for browser, requests to Gateway and create html pages with results ...
 
----
-
 ## Security
 
 We use Spring security to securize application.
@@ -72,13 +68,11 @@ The secure access to application follows the following principles:
 6. if the user isn't recognized then spring security of web-app ***redirect user to the login page*** with a message of error "wrong username or password".
 7. For each new requests, they all go through gateway-service that ***checks the existence and validation of the JWT token*** stored in bearer authentication header provided by web-app from its session cookie
 
----
-
 ## Tests
 
 Microservices below was tested with unit tests for services and with integration tests for their controller (by clicking on them, you can see their jacoco report):
 
-<details><summary><strong>Patient-service</strong></summary>
+<details><summary><strong>patient-service</strong></summary>
 
   ![alt](jacoco-patient.png)
 </details>
@@ -133,8 +127,6 @@ username:   user
 password:   password
 ```
 
----
-
 ## Tech Stacks
 
 Technical Stack|version
@@ -157,10 +149,6 @@ Jupiter |**5.9.3**
 Jacoco |**0.8.10**
 Lombok |**1.18.30**
 
----
-
 ## Improvements
-
----
 
 ## Versions
