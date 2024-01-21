@@ -31,7 +31,6 @@
     - [Locally with maven](#locally-with-maven)
     - [Credential](#credential)
   - [Tech Stacks](#tech-stacks)
-  - [Improvements](#improvements)
   - [Versions](#versions)
 
 </details>  
@@ -88,7 +87,7 @@ Name        | Port | Definition
 
 ## Security
 
-We use Spring security <img src="image_readme/springsecurity-color.svg" alt="sprin-security-svg" width="30"> to securize application.
+We use **Spring security reactive** <img src="image_readme/springsecurity-color.svg" alt="sprin-security-svg" width="30"> to securize this application.
 
 For this moment, as application is not a release version, we have just implemented one registred user in memory (see chapter of [credential](#credential)) to log in it.
 
@@ -179,7 +178,9 @@ Order | name of service
 
 ### Credential
 
-We use Spring Security<img src="image_readme/springsecurity-color.svg" alt="sprin-security-svg" width="30">to secure application. As the application is not yet a release but a testing version, a predefined user was registred in Memory. So, you must use his basic credential, defined below, to login to application:
+We use Spring Security<img src="image_readme/springsecurity-color.svg" alt="sprin-security-svg" width="30">to secure application.
+
+As the application is not yet a release but a testing version, a predefined user was registred in Memory. So, you must use his basic credential, defined below, to login to application:
 
 ```bash
 username:   user
@@ -212,10 +213,10 @@ Lombok                       | **1.18.30**
 
 [Page up :arrow_heading_up:](#medilabo-solutions)
 
-## Improvements
-
-[Page up :arrow_heading_up:](#medilabo-solutions)
-
 ## Versions
+
+- **V0.0.1-SNAPSHOT**
+  
+  As we said earlier this project is a first demonstration application to a future release project and it has to be validate by developper's team. So this is the reason why I don't change version and it is still on `V0.0.1-SNAPSHOT`
 
 [Page up :arrow_heading_up:](#medilabo-solutions)
