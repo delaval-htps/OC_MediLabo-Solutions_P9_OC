@@ -66,10 +66,7 @@ Name         | Port | Definition
 -------------|------|----------
  **web-app** | 8080 | provide a GUI for browser, requests to Gateway and create html pages with results ...
 
-<div align="end">
-
 [Page up :arrow_heading_up:](#medilabo-solutions)
-</div>
 
 ## Security
 
@@ -89,10 +86,7 @@ The secure access to application follows the following principles:
 6. if the user isn't recognized then spring security of web-app ***redirect user to the login page*** with a message of error "wrong username or password".
 7. For each new requests, they all go through gateway-service that ***checks the existence and validation of the JWT token*** stored in bearer authentication header provided by web-app from its session cookie
 
-<div align="end">
-
-[:arrow_heading_up:](#medilabo-solutions)
-</div>
+[Page up :arrow_heading_up:](#medilabo-solutions)
 
 ## Tests
 
@@ -133,12 +127,10 @@ After a completed installation, as all microservices have their own ***DockerFil
 ```bash
 docker compose up -d
 ```
-<div align="end">
 
-[:arrow_heading_up:](#medilabo-solutions)
-</div>
+[Page up :arrow_heading_up:](#medilabo-solutions)
 
-### Locally with maven 
+### Locally with maven
 
 1. **For Mysql db**<img src="image_readme/mysql-color.svg" alt="mysql-svg" width="40"> , as we use ***[Spring-Webflux](https://docs.spring.io/spring-framework/reference/web/webflux.html)*** and the ***Reactive Relational Database Connectivity*** to access to Mysql databases ***[R2dbc](https://r2dbc.io)***, we have to:
 <br/>
@@ -165,10 +157,7 @@ docker compose up -d
     7|Risk-service
     8|web-app
 
-<div align="end">
-
-[:arrow_heading_up:](#medilabo-solutions)
-</div>
+[Page up :arrow_heading_up:](#medilabo-solutions)
 
 ### Credential
 
@@ -179,10 +168,7 @@ username:   user
 password:   password
 ```
 
-<div align="end">
-
-[:arrow_heading_up:](#medilabo-solutions)
-</div>
+[Page up :arrow_heading_up:](#medilabo-solutions)
 
 ## Tech Stacks
 
@@ -206,21 +192,12 @@ Jupiter |**5.9.3**
 Jacoco |**0.8.10**
 Lombok |**1.18.30**
 
-<div align="end">
-
-[:arrow_heading_up:](#medilabo-solutions)
-</div>
+[Page up :arrow_heading_up:](#medilabo-solutions)
 
 ## Improvements
 
-<div align="end">
-
-[:arrow_heading_up:](#medilabo-solutions)
-</div>
+[Page up :arrow_heading_up:](#medilabo-solutions)
 
 ## Versions
 
-<div align="end">
-
-[:arrow_heading_up:](#medilabo-solutions)
-</div>
+[Page up :arrow_heading_up:](#medilabo-solutions)
