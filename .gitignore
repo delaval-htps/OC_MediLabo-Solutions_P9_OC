@@ -1,3 +1,2 @@
 # exclude target directory
 target/
-mysql/
