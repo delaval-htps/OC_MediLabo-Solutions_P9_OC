@@ -28,8 +28,6 @@
   - [Tests](#tests)
   - [Run application](#run-application)
     - [With docker](#with-docker)
-    - [Locally with maven](#locally-with-maven)
-    - [Credential](#credential)
   - [Tech Stacks](#tech-stacks)
   - [Versions](#versions)
 
@@ -125,29 +123,51 @@ Microservices below was tested with Jupiter <img src="image_readme/junit5-color.
 
 And All endpoints was tested with postman <img src="image_readme/postman-color.svg" alt="postman-svg" width="30"> to ensure response of each API.
 
-<div align="end">
-
-[:arrow_heading_up:](#medilabo-solutions)
-</div>
+[Page up :arrow_heading_up:](#medilabo-solutions)
 
 ## Run application
 
 ### With docker
 
-We suppose that you have already install and configure **Docker** <img src="image_readme/docker-color.svg" alt="docker-svg" width="30"> and its **compose plugin** on your computer. If it's not the case, you can follow these documentations:
+We suppose that you have already install and configure **Docker** <img src="image_readme/docker-color.svg" alt="docker-svg" width="30"> and its **compose plugin** as well as **Maven** on your computer. If it's not the case, you can follow these documentations:
 
 - **[Install Docker](https://docs.docker.com/get-docker/)**
 - **[Install Docker Compose](https://docs.docker.com/compose/install/)**
+- **[Install Maven](https://maven.apache.org/install.html)**
 
-After a completed installation, as all microservices have their own ***DockerFile*** and there is a ***docker-compose.yaml*** at the root of project. You can run the project just by using the following command without worrying about the compilation order and dependencies:
+Each microservice has its own ***DockerFile*** and there is a ***docker-compose.yaml*** at the root of project.
 
-```bash
-docker compose up -d
-```
+To run application, follow theses instructions:
+
+1. ***Clone the project*** from github repository via https ***[MedilaboSolutions](https://github.com/delaval-htps/MediLabo-Solutions_P9_OC.git)***:
+  
+    ```bash
+    git clone https://github.com/delaval-htps/MediLabo-Solutions_P9_OC.git
+   ```
+
+2. ***Go to the root of project*** directory:
+
+    ```bash
+    cd MediLabo-Solutions_P9_OC
+    ```
+
+3. ***Launch mvn build command*** below:
+
+    ```bash
+    mvn clean package spring-boot:repackage
+    ```
+
+4. Now,you can **run the project** just by using the following command without worrying about the compilation order and dependencies:
+
+    ```bash
+    docker compose up -d
+    ```
+
+5. Open a browser and got to **`localhost:8080`**, the application is running 😄
 
 NB: As the project is in demonstration stage and to enable you to launch it without problems to test it, we decided to push on repository the `.env file`.
 
-Of course, for futur production release, this file will be add to the .gitignore file to be accessible only for developpers :wink:
+Of course, for futur production release, this file will be remove from repository and will be accessible only for developpers :wink:
 
 [Page up :arrow_heading_up:](#medilabo-solutions)
 
