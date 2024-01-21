@@ -145,6 +145,10 @@ After a completed installation, as all microservices have their own ***DockerFil
 docker compose up -d
 ```
 
+NB: As the project is in demonstration stage and to enable you to launch it without problems to test it, we decided to push on repository the `.env file`.
+
+Of course, for futur production release, this file will be add to the .gitignore file to be accessible only for developpers :wink:
+
 [Page up :arrow_heading_up:](#medilabo-solutions)
 
 ### Locally with maven
