@@ -6,12 +6,12 @@
 	<parent>
 		<groupId>com.medilabosolutions</groupId>
 		<artifactId>medilabo-solutions</artifactId>
-		<version>0.0.1-SNAPSHOT</version>		<!-- lookup parent from repository -->
+		<version>0.0.2</version>		<!-- lookup parent from repository -->
 	</parent>
 
 	<groupId>com.medilabosolutions</groupId>
 	<artifactId>eureka-server</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<name>eureka-server</name>
 	<packaging>jar</packaging>
 	<description>eureka-server</description>
