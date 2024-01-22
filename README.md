@@ -179,10 +179,10 @@ Of course, for futur production release, this file will be remove from repositor
    - ***Create manually a database named*** `patient-service` ***in your MySql db*** before bootstrap microservice patient-service. Indeed, R2dbc not supports ORM like Hibernate so we can't create automatically database at start-up like in traditional Spring MVC application.
 <br/>
 
-   - ***Create a MySql user*** `admin_patient_service` with all grant privileges on this database patient_service to ensure access to it. You can find his credential in patient-service 's ***[application.properties](MedilaboConfigServer/patient-service.properties)***.
+   - ***Create a MySql user*** `admin_patient_service` with all grant privileges on this database patient_service to ensure access to it. You can find his credential in this repository's directory ***[Medilabo-Solutions-Config-Server/patient-service.properties](https://github.com/delaval-htps/MediLabo-Solutions-Config-Server/blob/master/patient-service.properties)***.
 <br/>
 
-2. **For MongoDB**<img src="image_readme/mongodb-color.svg" alt="mongodb-svg" width="30">, we have just to create a MonoDb user `admin_mogodb`. You can find his credential in note's ***[application.properties](MedilaboConfigServer/patient-service.properties)***.
+2. **For MongoDB**<img src="image_readme/mongodb-color.svg" alt="mongodb-svg" width="30">, we have just to create a MonoDb user `admin_mogodb`. You can find his credential and configuration in this repository's directory ***[Medilabo-Solutions-Config-Server/note-service-dev.properties](https://github.com/delaval-htps/MediLabo-Solutions-Config-Server/blob/master/note-service-dev.properties)***.
 <br/>
 
 3. **Finally, use the maven**<img src="image_readme/apachemaven-color.svg" alt="maven-svg" width="30">command `mvn spring-boot:run` to start all microservices in this application. But don't forget to respect the following order:
@@ -239,6 +239,10 @@ Lombok                       | **1.18.30**
 
 ## Versions
 
+- **V0.0.2**
+  
+  Just a HotFix to change links to Config-server in github
+  
 - **V0.0.1-SNAPSHOT**
   
   As we said earlier this project is a first demonstration application to a future release project and it has to be validate by developper's team. So this is the reason why I don't change version and it is still on `V0.0.1-SNAPSHOT`
