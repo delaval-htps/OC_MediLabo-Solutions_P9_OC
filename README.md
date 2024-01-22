@@ -28,6 +28,8 @@
   - [Tests](#tests)
   - [Run application](#run-application)
     - [With docker](#with-docker)
+    - [Locally with maven](#locally-with-maven)
+    - [User Credential to login](#user-credential-to-login)
   - [Tech Stacks](#tech-stacks)
   - [Versions](#versions)
 
@@ -200,7 +202,7 @@ Order | name of service
 
 [Page up :arrow_heading_up:](#medilabo-solutions)
 
-### Credential
+### User Credential to login
 
 We use Spring Security<img src="image_readme/springsecurity-color.svg" alt="sprin-security-svg" width="30">to secure application.
 
