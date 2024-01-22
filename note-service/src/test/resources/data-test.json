@@ -1,0 +1,11 @@
+[
+  {
+    "id":"testId",
+    "content": "Le patient déclare qu'il 'se sent très bien'",
+    "date": "2023-12-27 12:00:00",
+    "patient": {
+      "id": 1,
+      "name": "TestName"
+    }
+  }
+]

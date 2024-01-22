@@ -1,11 +1,19 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
-    "java.compile.nullAnalysis.mode": "automatic",
+    "java.compile.nullAnalysis.mode": "disabled",
     "sqltools.connections": [],
     "java.format.settings.url": ".vscode/eclipse-java-google-style.xml",
     "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
     "[java]": {
         "editor.insertSpaces": true
     },
-    "boot-java.change-detection.on": true
+    "boot-java.change-detection.on": true,
+    "java.debug.settings.onBuildFailureProceed": true,
+    "editor.fontSize": 13,
+    "editor.suggestFontSize": 13,
+    "terminal.integrated.fontSize": 13,
+    "debug.console.closeOnEnd": false,
+    "java.debug.settings.showStaticVariables": true,
+    "java.debug.settings.showHex": true,
+    "java.debug.settings.showQualifiedNames": true
 }

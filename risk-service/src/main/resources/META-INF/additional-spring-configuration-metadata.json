@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "risk.term.triggers",
+    "type": "java.lang.String",
+    "description": "file name of list of diabetes term triggers "
+  },
+  {
+    "name": "application.url",
+    "type": "java.lang.String",
+    "description": "'application.url' is the name of application"
+  }
+]}

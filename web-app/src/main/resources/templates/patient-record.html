@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{default.html}">
+
+<head>
+    <title>Patient Record</title>
+</head>
+
+<body>
+    <th:block layout:fragment="content">
+        <div class="col-8 mt-3 ">
+
+            <div class="d-flex inline-flex flew-wrap justify-content-between align-items-baseline">
+
+                <div class="col-8 alert alert-info d-flex  shadow-sm" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <div class="ms-3">
+                        You can edit informations by clicking the blue pencil displayed on right on each fielset.
+                    </div>
+                </div>
+
+                <div class="col-auto ">
+                    <a th:href="@{/patients}"><button id="btn-return-index" type="button"
+                            class="btn btn-primary">Return</button></a>
+                </div>
+            </div>
+
+            <form id="form-update-patient" th:object="${patient}"
+                th:action="@{/patients/update/}+*{id}+'?note_state='+${param.note_state}" method="post">
+
+                <fieldset class="pt-1 px-5 shadow mt-3 bg-white rounded-4 ">
+
+                    <div class="d-flex inline-flex justify-content-between align-items-baseline mb-3">
+                        <legend class=" col-auto pt-4  text-primary fs-5 mb-3">
+                            <ins>Personal Informations:</ins>
+                        </legend>
+
+                        <i class="col-auto bi bi-pencil-square text-primary" style="font-size: 2rem; cursor:pointer;"
+                            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip"
+                            data-bs-title="Click to update personal information of patient."
+                            onclick="enablePersonalInformation()"></i>
+                        <i class="bi bi-x-square text-primary" style="font-size: 2rem; cursor:pointer;display:none;"
+                            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip"
+                            data-bs-title="Undo patient edit." onclick="disablePersonalInformation()"> </i>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-xl-4 col-lg-6 col-md-6 mb-3 field-patient">
+                            <label for="lastname" class="form-label">Lastname</label>
+                            <input type="text" class="form-control" th:field="*{lastName}"
+                                style="background-color: white;"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'lastName')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'lastName')} "
+                                    th:text="${fieldsOnError['lastName']}" class="field-error"></li>
+                            </ul>
+                        </div>
+                        <div class="col-xl-4 col-lg-6 col-md-6 mb-3 field-patient">
+                            <label for="firstname" class="form-label">Firstname</label>
+                            <input type="text" class="form-control" th:field="*{firstName}"
+                                style="background-color: white;"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'firstName')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'firstName')} "
+                                    th:text="${fieldsOnError['firstName']}" class="field-error"></li>
+                            </ul>
+
+                        </div>
+                        <div class="col-xl-3 col-lg-8 col-md-8 mb-3 field-patient">
+                            <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                            <input id="dateOfBirth" type="date" class="form-control" th:field="*{dateOfBirth}"
+                                style="background-color: white;"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'dateOfBirth')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'dateOfBirth')} "
+                                    th:text="${fieldsOnError['dateOfBirth']}" class="field-error"></li>
+                            </ul>
+                        </div>
+                        <div class="col-xl-1 col-lg-4 col-md-4 mb-3 field-patient">
+                            <label for="genre" class="form-label">Genre</label>
+                            <select class="form-select" id="genre" style="background-color: white;" th:field="*{genre}"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'genre')}?'is-invalid':''">
+                                <option selected hidden th:value="*{genre}" th:text="*{genre}"></option>
+                                <option value="M">M</option>
+                                <option value="F">F</option>
+                            </select>
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'genre')} "
+                                    th:text="${fieldsOnError['genre']}" class="field-error"></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-xl-7 col-md-7 col-sm-12 col-xsm-12 mb-3 field-patient">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" name="address" id="address"
+                                th:value="*{address != ''}?*{address}:'-- no informations --'" th:field="*{address}"
+                                style="background-color: white;"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'address')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'address')} "
+                                    th:text="${fieldsOnError['address']}" class="field-error"></li>
+                            </ul>
+                        </div>
+                        <div class="col-xl-3 col-md-3 col-sm-12 mb-3 field-patient">
+                            <label for="phoneNumber" class="form-label">phoneNumber</label>
+                            <input type="text" class="form-control text-center" name="phoneNumber" id="phoneNumber"
+                                th:value="*{phoneNumber != ''}?*{phoneNumber}:'-- no informations --'"
+                                th:field="*{phoneNumber}" style="background-color: white;"
+                                th:classappend="${#maps.containsKey(fieldsOnError,'phoneNumber')}?'is-invalid':''">
+                            <ul>
+                                <li th:if="${#maps.containsKey(fieldsOnError,'phoneNumber')} "
+                                    th:text="${fieldsOnError['phoneNumber']}" class="field-error"></li>
+                            </ul>
+                        </div>
+                        <div class="col-2 text-center mb-3">
+                            <label for="Assessment" class="form-label">Assessment</label>
+                            <button id="assessment-btn"
+                                class="form-control rounded-pill ass-bg-none">
+                                <span id="assessment-value" class="fw-bold" th:text="${assessment.expectedRisk}" style="vertical-align: middle;"> </span>
+                                <span class=" ms-3 badge rounded-pill bg-light text-dark"
+                                    style="vertical-align: baseline;" th:text="${assessment.countTriggers}"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="div-submit-btn" class="row p-3 justify-content-center">
+                        <button id="submit-personal-information-btn" class="col-xl-2 col-sm-3 btn btn-primary"
+                            type="submit">Update</button>
+                    </div>
+
+                </fieldset>
+            </form>
+            <div class=" alert alert-info d-flex mt-4 shadow-sm" role="alert">
+
+                <i class="bi bi-info-circle"></i>
+
+                <div class="ms-3">
+                    To create a new note, click on button "Create a note". To display content of a note, just click on
+                    his row.
+                </div>
+            </div>
+            <fieldset class="pt-1 px-5 shadow mt-4 bg-white rounded-4 ">
+
+                <legend class=" d-flex justify-content-between pt-4 text-primary fs-5 mb-3">
+                    <ins class="col-6">Patient's notes:</ins>
+                    <button id="creation-note-btn" class="btn btn-primary col-2" type="button"
+                        th:patientId="${patient.id}"
+                        onclick="toggleNoteCreationForm(this,this.getAttribute('patientId'))">Create a
+                        note</button>
+                </legend>
+
+                <form class="col-12" id="note-creation-form" style="display: none;" th:object="${note}"
+                    th:action="@{/notes/create}+'?patient_update='+${param.patient_update}" method="POST">
+
+                    <input hidden type="text" th:field="*{patient.id}" th:value="${note.patient.id}">
+                    <input hidden type="text" th:field="*{patient.name}" th:value="${note.patient.name}">
+
+                    <div class=" mb-3 row">
+                        <label class="col-1 col-form-label" for="date">Date:</label>
+                        <div class="col-sm-2">
+                            <input id="creation-note-date" type="text" readonly
+                                class="form-control text-center field-note" th:field="*{date}" />
+                        </div>
+                    </div>
+                    <div class=" mb-3 ">
+                        <label class="form-label" for="content">Content:</label>
+                        <textarea id="creation-note-content" class="form-control field-note " th:field="*{content}"
+                            rows="10" th:classappend="${#maps.containsKey(fieldsOnError,'content')}?'is-invalid':''">
+                        </textarea>
+                        <ul>
+                            <li th:if="${#maps.containsKey(fieldsOnError,'content')} "
+                                th:text="${fieldsOnError['content']}" class="field-error"></li>
+                        </ul>
+                    </div>
+
+                    <div class=" row justify-content-center mb-3">
+                        <button id="save-note-btn" type="submit" class=" col-2 btn btn-primary">Save note</button>
+                    </div>
+
+                </form>
+
+                <div id="notes-table" class="col-12 table-responsive mt-3" th:if="${notePages.numberOfElements !=0}">
+                    <table class="table table-sm table-hover ">
+
+                        <caption hidden>List of all patient's notes</caption>
+
+                        <thead>
+                            <tr>
+                                <th class="d-none"></th>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>content</th>
+                                <th class="text-end pe-3">Update/Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            <tr th:each="note,iterator : ${notePages.content}" style="cursor:pointer;"
+                                th:noteId="${note.id}" onclick="notesRowClicked(this.getAttribute('noteId'))">
+                                <td th:text="${note.id}" class="d-none"></td>
+                                <td th:text="${iterator.index + (notePages.number * notePages.size) +1 }">
+                                </td>
+                                <td th:text="${note.date}"></td>
+                                <td th:text="${#strings.abbreviate(note.content,100)}"></td>
+                                <td class="text-end">
+                                    <div class="d-flex flewx-nowrap justify-content-end m-1">
+                                        <button type="button" class="btn btn-sm btn-outline-success me-3"
+                                            th:urlNoteToUpdate="'/notes/__${note.id}__?note_state=update&patient_update='"
+                                            onclick="myEventHandler(event);updateNote(this.getAttribute('urlNoteToUpdate'));">Update</button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            th:urlNoteToDelete="'/notes/delete/__${note.id}__?patient_update='"
+                                            onclick="myEventHandler(event);deleteNote(this.getAttribute('urlNoteToDelete'));">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                    <nav class="pt-3" aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item"><a class="page-link"
+                                    th:href=" @{/patients/__${patient.id}__(notePage=0,noteSize=${notePages.size})}">&laquo;</a>
+                            </li>
+                            <li class="page-item"><a class="page-link"
+                                    th:href="${notePages.number>0}? @{/patients/__${patient.id}__(notePage=${notePages.number -1},noteSize=${notePages.size})}:''">Previous</a>
+                            </li>
+
+                            <th:block id="page-number-list" th:if="${#lists.size(pageNumbers) <= 10 }"
+                                th:each="pageNumber : ${pageNumbers}">
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        th:href="@{/patients/__${patient.id}__(notePage=${pageNumber -1},noteSize=${notePages.size})}"
+                                        th:text="${pageNumber}"
+                                        th:classAppend="${pageNumber==notePages.number+ 1} ? active"></a>
+                                </li>
+                            </th:block>
+
+                            <th:block th:if="${#lists.size(pageNumbers) >10 }"
+                                th:with="totalOfPages =${#lists.size(pageNumbers)},currentPage = ${notePages.number}">
+
+                                <th:block th:if="${currentPage <5 || currentPage> totalOfPages-6 }">
+                                    <p id="page-number-list" th:each="index: ${#numbers.sequence(1,5)}">
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                th:href="@{/patients/__${patient.id}__(notePage=${index-1},noteSize=${notePages.size})}"
+                                                th:text="${index}"
+                                                th:classAppend="${index == currentPage +1} ? active"></a>
+                                        </li>
+                                    </p>
+                                    <li class="page-item">
+                                        <a class="page-link">...</a>
+                                    </li>
+                                    <p id="page-number-list"
+                                        th:each="index: ${#numbers.sequence(totalOfPages-4,totalOfPages)}">
+
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                th:href="@{/patients/__${patient.id}__(notePage=${index-1},noteSize=${notePages.size})}"
+                                                th:text="${index}"
+                                                th:classAppend="${index==currentPage+1} ? active"></a>
+                                        </li>
+                                    </p>
+                                </th:block>
+
+                                <th:block th:if="${currentPage >=5 && currentPage <= totalOfPages-6 }">
+                                    <li class="page-item">
+                                        <a class="page-link">...</a>
+                                    </li>
+                                    <p id="page-number-list"
+                                        th:each="index: ${#numbers.sequence(currentPage-2,currentPage+4)}">
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                th:href="@{/patients/__${patient.id}__(notePage=${index-1},noteSize=${notePages.size})}"
+                                                th:text="${index}"
+                                                th:classAppend="${index == currentPage+ 1} ? active"></a>
+                                        </li>
+                                    </p>
+                                    <li class="page-item">
+                                        <a class="page-link">...</a>
+                                    </li>
+                                </th:block>
+
+                            </th:block>
+
+                            <li class="page-item"><a class="page-link"
+                                    th:href="${notePages.number < notePages.totalPages-1}? @{/patients/__${patient.id}__(notePage=${notePages.number+1 },noteSize=${notePages.size})}:''">Next</a>
+                            </li>
+                            <li class="page-item"><a class="page-link"
+                                    th:href=" @{/patients/__${patient.id}__(notePage=${notePages.totalPages -1},noteSize=${notePages.size})}">&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-12 text-center my-3 lead" th:if="${notePages.numberOfElements == 0}"> There are no notes
+                    yet associated with this patient...</div>
+            </fieldset>
+        </div>
+
+        <!-- delete Note Modal -->
+        <div class="modal fade" id="deleteNoteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        Are you sure you want to delete this note ?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <a href="" data-method="delete"><button type="button" class="btn btn-sm btn-danger">Delete
+                                it</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </th:block>
+
+    <th:block layout:fragment="page-script">
+        <script type="text/javascript" th:src="@{/public/js/patient-record.js}"></script>
+    </th:block>
+</body>
+
+</html>

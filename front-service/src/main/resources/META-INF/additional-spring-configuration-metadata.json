@@ -1,7 +1,0 @@
-{"properties": [
-  {
-    "name": "patient.service.url.from.gateway",
-    "type": "java.lang.String",
-    "description": "baseUrl for patient-service from gateway"
-  }
-]}

@@ -1,0 +1,32 @@
+fieldset:disabled {
+    background-color: white !important;
+}
+
+fieldset {    
+    border: 0.1px solid #e4e4e4 !important; 
+    box-shadow: 0px 0px 1px rgb(0, 0, 0) !important;
+    border-radius: 5px !important;
+}
+
+.field-error {
+    color: red;
+    font-size: 0.8rem;
+}
+
+.ass-bg-red{
+    background-color: red !important;
+    color: white !important;
+}
+
+.ass-bg-orange{
+    background-color: orange !important;
+    color: white !important;
+}
+.ass-bg-yellow{
+    background-color: rgb(255, 238, 0) !important;
+    color: white !important;
+} 
+.ass-bg-none{
+    background-color: green !important;
+    color: white !important;
+}

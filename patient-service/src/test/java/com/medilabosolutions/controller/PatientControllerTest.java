@@ -17,13 +17,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+import com.medilabosolutions.dto.PatientDto;
 import com.medilabosolutions.model.Patient;
 
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class PatientControllerTest {
+class PatientControllerTest {
 
         @Autowired
         private WebTestClient webTestClient;
@@ -35,7 +35,7 @@ public class PatientControllerTest {
         @Order(1)
         void testGetAllPatients() {
                 webTestClient.get().uri("/patients").exchange().expectStatus().isOk()
-                                .expectBodyList(Patient.class)
+                                .expectBodyList(PatientDto.class)
                                 .value(patients -> patients.size(), Matchers.equalTo(4))
                                 .value(patients -> patients.get(0).getLastName(),
                                                 Matchers.equalTo("TestNone"))
@@ -52,7 +52,7 @@ public class PatientControllerTest {
         @Order(2)
         void testGetPatientById() {
                 webTestClient.get().uri("/patients/{id}", 1).exchange().expectStatus().isOk()
-                                .expectBodyList(Patient.class)
+                                .expectBodyList(PatientDto.class)
                                 .value(patients -> patients.size(), Matchers.equalTo(1))
                                 .value(patients -> patients.get(0).getLastName(),
                                                 Matchers.equalTo("TestNone"))
@@ -78,10 +78,10 @@ public class PatientControllerTest {
                                 .expectStatus().isNotFound().expectBody()
                                 .jsonPath("$.length()").isEqualTo(7)
                                 .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
-                                .jsonPath("$.title").isEqualTo("Patient Not Found")
+                                .jsonPath("$.title").isEqualTo("404-Patient not found")
                                 .jsonPath("$.status").isEqualTo("404")
                                 .jsonPath("$.detail")
-                                .isEqualTo("The patient with id: 10 was not found")
+                                .isEqualTo("Patient with id: 10 was not found")
                                 .jsonPath("$.instance").isEqualTo("/patients/10")
                                 .jsonPath("$.timeStamp").isNotEmpty()
                                 .jsonPath("$.requestId").isNotEmpty();
@@ -100,7 +100,7 @@ public class PatientControllerTest {
 
                 webTestClient.post().uri("/patients").bodyValue(patientToSave).exchange()
                                 .expectStatus().isCreated()
-                                .expectBody(Patient.class)
+                                .expectBody(PatientDto.class)
                                 .value(p -> p.getLastName(),
                                                 Matchers.equalTo(patientToSave.getLastName()))
                                 .value(p -> p.getFirstName(),
@@ -123,12 +123,13 @@ public class PatientControllerTest {
                 webTestClient.post().uri("/patients").contentType(MediaType.APPLICATION_JSON)
                                 .bodyValue(BodyInserters.fromValue(jsonInput)).exchange()
                                 .expectStatus().isBadRequest().expectBody()
-                                .jsonPath("$.length()").isEqualTo(7)
+                                .jsonPath("$.length()").isEqualTo(8)
                                 .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
-                                .jsonPath("$.title").isEqualTo("Invalid fields in Patient")
+                                .jsonPath("$.title").isEqualTo("400-Invalid fields: ")
                                 .jsonPath("$.status").isEqualTo("400")
                                 .jsonPath("$.detail").value(Matchers.containsString("genre"))
                                 .jsonPath("$.instance").isEqualTo("/patients")
+                                .jsonPath("$.bindingResult").isNotEmpty()
                                 .jsonPath("$.timeStamp").isNotEmpty()
                                 .jsonPath("$.requestId").isNotEmpty();
         }
@@ -141,12 +142,12 @@ public class PatientControllerTest {
                 Patient updatedPatient = Patient.builder()
                                 .lastName("Patient")
                                 .firstName("TestUpdatedPatient")
-                                .dateOfBirth(LocalDate.now())
+                                .dateOfBirth(LocalDate.now().minusDays(1))
                                 .genre("F")
                                 .build();
                 webTestClient.put().uri("/patients/{id}", 2).bodyValue(updatedPatient).exchange()
                                 .expectStatus().isOk()
-                                .expectBody(Patient.class)
+                                .expectBody(PatientDto.class)
                                 .value(p -> p.getLastName(),
                                                 Matchers.equalTo(updatedPatient.getLastName()))
                                 .value(p -> p.getFirstName(),
@@ -164,7 +165,7 @@ public class PatientControllerTest {
                 Patient updatedPatient = Patient.builder()
                                 .lastName("Patient")
                                 .firstName("TestUpdatedPatient")
-                                .dateOfBirth(LocalDate.now())
+                                .dateOfBirth(LocalDate.now().minusDays(1))
                                 .genre("F")
                                 .build();
                 webTestClient.put().uri("/patients/{id}", 10).bodyValue(updatedPatient).exchange()
@@ -172,10 +173,10 @@ public class PatientControllerTest {
                                 .expectBody()
                                 .jsonPath("$.length()").isEqualTo(7)
                                 .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
-                                .jsonPath("$.title").isEqualTo("Patient Not Found")
+                                .jsonPath("$.title").isEqualTo("404-Patient not found")
                                 .jsonPath("$.status").isEqualTo("404")
                                 .jsonPath("$.detail")
-                                .isEqualTo("The patient with id: 10 was not found")
+                                .isEqualTo("Patient with id: 10 was not found")
                                 .jsonPath("$.instance").isEqualTo("/patients/10")
                                 .jsonPath("$.timeStamp").isNotEmpty()
                                 .jsonPath("$.requestId").isNotEmpty();
@@ -188,7 +189,7 @@ public class PatientControllerTest {
         void testDeletePatient_whenExistingId_thenDeleteAndReturnDeletedPatient() {
                 webTestClient.delete().uri("/patients/{id}", 4).exchange()
                                 .expectStatus().isOk()
-                                .expectBody(Patient.class)
+                                .expectBody(PatientDto.class)
                                 .value(deletedPatient -> deletedPatient.getLastName(),
                                                 Matchers.equalTo("TestEarlyOnset"))
                                 .value(deletedPatient -> deletedPatient.getFirstName(),
@@ -212,10 +213,10 @@ public class PatientControllerTest {
                                 .expectBody()
                                 .jsonPath("$.length()").isEqualTo(7)
                                 .jsonPath("$.type").isEqualTo("http://medilabosolutions/")
-                                .jsonPath("$.title").isEqualTo("Patient Not Found")
+                                .jsonPath("$.title").isEqualTo("404-Patient not found")
                                 .jsonPath("$.status").isEqualTo("404")
                                 .jsonPath("$.detail")
-                                .isEqualTo("The patient with id: 10 was not found")
+                                .isEqualTo("Patient with id: 10 was not found")
                                 .jsonPath("$.instance").isEqualTo("/patients/10")
                                 .jsonPath("$.timeStamp").isNotEmpty()
                                 .jsonPath("$.requestId").isNotEmpty();

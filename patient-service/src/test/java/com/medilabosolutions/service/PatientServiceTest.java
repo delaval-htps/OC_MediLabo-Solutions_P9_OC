@@ -17,103 +17,102 @@ import reactor.test.StepVerifier;
 @ExtendWith(SpringExtension.class)
 public class PatientServiceTest {
 
-    @Mock
-    private PatientRepository patientRepository;
+        @Mock
+        private PatientRepository patientRepository;
 
-    @InjectMocks
-    private PatientService cut;
+        @InjectMocks
+        private PatientService cut;
 
-    private static Patient mockPatient1;
-    private static Patient mockPatientToUpdate;
-    private static Patient mockPatient2;
-    private static Patient mockPatientToDelete;
+        private static Patient mockPatient1;
+        private static Patient mockPatientToUpdate;
+        private static Patient mockPatient2;
+        private static Patient mockPatientToDelete;
 
-    @BeforeAll
-    public static void setUp() {
+        @BeforeAll
+        public static void setUp() {
 
-        mockPatient1 = Patient.builder()
-                .id((long) 1)
-                .firstName("patient1")
-                .lastName("TestPatient1")
-                .dateOfBirth(LocalDate.now())
-                .genre("M")
-                .build();
+                mockPatient1 = Patient.builder()
+                                .id((long) 1)
+                                .firstName("patient1")
+                                .lastName("TestPatient1")
+                                .dateOfBirth(LocalDate.now())
+                                .genre("M")
+                                .build();
 
-        mockPatientToUpdate = mockPatient1;
+                mockPatientToUpdate = mockPatient1;
 
-        mockPatient2 = Patient.builder()
-                .id((long) 2)
-                .firstName("patient2")
-                .lastName("TestPatient2")
-                .dateOfBirth(LocalDate.now())
-                .genre("F")
-                .build();
+                mockPatient2 = Patient.builder()
+                                .id((long) 2)
+                                .firstName("patient2")
+                                .lastName("TestPatient2")
+                                .dateOfBirth(LocalDate.now())
+                                .genre("F")
+                                .build();
 
-        mockPatientToDelete = mockPatient2;
-    }
+                mockPatientToDelete = mockPatient2;
+        }
 
-    @Test
-    public void findAll() {
-        // given
-        Mockito.when(patientRepository.findAll())
-                .thenReturn(Flux.just(mockPatient1, mockPatient2));
-        // when and then
-        StepVerifier.create(cut.findAll())
-                .expectNext(mockPatient1, mockPatient2)
-                .expectComplete()
-                .verify();
-    }
+        @Test
+        void findAll() {
+                // given
+                Mockito.when(patientRepository.findAll()).thenReturn(Flux.just(mockPatient1, mockPatient2));
+                // when and then
+                StepVerifier.create(cut.findAll())
+                                .expectNext(mockPatient1, mockPatient2)
+                                .expectComplete()
+                                .verify();
+        }
 
-    @Test
-    public void findById() {
+        @Test
+        void findById() {
 
-        Mockito.when(patientRepository.findById(Mockito.anyLong()))
-                .thenReturn(Mono.just(mockPatient1));
+                Mockito.when(patientRepository.findById(Mockito.anyLong()))
+                                .thenReturn(Mono.just(mockPatient1));
 
-        StepVerifier.create(cut.findById((long) 1))
-                .expectNext(mockPatient1)
-                .expectComplete()
-                .verify();
-    }
+                StepVerifier.create(cut.findById((long) 1))
+                                .expectNext(mockPatient1)
+                                .expectComplete()
+                                .verify();
+        }
 
-    @Test
-    public void createPatient() {
+        @Test
+        void createPatient() {
 
-        Mockito.when(patientRepository.save(Mockito.any(Patient.class)))
-                .thenReturn(Mono.just(mockPatient1));
+                Mockito.when(patientRepository.save(Mockito.any(Patient.class)))
+                                .thenReturn(Mono.just(mockPatient1));
 
-        StepVerifier.create(cut.createPatient(mockPatient1))
-                .expectNext(mockPatient1)
-                .expectComplete()
-                .verify();
-    }
+                StepVerifier.create(cut.createPatient(mockPatient1))
+                                .expectNext(mockPatient1)
+                                .expectComplete()
+                                .verify();
+        }
 
-    @Test
-    public void updatePatient() {
+        @Test
+        void updatePatient() {
 
-        Mockito.when(patientRepository.findById(Mockito.anyLong()))
-                .thenReturn(Mono.just(mockPatientToUpdate));
+                Mockito.when(patientRepository.findById(Mockito.anyLong()))
+                                .thenReturn(Mono.just(mockPatientToUpdate));
 
-        Mockito.when(patientRepository.save(Mockito.any(Patient.class)))
-                .thenReturn(Mono.just(mockPatient2));
+                Mockito.when(patientRepository.save(Mockito.any(Patient.class)))
+                                .thenReturn(Mono.just(mockPatient2));
 
-        StepVerifier.create(cut.updatePatient((long) 1, mockPatient2))
-                .expectNext(mockPatient2)
-                .expectComplete()
-                .verify();
-    }
+                StepVerifier.create(cut.updatePatient((long) 1, mockPatient2))
+                                .expectNext(mockPatient2)
+                                .expectComplete()
+                                .verify();
+        }
 
 
-    @Test
-    public void deleteById() {
-        Mockito.when(patientRepository.findById(Mockito.anyLong()))
-                .thenReturn(Mono.just(mockPatientToDelete));
+        @Test
+        void deleteById() {
+                Mockito.when(patientRepository.findById(Mockito.anyLong()))
+                                .thenReturn(Mono.just(mockPatientToDelete));
 
-        Mockito.when(patientRepository.delete(Mockito.any(Patient.class)))
-        .thenReturn(Mono.empty());
+                Mockito.when(patientRepository.delete(Mockito.any(Patient.class)))
+                                .thenReturn(Mono.empty());
 
-        StepVerifier.create(cut.deleteById((long) 1)).expectNext(mockPatient2)
-                .expectComplete().verify();
-    
-    }
+                StepVerifier.create(cut.deleteById((long) 2)).expectNext(mockPatient2)
+                                .expectComplete().verify();
+
+        }
 }
